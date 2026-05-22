@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-palette="ember">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Checkout Cancelled — PandaRoc</title>
+<link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --e1:#16140f; --e2:#1f1d18; --e4:#33312b;
+  --e9:#a09c98; --e11:#c4bfba; --e12:#f0ece7;
+  --tc9:#d07859;
+  --bg-base:var(--e1); --bg-card:var(--e2); --text:var(--e12);
+  --muted:var(--e9); --border:var(--e4); --accent:var(--tc9);
+  --r-sm:8px; --r-lg:14px;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); color:var(--text); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+.grain { position:fixed; inset:0; pointer-events:none; z-index:0; background-image:url('assets/grain-body.svg'); background-size:200px; opacity:0.08; mix-blend-mode:soft-light; }
+.card { position:relative; z-index:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-lg); padding:48px 36px; max-width:420px; width:100%; text-align:center; }
+.brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:20px; }
+.brand img { height:32px; width:auto; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
+.brand span { font-size:24px; font-weight:700; letter-spacing:-0.5px; }
+.brand .accent { color:var(--accent); }
+h1 { font-size:20px; font-weight:600; margin-bottom:12px; }
+.msg { color:var(--muted); font-size:14px; line-height:1.6; margin-bottom:28px; }
+.actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:var(--r-sm); font-size:13px; font-weight:600; text-decoration:none; font-family:inherit; transition:opacity 0.2s; }
+.btn:hover { opacity:0.88; }
+.btn-ghost { background:transparent; border:1px solid var(--border); color:var(--e11); }
+.btn-ghost:hover { border-color:var(--e9); }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="card">
+  <div class="brand">
+    <img src="assets/logo.png" alt="" />
+    <span><span class="accent">Panda</span>Roc</span>
+  </div>
+  <h1>Checkout Cancelled</h1>
+  <p class="msg">No worries &mdash; you weren't charged. You can try again anytime from the pricing page, or start with a free 7-day trial instead.</p>
+  <div class="actions">
+    <a href="index.html#pricing" class="btn">View Pricing</a>
+    <a href="register.html" class="btn btn-ghost">Start Free Trial</a>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-palette="ember">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>You're In — PandaRoc</title>
+<link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --e1:#16140f; --e2:#1f1d18; --e3:#2a2823; --e4:#33312b;
+  --e8:#6b6863; --e9:#a09c98; --e11:#c4bfba; --e12:#f0ece7;
+  --tc9:#d07859; --green9:#7bb449;
+  --bg-base:var(--e1); --bg-card:var(--e2); --text:var(--e12);
+  --muted:var(--e9); --border:var(--e4); --accent:var(--tc9);
+  --r-sm:8px; --r-lg:14px;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); color:var(--text); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+.grain { position:fixed; inset:0; pointer-events:none; z-index:0; background-image:url('assets/grain-body.svg'); background-size:200px; opacity:0.08; mix-blend-mode:soft-light; }
+.card { position:relative; z-index:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-lg); padding:48px 36px; max-width:520px; width:100%; }
+.brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:6px; }
+.brand img { height:32px; width:auto; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
+.brand span { font-size:24px; font-weight:700; letter-spacing:-0.5px; }
+.brand .accent { color:var(--accent); }
+.hero { text-align:center; margin-bottom:28px; }
+.hero h1 { font-size:22px; font-weight:700; margin-top:12px; margin-bottom:8px; }
+.hero p { color:var(--muted); font-size:14px; line-height:1.6; }
+.key-section { margin-bottom:28px; }
+.key-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:8px; text-align:center; }
+.key-box { background:var(--e3); border:1px solid var(--border); border-radius:var(--r-sm); padding:16px 20px; font-family:'JetBrains Mono',monospace; font-size:20px; letter-spacing:2.5px; color:var(--accent); text-align:center; cursor:pointer; user-select:all; transition:border-color 0.2s, background 0.2s; }
+.key-box:hover { border-color:var(--accent); background:rgba(208,121,89,0.06); }
+.key-hint { font-size:11px; color:var(--muted); margin-top:6px; text-align:center; }
+.steps { margin-bottom:28px; }
+.steps h3 { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--e11); margin-bottom:14px; }
+.step { display:flex; gap:14px; margin-bottom:16px; }
+.step:last-child { margin-bottom:0; }
+.step-num { flex-shrink:0; width:28px; height:28px; border-radius:50%; background:var(--accent); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+.step-body { padding-top:3px; }
+.step-title { font-size:14px; font-weight:600; color:var(--e12); margin-bottom:2px; }
+.step-desc { font-size:12px; color:var(--muted); line-height:1.5; }
+.step-desc a { color:var(--accent); text-decoration:underline; }
+.actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:var(--r-sm); font-size:13px; font-weight:600; cursor:pointer; text-decoration:none; font-family:inherit; transition:opacity 0.2s; }
+.btn:hover { opacity:0.88; }
+.btn-ghost { background:transparent; border:1px solid var(--border); color:var(--e11); }
+.btn-ghost:hover { border-color:var(--e9); }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="card">
+  <div class="brand">
+    <img src="assets/logo.png" alt="" />
+    <span><span class="accent">Panda</span>Roc</span>
+  </div>
+
+  <div class="hero">
+    <h1 id="success-title">Welcome!</h1>
+    <p id="success-msg"></p>
+  </div>
+
+  <div id="key-section" class="key-section" style="display:none;">
+    <div class="key-label">Your License Key</div>
+    <div class="key-box" id="license-key" onclick="copyKey()" title="Click to copy"></div>
+    <p class="key-hint" id="key-hint">Click to copy &mdash; you'll need this in the app.</p>
+  </div>
+
+  <div class="steps" id="steps-section" style="display:none;">
+    <h3>Get started in 3 steps</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Download PandaRoc</div>
+        <div class="step-desc">Get the app for <a href="index.html#download">Windows or macOS</a>. It takes under a minute to install.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Open the app and go to Settings</div>
+        <div class="step-desc">Click the gear icon in the top-right corner, then select <strong>License</strong> from the sidebar.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Paste your license key</div>
+        <div class="step-desc">Copy the key above, paste it into the license field, and click <strong>Activate</strong>. You're all set.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <a href="index.html#download" class="btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download App
+    </a>
+    <a href="account.html" class="btn btn-ghost">My Account</a>
+  </div>
+</div>
+
+<script>
+const API = 'https://api.pandaroc.com';
+const params = new URLSearchParams(window.location.search);
+const isTrial = params.get('trial') === '1';
+
+async function init() {
+  const title = document.getElementById('success-title');
+  const msg = document.getElementById('success-msg');
+  const keySection = document.getElementById('key-section');
+  const stepsSection = document.getElementById('steps-section');
+
+  if (isTrial) {
+    title.textContent = 'Your trial is live!';
+    msg.textContent = 'You have 7 days of full access. Download the app and activate it with the license key below.';
+  } else {
+    title.textContent = 'Payment successful!';
+    msg.textContent = 'Your subscription is active. Use the license key below to unlock PandaRoc on your computer.';
+  }
+
+  const licenseKey = localStorage.getItem('pandaroc_license_key');
+  if (licenseKey) {
+    document.getElementById('license-key').textContent = licenseKey;
+    keySection.style.display = '';
+    stepsSection.style.display = '';
+    return;
+  }
+
+  const token = localStorage.getItem('pandaroc_token');
+  if (token) {
+    try {
+      const res = await fetch(API + '/auth/me', {
+        headers: { 'Authorization': 'Bearer ' + token },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.license_key) {
+          document.getElementById('license-key').textContent = data.license_key;
+          localStorage.setItem('pandaroc_license_key', data.license_key);
+          keySection.style.display = '';
+        }
+      }
+    } catch (e) {}
+  }
+
+  stepsSection.style.display = '';
+}
+
+function copyKey() {
+  const key = document.getElementById('license-key').textContent;
+  navigator.clipboard.writeText(key).then(() => {
+    const hint = document.getElementById('key-hint');
+    hint.textContent = 'Copied to clipboard!';
+    hint.style.color = '#7bb449';
+    setTimeout(() => { hint.textContent = 'Click to copy — you’ll need this in the app.'; hint.style.color = ''; }, 2500);
+  });
+}
+
+init();
+</script>
+</body>
+</html>

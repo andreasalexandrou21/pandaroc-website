@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-palette="ember" data-grain="medium">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PandaRoc — ROC certificate automation for Cyprus firms</title>
+<meta name="description" content="PandaRoc automates certificate downloads from the Cyprus Department of Registrar of Companies. Desktop app for Windows and macOS, built by PandaServe LTD." />
+<link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+/* ═══ TOKENS — Ember dark (from app) ═══ */
+:root {
+  --e1:#16140f; --e2:#1f1d18; --e3:#2a2823; --e4:#33312b;
+  --e5:#3b3933; --e6:#474441; --e7:#55524d; --e8:#6b6863;
+  --e9:#a09c98; --e10:#9f9b96; --e11:#c4bfba; --e12:#f0ece7;
+  --tc8:#bf6d4d; --tc9:#d07959; --tc10:#dd8b6f; --tc11:#e7a58c;
+  --green9:#7bb449; --green10:#8ec45a;
+  --amber9:#e8891a;
+
+  --bg-base:var(--e1);
+  --bg-card:var(--e2);
+  --bg-elev:var(--e3);
+  --bg-hover:var(--e4);
+  --text:var(--e12);
+  --text-2:var(--e11);
+  --muted:var(--e9);
+  --subtle:var(--e8);
+  --border:var(--e4);
+  --border-strong:var(--e6);
+  --accent:var(--tc9);
+  --accent-2:var(--tc10);
+  --accent-soft:color-mix(in oklch, var(--tc9) 14%, transparent);
+  --accent-faint:color-mix(in oklch, var(--tc9) 7%, transparent);
+  --nav-bg:rgba(28,24,20,0.72);
+
+  --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:20px; --r-2xl:28px;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --dur:240ms;
+
+  --shadow-sm:0 1px 2px rgba(20,12,4,0.45),0 1px 1px rgba(20,12,4,0.30);
+  --shadow-md:0 6px 18px rgba(20,12,4,0.50),0 2px 6px rgba(20,12,4,0.32);
+  --shadow-lg:0 18px 44px rgba(20,12,4,0.58),0 6px 14px rgba(20,12,4,0.38);
+  --shadow-xl:0 36px 90px rgba(20,12,4,0.62),0 14px 30px rgba(20,12,4,0.4);
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+html {
+  scroll-behavior:smooth;
+  scroll-padding-top:80px;
+}
+html, body { background:var(--bg-base); color:var(--text); }
+body {
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  font-feature-settings:'cv11','ss01','ss03';
+  font-variant-numeric:tabular-nums;
+  -webkit-font-smoothing:antialiased;
+  font-size:15px; line-height:1.55;
+  overflow-x:hidden;
+}
+
+.mono { font-family:'JetBrains Mono', ui-monospace, monospace; }
+
+a { color:inherit; text-decoration:none; }
+button { font-family:inherit; cursor:pointer; border:none; background:none; }
+
+/* ═══ Grain texture ═══ */
+.grain-body, .grain-coarse {
+  position:fixed; inset:0; z-index:1; pointer-events:none;
+}
+.grain-body {
+  background-image:url('assets/grain-body.svg');
+  background-size:200px 200px;
+  opacity:0.085;
+  mix-blend-mode:soft-light;
+}
+.grain-coarse {
+  background-image:url('assets/grain-coarse.svg');
+  background-size:480px 480px;
+  opacity:0.04;
+  mix-blend-mode:soft-light;
+}
+
+/* ═══ Ambient glow ═══ */
+.ambient {
+  position:absolute; inset:0; pointer-events:none; overflow:hidden;
+  z-index:0;
+}
+.ambient::before, .ambient::after {
+  content:''; position:absolute; border-radius:50%;
+  filter:blur(120px); opacity:0.55;
+}
+.ambient::before {
+  width:720px; height:720px;
+  background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 55%, transparent), transparent 70%);
+  top:-200px; right:-180px;
+}
+.ambient::after {
+  width:520px; height:520px;
+  background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 30%, transparent), transparent 70%);
+  bottom:-200px; left:-120px;
+  opacity:0.35;
+}
+
+/* ═══ Scroll reveal ═══ */
+.reveal {
+  opacity:0;
+  transform:translateY(32px);
+  transition:opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+.reveal.visible {
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* ═══ NAV ═══ */
+.nav {
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 40px;
+  background:var(--nav-bg);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border-bottom:1px solid var(--border);
+}
+.nav::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg, transparent 0%, color-mix(in oklch, var(--accent) 35%, transparent) 30%, color-mix(in oklch, var(--accent) 35%, transparent) 70%, transparent 100%);
+  pointer-events:none;
+}
+.nav-brand {
+  display:flex; align-items:center; gap:10px;
+  font-weight:700; font-size:15px; letter-spacing:-0.3px;
+}
+.nav-brand img { height:26px; width:auto; filter:drop-shadow(0 1px 3px rgba(0,0,0,0.25)); }
+.nav-brand .accent { color:var(--accent); }
+.nav-links {
+  display:flex; align-items:center; gap:6px;
+}
+.nav-link {
+  padding:7px 14px; border-radius:999px;
+  font-size:13px; font-weight:500; color:var(--muted);
+  transition:color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.nav-link:hover { color:var(--text); background:rgba(255,255,255,0.04); }
+
+.nav-cta {
+  display:inline-flex; align-items:center; gap:7px;
+  padding:8px 16px; border-radius:var(--r-md);
+  font-size:13px; font-weight:600; color:#fff;
+  background:linear-gradient(180deg, var(--tc10), var(--tc9));
+  border:1px solid var(--tc8);
+  box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.18);
+  transition:transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.nav-cta:hover {
+  background:linear-gradient(180deg, var(--tc11), var(--tc10));
+  transform:translateY(-1px);
+  box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.nav-cta svg { width:14px; height:14px; }
+
+.nav-version {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:4px 10px; border-radius:999px;
+  background:var(--accent-faint);
+  border:1px solid color-mix(in oklch, var(--accent) 22%, transparent);
+  font-size:11px; font-weight:500;
+  color:var(--tc11);
+  margin-left:14px;
+}
+.nav-version .dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--green10);
+  box-shadow:0 0 0 3px color-mix(in oklch, var(--green10) 22%, transparent);
+}
+
+/* Mobile menu */
+.nav-toggle {
+  display:none;
+  width:36px; height:36px;
+  border-radius:var(--r-md);
+  color:var(--muted);
+  align-items:center; justify-content:center;
+  transition:color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.nav-toggle:hover { color:var(--text); background:rgba(255,255,255,0.04); }
+.nav-toggle svg { width:20px; height:20px; }
+
+/* ═══ Container ═══ */
+.wrap {
+  max-width:1320px; margin:0 auto; padding:0 40px;
+  position:relative; z-index:2;
+}
+
+/* ═══ Eyebrow ═══ */
+.eyebrow {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px; font-weight:500; letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--accent);
+}
+.eyebrow::before {
+  content:''; width:18px; height:1px; background:currentColor; opacity:0.5;
+}
+
+/* ═══ HERO ═══ */
+.hero {
+  position:relative; padding:96px 0 60px;
+  overflow:hidden;
+}
+.hero-grid {
+  display:grid; grid-template-columns:1.15fr 1fr; gap:64px;
+  align-items:center;
+}
+.hero h1 {
+  font-size:clamp(48px, 6.4vw, 88px);
+  line-height:0.98; letter-spacing:-0.035em;
+  font-weight:700;
+  margin:24px 0 24px;
+  color:var(--text);
+  text-wrap:balance;
+}
+.hero h1 em {
+  font-style:normal;
+  background:linear-gradient(180deg, var(--tc11) 0%, var(--tc9) 80%);
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; color:transparent;
+}
+.hero-sub {
+  font-size:18px; line-height:1.55; color:var(--text-2);
+  max-width:520px; margin-bottom:36px;
+  text-wrap:pretty;
+}
+.hero-ctas {
+  display:flex; flex-wrap:wrap; align-items:center; gap:14px;
+  margin-bottom:32px;
+}
+.btn {
+  display:inline-flex; align-items:center; gap:9px;
+  padding:14px 22px; border-radius:var(--r-md);
+  font-size:14px; font-weight:600;
+  border:1px solid transparent;
+  transition:all var(--dur) var(--ease);
+}
+.btn svg { width:16px; height:16px; }
+.btn-primary {
+  color:#fff;
+  background:linear-gradient(180deg, var(--tc10), var(--tc9));
+  border-color:var(--tc8);
+  box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.btn-primary:hover {
+  background:linear-gradient(180deg, var(--tc11), var(--tc10));
+  transform:translateY(-1px);
+  box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.22);
+}
+.btn-ghost {
+  color:var(--text-2);
+  background:rgba(255,255,255,0.03);
+  border-color:var(--border-strong);
+}
+.btn-ghost:hover {
+  background:rgba(255,255,255,0.06);
+  color:var(--text);
+  border-color:var(--e7);
+}
+
+.hero-meta {
+  display:flex; flex-wrap:wrap; gap:24px;
+  font-size:12px; color:var(--muted);
+  font-family:'JetBrains Mono', monospace;
+}
+.hero-meta span { display:inline-flex; align-items:center; gap:7px; }
+.hero-meta svg { width:14px; height:14px; opacity:0.7; }
+
+/* ═══ HERO RIGHT — app frame ═══ */
+.hero-visual { position:relative; }
+.app-frame {
+  position:relative;
+  border-radius:var(--r-xl);
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-xl);
+  overflow:hidden;
+  transform:perspective(1800px) rotateY(-8deg) rotateX(3deg);
+  transform-origin:left center;
+}
+.app-frame::before {
+  content:''; position:absolute; inset:0; border-radius:inherit;
+  background-image:url('assets/grain-card.svg');
+  background-size:220px 220px;
+  opacity:0.05; mix-blend-mode:overlay;
+  pointer-events:none; z-index:2;
+}
+.app-frame::after {
+  content:''; position:absolute; inset:0; border-radius:inherit;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+  pointer-events:none; z-index:3;
+}
+.app-frame .titlebar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px;
+  background:rgba(34,26,23,0.78);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(10px);
+  position:relative; z-index:1;
+}
+.app-frame .titlebar-left {
+  display:flex; align-items:center; gap:8px;
+  font-size:12px; font-weight:600;
+}
+.app-frame .titlebar-left img { height:16px; }
+.app-frame .titlebar-controls { display:flex; gap:8px; }
+.app-frame .titlebar-controls span {
+  width:11px; height:11px; border-radius:50%;
+  background:var(--e6);
+}
+.app-frame .titlebar-controls span:nth-child(3) { background:var(--tc9); }
+.app-frame .screen {
+  width:100%; display:block;
+}
+
+/* Floating overlays */
+.floater {
+  position:absolute; z-index:5;
+  background:var(--bg-card);
+  border:1px solid var(--border-strong);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-lg);
+  padding:12px 14px;
+  backdrop-filter:blur(20px);
+  background:color-mix(in srgb, var(--bg-card) 88%, transparent);
+}
+.floater-1 {
+  top:18%; left:-46px;
+  display:flex; align-items:center; gap:10px;
+  animation:float-1 6s ease-in-out infinite;
+}
+.floater-1 .icon-wrap {
+  width:32px; height:32px; border-radius:8px;
+  display:grid; place-items:center;
+  background:color-mix(in oklch, var(--green10) 14%, transparent);
+  color:var(--green10);
+}
+.floater-1 .icon-wrap svg { width:16px; height:16px; }
+.floater-1 .label { font-size:11px; color:var(--muted); font-weight:500; letter-spacing:0.04em; text-transform:uppercase; }
+.floater-1 .value { font-size:14px; font-weight:600; }
+
+.floater-2 {
+  bottom:12%; right:-56px;
+  min-width:200px;
+  animation:float-2 7s ease-in-out infinite;
+}
+.floater-2 .top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.floater-2 .top .name { font-size:12px; font-weight:600; }
+.floater-2 .top .tag {
+  font-size:10px; font-weight:600; letter-spacing:0.06em;
+  padding:2px 7px; border-radius:999px;
+  background:color-mix(in oklch, var(--accent) 14%, transparent);
+  color:var(--tc11);
+  text-transform:uppercase;
+}
+.floater-2 .bar {
+  height:4px; border-radius:2px; background:var(--e4);
+  overflow:hidden;
+}
+.floater-2 .bar > i {
+  display:block; height:100%; width:72%;
+  background:linear-gradient(90deg, var(--tc9), var(--tc11));
+  border-radius:2px;
+}
+.floater-2 .row { display:flex; justify-content:space-between; margin-top:6px; font-size:10.5px; color:var(--muted); font-family:'JetBrains Mono', monospace; }
+
+@keyframes float-1 {
+  0%,100% { transform:translateY(0); }
+  50% { transform:translateY(-8px); }
+}
+@keyframes float-2 {
+  0%,100% { transform:translateY(0); }
+  50% { transform:translateY(10px); }
+}
+
+/* ═══ Trust strip ═══ */
+.trust {
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:28px 0;
+  margin-top:80px;
+}
+.trust-row {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:24px;
+  align-items:center;
+}
+.trust-item {
+  display:flex; flex-direction:column; gap:4px;
+}
+.trust-item .num {
+  font-size:28px; font-weight:700; letter-spacing:-0.02em;
+  color:var(--text);
+}
+.trust-item .num .unit { font-size:14px; color:var(--muted); margin-left:4px; font-weight:500; }
+.trust-item .label {
+  font-family:'JetBrains Mono', monospace;
+  font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--muted);
+}
+
+/* ═══ Section ═══ */
+section { position:relative; z-index:2; }
+.section-pad { padding:120px 0; }
+.section-head {
+  display:flex; flex-direction:column; gap:18px;
+  margin-bottom:64px;
+  max-width:760px;
+}
+.section-head h2 {
+  font-size:clamp(36px, 4.4vw, 56px);
+  line-height:1.02; letter-spacing:-0.03em;
+  font-weight:700;
+  text-wrap:balance;
+}
+.section-head h2 em {
+  font-style:normal;
+  background:linear-gradient(180deg, var(--tc11), var(--tc9));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.section-head p {
+  font-size:17px; color:var(--text-2);
+  max-width:580px;
+  text-wrap:pretty;
+}
+
+/* ═══ Feature trio ═══ */
+.features {
+  display:grid; grid-template-columns:repeat(3, 1fr); gap:18px;
+}
+.feature {
+  position:relative;
+  border-radius:var(--r-xl);
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  padding:32px 28px 28px;
+  overflow:hidden;
+  transition:transform var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.feature::before {
+  content:''; position:absolute; inset:0; border-radius:inherit;
+  background-image:url('assets/grain-card.svg');
+  background-size:220px 220px;
+  opacity:0.045; mix-blend-mode:overlay;
+  pointer-events:none;
+}
+.feature:hover {
+  transform:translateY(-4px);
+  border-color:var(--border-strong);
+}
+.feature > * { position:relative; }
+.feature .icon-box {
+  width:42px; height:42px; border-radius:var(--r-md);
+  display:grid; place-items:center;
+  background:color-mix(in oklch, var(--accent) 12%, transparent);
+  color:var(--accent);
+  margin-bottom:24px;
+  border:1px solid color-mix(in oklch, var(--accent) 22%, transparent);
+}
+.feature .icon-box svg { width:20px; height:20px; }
+.feature h3 {
+  font-size:20px; font-weight:600; letter-spacing:-0.01em;
+  margin-bottom:8px;
+}
+.feature p {
+  font-size:14px; color:var(--text-2); line-height:1.6;
+  text-wrap:pretty;
+}
+.feature .tag-row {
+  display:flex; flex-wrap:wrap; gap:6px;
+  margin-top:20px;
+  padding-top:20px;
+  border-top:1px solid var(--border);
+}
+.feature .tag {
+  font-size:11px; font-weight:500;
+  padding:3px 9px; border-radius:999px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  color:var(--text-2);
+  font-family:'JetBrains Mono', monospace;
+  letter-spacing:0.02em;
+}
+
+/* ═══ Video section ═══ */
+.video {
+  position:relative;
+  border-radius:var(--r-2xl);
+  border:1px solid var(--border);
+  background:var(--bg-card);
+  overflow:hidden;
+  aspect-ratio:16/9;
+  cursor:pointer;
+  transition:border-color var(--dur) var(--ease);
+}
+.video:hover { border-color:var(--border-strong); }
+.video::before {
+  content:''; position:absolute; inset:0;
+  background:
+    radial-gradient(circle at 30% 30%, color-mix(in oklch, var(--tc9) 22%, transparent), transparent 60%),
+    radial-gradient(circle at 70% 70%, color-mix(in oklch, var(--tc9) 15%, transparent), transparent 60%),
+    linear-gradient(180deg, var(--e2), var(--e1));
+}
+.video::after {
+  content:''; position:absolute; inset:0;
+  background-image:url('assets/grain-coarse.svg');
+  background-size:480px 480px;
+  opacity:0.18; mix-blend-mode:soft-light;
+}
+.video-inner {
+  position:relative; z-index:2;
+  width:100%; height:100%;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:24px;
+}
+.play-btn {
+  width:104px; height:104px; border-radius:50%;
+  display:grid; place-items:center;
+  background:linear-gradient(180deg, var(--tc10), var(--tc9));
+  border:1px solid var(--tc8);
+  box-shadow:var(--shadow-xl), 0 0 0 12px color-mix(in oklch, var(--tc9) 12%, transparent), 0 0 0 24px color-mix(in oklch, var(--tc9) 6%, transparent);
+  transition:transform var(--dur) var(--ease);
+}
+.video:hover .play-btn { transform:scale(1.05); }
+.play-btn svg {
+  width:36px; height:36px; color:#fff;
+  margin-left:4px;
+}
+.video-label {
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--muted);
+}
+.video-caption {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:18px;
+  font-size:13px; color:var(--muted);
+}
+.video-caption .dur {
+  font-family:'JetBrains Mono', monospace;
+}
+
+/* ═══ Who we are ═══ */
+.who {
+  display:grid; grid-template-columns:1fr 1.05fr; gap:80px;
+  align-items:start;
+}
+.who-side {
+  position:sticky; top:120px;
+}
+.who-mark {
+  width:88px; height:88px; border-radius:24px;
+  background:var(--bg-card);
+  border:1px solid var(--border-strong);
+  display:grid; place-items:center;
+  margin-bottom:28px;
+  position:relative;
+  overflow:hidden;
+}
+.who-mark::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(circle at 30% 20%, color-mix(in oklch, var(--tc9) 30%, transparent), transparent 60%);
+}
+.who-mark img { height:60px; width:auto; position:relative; z-index:1; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.4)); }
+
+.who-content p {
+  font-size:18px; line-height:1.65; color:var(--text-2);
+  margin-bottom:20px;
+  text-wrap:pretty;
+}
+.who-content p:first-of-type::first-letter {
+  font-size:64px; float:left; line-height:0.9;
+  padding-right:14px; margin-top:6px;
+  font-weight:600;
+  color:var(--accent);
+}
+.who-content p strong {
+  color:var(--text); font-weight:600;
+}
+
+.who-meta {
+  display:grid; grid-template-columns:repeat(2,1fr); gap:18px;
+  margin-top:36px;
+  padding-top:32px;
+  border-top:1px solid var(--border);
+}
+.who-meta-item {
+  font-family:'JetBrains Mono', monospace;
+}
+.who-meta-item .k {
+  font-size:10.5px; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+.who-meta-item .v {
+  font-size:14px; color:var(--text); font-weight:500;
+}
+
+/* ═══ Download section ═══ */
+.download {
+  position:relative;
+  border-radius:var(--r-2xl);
+  border:1px solid var(--border-strong);
+  background:linear-gradient(180deg,
+    color-mix(in oklch, var(--accent) 8%, var(--bg-card)) 0%,
+    var(--bg-card) 100%);
+  padding:64px;
+  overflow:hidden;
+}
+.download::before {
+  content:''; position:absolute; inset:0; border-radius:inherit;
+  background-image:url('assets/grain-coarse.svg');
+  background-size:480px 480px;
+  opacity:0.05; mix-blend-mode:overlay;
+  pointer-events:none;
+}
+.download::after {
+  content:''; position:absolute;
+  width:600px; height:600px; border-radius:50%;
+  filter:blur(120px);
+  background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 35%, transparent), transparent 70%);
+  top:-300px; right:-200px;
+  pointer-events:none;
+}
+.download-grid {
+  position:relative; z-index:2;
+  display:grid; grid-template-columns:1.2fr 1fr; gap:60px;
+  align-items:start;
+}
+.download h2 {
+  font-size:clamp(34px, 3.8vw, 48px);
+  line-height:1.02; letter-spacing:-0.03em;
+  font-weight:700; margin-bottom:18px;
+  text-wrap:balance;
+}
+.download h2 em {
+  font-style:normal;
+  background:linear-gradient(180deg, var(--tc11), var(--tc9));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.download p {
+  font-size:16px; color:var(--text-2);
+  max-width:480px; margin-bottom:32px;
+}
+
+/* Platform tabs */
+.platform-tabs {
+  display:inline-flex;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:var(--r-md);
+  padding:4px;
+  margin-bottom:28px;
+  gap:4px;
+}
+.platform-tab {
+  display:flex; align-items:center; gap:8px;
+  padding:10px 20px;
+  border-radius:calc(var(--r-md) - 2px);
+  font-size:13px; font-weight:600;
+  color:var(--muted);
+  transition:all var(--dur) var(--ease);
+}
+.platform-tab svg { width:16px; height:16px; }
+.platform-tab:hover { color:var(--text-2); }
+.platform-tab.active {
+  color:var(--text);
+  background:var(--bg-elev);
+  box-shadow:var(--shadow-sm);
+}
+.platform-tab.detected::after {
+  content:'your OS';
+  font-size:9px;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--green10);
+  margin-left:2px;
+}
+
+.dl-platform { display:none; }
+.dl-platform.active { display:block; }
+
+.download .btn-primary { padding:16px 28px; font-size:15px; }
+.download-meta {
+  margin-top:24px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:12px; color:var(--muted);
+  display:flex; flex-wrap:wrap; gap:18px;
+}
+.download-meta span { display:inline-flex; align-items:center; gap:6px; }
+.download-meta svg { width:13px; height:13px; opacity:0.7; }
+
+.dl-spec {
+  background:rgba(20,12,4,0.4);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:24px;
+  backdrop-filter:blur(20px);
+}
+.dl-spec h4 {
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px; font-weight:500;
+  letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:18px;
+}
+.dl-spec dl {
+  display:grid; grid-template-columns:auto 1fr; gap:10px 20px;
+  font-family:'JetBrains Mono', monospace; font-size:12.5px;
+}
+.dl-spec dt { color:var(--muted); }
+.dl-spec dd {
+  color:var(--text);
+  word-break:break-all;
+}
+.dl-spec dd.hash { font-size:11px; line-height:1.5; color:var(--text-2); }
+
+/* ═══ Pricing preview ═══ */
+.pricing-strip {
+  display:grid; grid-template-columns:repeat(4, 1fr); gap:14px;
+  margin-top:48px;
+}
+.price-card {
+  position:relative;
+  border-radius:var(--r-lg);
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  padding:24px 20px;
+  text-align:center;
+  overflow:hidden;
+  transition:transform var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.price-card::before {
+  content:''; position:absolute; inset:0; border-radius:inherit;
+  background-image:url('assets/grain-card.svg');
+  background-size:220px 220px;
+  opacity:0.045; mix-blend-mode:overlay;
+  pointer-events:none;
+}
+.price-card:hover {
+  transform:translateY(-3px);
+  border-color:var(--border-strong);
+}
+.price-card > * { position:relative; }
+.price-card .slots {
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:12px;
+}
+.price-card .amount {
+  font-size:32px; font-weight:700; letter-spacing:-0.02em;
+  margin-bottom:4px;
+}
+.price-card .amount .cur { font-size:16px; font-weight:500; color:var(--muted); vertical-align:super; }
+.price-card .period {
+  font-size:12px; color:var(--muted);
+}
+.price-card.popular {
+  border-color:color-mix(in oklch, var(--accent) 40%, transparent);
+  background:linear-gradient(180deg, color-mix(in oklch, var(--accent) 6%, var(--bg-card)), var(--bg-card));
+}
+.price-card.popular .pop-tag {
+  position:absolute; top:0; right:0;
+  padding:4px 10px;
+  font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+  background:var(--accent);
+  color:#fff;
+  border-radius:0 0 0 var(--r-sm);
+}
+.price-btn {
+  display:inline-block; margin-top:16px; padding:8px 24px;
+  background:var(--accent); color:#fff;
+  border:none; border-radius:var(--r-sm);
+  font-size:13px; font-weight:600; cursor:pointer;
+  transition:opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  position:relative;
+}
+.price-btn:hover { opacity:0.88; transform:translateY(-1px); }
+.price-btn:disabled { opacity:0.5; cursor:wait; }
+
+/* ═══ FOOTER ═══ */
+footer {
+  border-top:1px solid var(--border);
+  padding:56px 0 40px;
+  margin-top:60px;
+  position:relative; z-index:2;
+}
+.foot-grid {
+  display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:48px;
+  margin-bottom:48px;
+}
+.foot-brand {
+  display:flex; align-items:center; gap:10px;
+  font-weight:700; font-size:16px; letter-spacing:-0.3px;
+  margin-bottom:14px;
+}
+.foot-brand img { height:24px; }
+.foot-brand .accent { color:var(--accent); }
+.foot-tag {
+  font-size:13px; color:var(--muted); max-width:280px; line-height:1.55;
+}
+.foot-col h5 {
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px; font-weight:500;
+  letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:18px;
+}
+.foot-col a {
+  display:block;
+  font-size:13.5px; color:var(--text-2);
+  padding:5px 0;
+  transition:color var(--dur) var(--ease);
+}
+.foot-col a:hover { color:var(--accent); }
+.foot-bottom {
+  border-top:1px solid var(--border);
+  padding-top:28px;
+  display:flex; align-items:center; justify-content:space-between;
+  font-family:'JetBrains Mono', monospace;
+  font-size:11.5px; color:var(--subtle);
+  letter-spacing:0.02em;
+}
+
+/* ═══ Responsive ═══ */
+@media (max-width: 1060px) {
+  .hero-grid, .who, .download-grid { grid-template-columns:1fr; gap:48px; }
+  .app-frame { transform:none; }
+  .features { grid-template-columns:1fr; }
+  .trust-row { grid-template-columns:repeat(2,1fr); }
+  .foot-grid { grid-template-columns:1fr 1fr; }
+  .pricing-strip { grid-template-columns:repeat(2,1fr); }
+  .download { padding:40px 32px; }
+  .section-pad { padding:80px 0; }
+  .wrap { padding:0 24px; }
+  .nav { padding:14px 24px; }
+  .who-side { position:static; }
+}
+@media (max-width: 600px) {
+  .nav-links {
+    display:none;
+    position:fixed; top:60px; left:0; right:0;
+    background:var(--nav-bg);
+    backdrop-filter:blur(28px) saturate(180%);
+    -webkit-backdrop-filter:blur(28px) saturate(180%);
+    flex-direction:column;
+    padding:16px 24px;
+    border-bottom:1px solid var(--border);
+    gap:4px;
+  }
+  .nav-links.open { display:flex; }
+  .nav-toggle { display:flex; }
+  .nav-version { display:none; }
+  .floater-1, .floater-2 { display:none; }
+  .trust-row { grid-template-columns:1fr 1fr; gap:18px; }
+  .pricing-strip { grid-template-columns:1fr; }
+  .foot-grid { grid-template-columns:1fr; gap:32px; }
+  .foot-bottom { flex-direction:column; gap:12px; text-align:center; }
+  .hero h1 { font-size:clamp(36px, 10vw, 48px); }
+  .hero { padding:64px 0 40px; }
+  .platform-tabs { flex-direction:column; width:100%; }
+  .platform-tab { justify-content:center; }
+}
+</style>
+</head>
+<body>
+
+<div class="grain-body" aria-hidden="true"></div>
+<div class="grain-coarse" aria-hidden="true"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#" class="nav-brand">
+    <img src="assets/logo.png" alt="" />
+    <span><span class="accent">Panda</span>Roc</span>
+    <span class="nav-version mono"><span class="dot"></span>v8.1 &middot; Glaze</span>
+  </a>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="nav-links">
+    <a href="#features" class="nav-link">What it does</a>
+    <a href="#video" class="nav-link">See it work</a>
+    <a href="#who" class="nav-link">Who we are</a>
+    <a href="#pricing" class="nav-link">Pricing</a>
+    <a href="#download" class="nav-link">Download</a>
+    <a href="account.html" class="nav-link">My Account</a>
+    <a href="#download" class="nav-cta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      Download
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="ambient"></div>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <div class="eyebrow">v8.1 &middot; Glaze &middot; Now on Windows &amp; macOS</div>
+        <h1>Quiet automation<br/>for the <em>Cyprus ROC.</em></h1>
+        <p class="hero-sub">
+          PandaRoc is a desktop app that watches your Department of Registrar of Companies accounts, picks up pending services, downloads certificates, and keeps Trello in sync &mdash; so your firm stops doing it by hand.
+        </p>
+        <div class="hero-ctas">
+          <a href="#download" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+            Download for Windows
+          </a>
+          <a href="#download" class="btn btn-ghost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/></svg>
+            Download for macOS
+          </a>
+        </div>
+        <div class="hero-meta">
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            Windows 10/11 &middot; macOS 12+
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Encrypted credentials, local-only
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.13-6.84L21 8"/><path d="M21 3v5h-5"/></svg>
+            Auto-update built-in
+          </span>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="app-frame">
+          <div class="titlebar">
+            <div class="titlebar-left">
+              <img src="assets/logo.png" alt="" />
+              <span><span style="color:var(--accent);">Panda</span>Roc</span>
+            </div>
+            <div class="titlebar-controls">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+          <img src="assets/screen_dashboard_live.png" alt="PandaRoc dashboard" class="screen" />
+        </div>
+
+        <div class="floater floater-1">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="label">Certificate downloaded</div>
+            <div class="value">HE-12743 / 6 done</div>
+          </div>
+        </div>
+
+        <div class="floater floater-2">
+          <div class="top">
+            <span class="name">Finder &middot; Agent B</span>
+            <span class="tag">Live</span>
+          </div>
+          <div class="bar"><i></i></div>
+          <div class="row"><span>11 accounts</span><span>72%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust strip -->
+    <div class="trust reveal">
+      <div class="trust-row">
+        <div class="trust-item">
+          <div class="num">2<span class="unit"> agents</span></div>
+          <div class="label">Finder &middot; Downloader</div>
+        </div>
+        <div class="trust-item">
+          <div class="num">2<span class="unit"> platforms</span></div>
+          <div class="label">Windows &middot; macOS</div>
+        </div>
+        <div class="trust-item">
+          <div class="num">0<span class="unit"> cloud creds</span></div>
+          <div class="label">Local encrypted vault</div>
+        </div>
+        <div class="trust-item">
+          <div class="num">14<span class="unit"> day trial</span></div>
+          <div class="label">No key needed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="section-pad">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">What it does</div>
+      <h2>Two patient agents, one <em>tidy queue.</em></h2>
+      <p>Every order moves through PandaRoc on its own. You decide what to accept; the rest is mechanical &mdash; and we treat it that way.</p>
+    </div>
+
+    <div class="features">
+      <article class="feature reveal">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        <h3>Finder</h3>
+        <p>Scans your ROC accounts on a per-account session, picks up pending services across all your registered companies, and queues anything that needs your decision.</p>
+        <div class="tag-row">
+          <span class="tag">Patchright</span>
+          <span class="tag">Headless</span>
+          <span class="tag">Adaptive backoff</span>
+        </div>
+      </article>
+
+      <article class="feature reveal">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        </div>
+        <h3>Downloader</h3>
+        <p>Logs in, filters, fetches the certificate, names the file. Checkpoints per order so a crash never costs you a re-run. Watchdogs and heartbeats keep it alive.</p>
+        <div class="tag-row">
+          <span class="tag">Auto-resume</span>
+          <span class="tag">Watchdog</span>
+          <span class="tag">Heartbeats</span>
+        </div>
+      </article>
+
+      <article class="feature reveal">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg>
+        </div>
+        <h3>Trello sync</h3>
+        <p>Every accepted order becomes a card. Labels, custom fields and clients flow both directions on a 5-minute cadence &mdash; and instantly on decisions.</p>
+        <div class="tag-row">
+          <span class="tag">Bidirectional</span>
+          <span class="tag">Labels merge</span>
+          <span class="tag">Needs-Attention</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO -->
+<section id="video" class="section-pad" style="padding-top:0;">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">See it work</div>
+      <h2>A morning, in <em>three minutes.</em></h2>
+      <p>The shortest tour: opening PandaRoc, accepting the day's queue, and watching the agents drain it while you go make coffee.</p>
+    </div>
+
+    <div class="video reveal" role="button" aria-label="Play product demo">
+      <div class="video-inner">
+        <div class="play-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="video-label">Demo &middot; coming soon</div>
+      </div>
+    </div>
+    <div class="video-caption">
+      <span>Recorded on a real Cyprus firm's workstation, no edits.</span>
+      <span class="dur">~ 03 : 12</span>
+    </div>
+  </div>
+</section>
+
+<!-- WHO -->
+<section id="who" class="section-pad" style="padding-top:0;">
+  <div class="wrap">
+    <div class="who">
+      <div class="who-side reveal">
+        <div class="who-mark">
+          <img src="assets/logo.png" alt="PandaServe LTD" />
+        </div>
+        <div class="eyebrow">Who we are</div>
+        <h2 style="font-size:clamp(34px,3.8vw,48px); line-height:1.05; letter-spacing:-0.03em; font-weight:700; margin-top:18px; text-wrap:balance;">Built where the <em style="font-style:normal; background:linear-gradient(180deg,var(--tc11),var(--tc9)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">paperwork is.</em></h2>
+      </div>
+
+      <div class="who-content reveal">
+        <p>
+          <strong>PandaServe LTD</strong> is a Cyprus-based corporate service provider. We handle company formations, annual filings, and compliance work for businesses registered on the island &mdash; which means we spend a lot of time on the Department of Registrar of Companies portal.
+        </p>
+        <p>
+          PandaRoc started as an internal tool. Andreas, the founder's son, built it to automate the repetitive certificate downloads his father's firm handles daily &mdash; log in, check pending services, accept, download, rename, file. Hours of manual work, every week.
+        </p>
+        <p>
+          The tool proved itself in daily use. Other firms in the Cyprus corporate services industry face the same bottleneck, so we packaged it into a product. PandaRoc runs locally on your machine, never sends credentials to a server, and treats your queue with the patience of a junior who never gets tired and never forgets where they left off.
+        </p>
+
+        <div class="who-meta">
+          <div class="who-meta-item">
+            <div class="k">Company</div>
+            <div class="v">PandaServe LTD</div>
+          </div>
+          <div class="who-meta-item">
+            <div class="k">Industry</div>
+            <div class="v">Corporate services</div>
+          </div>
+          <div class="who-meta-item">
+            <div class="k">Stack</div>
+            <div class="v">Python &middot; FastAPI &middot; Patchright</div>
+          </div>
+          <div class="who-meta-item">
+            <div class="k">Contact</div>
+            <div class="v">hello@pandaserve.eu</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="section-pad" style="padding-top:0;">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Pricing</div>
+      <h2>Per-account, <em>predictable.</em></h2>
+      <p>Pay for the ROC account slots you use. Every plan includes both agents, Trello sync, auto-updates, and a 7-day free trial with no card required.</p>
+    </div>
+    <div class="pricing-strip reveal">
+      <div class="price-card">
+        <div class="slots">1 account</div>
+        <div class="amount"><span class="cur">&euro;</span>10</div>
+        <div class="period">per month</div>
+        <button class="price-btn" onclick="startCheckout('slots_1')">Get started</button>
+      </div>
+      <div class="price-card popular">
+        <div class="pop-tag">Popular</div>
+        <div class="slots">5 accounts</div>
+        <div class="amount"><span class="cur">&euro;</span>40</div>
+        <div class="period">per month &middot; &euro;8/slot</div>
+        <button class="price-btn" onclick="startCheckout('slots_5')">Get started</button>
+      </div>
+      <div class="price-card">
+        <div class="slots">10 accounts</div>
+        <div class="amount"><span class="cur">&euro;</span>70</div>
+        <div class="period">per month &middot; &euro;7/slot</div>
+        <button class="price-btn" onclick="startCheckout('slots_10')">Get started</button>
+      </div>
+      <div class="price-card">
+        <div class="slots">20 accounts</div>
+        <div class="amount"><span class="cur">&euro;</span>120</div>
+        <div class="period">per month &middot; &euro;6/slot</div>
+        <button class="price-btn" onclick="startCheckout('slots_20')">Get started</button>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:24px;font-size:14px;color:var(--muted);">
+      Or <a href="register.html" style="color:var(--accent);text-decoration:underline;">start your 7-day free trial</a> &mdash; no card required.
+    </p>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<section id="download" class="section-pad" style="padding-top:0;">
+  <div class="wrap">
+    <div class="download reveal">
+      <div class="download-grid">
+        <div>
+          <div class="eyebrow" style="margin-bottom:16px;">Ready when you are</div>
+          <h2>Install PandaRoc on your <em>workstation.</em></h2>
+          <p>Runs alongside your existing workflow. Comes with a 14-day evaluation &mdash; no key needed.</p>
+
+          <!-- Platform tabs -->
+          <div class="platform-tabs" role="tablist">
+            <button class="platform-tab active" role="tab" data-platform="windows" onclick="switchPlatform('windows')">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 12V6.75l7-1.25V12H3zm8-6.5L21 4v8H11V5.5zM3 13h7v6.5l-7-1.25V13zm8 0h10v8l-10-1.5V13z"/></svg>
+              Windows
+            </button>
+            <button class="platform-tab" role="tab" data-platform="macos" onclick="switchPlatform('macos')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/></svg>
+              macOS
+            </button>
+          </div>
+
+          <!-- Windows download -->
+          <div class="dl-platform active" id="dl-windows">
+            <a href="PandaRoc_v8.1_Setup.exe" class="btn btn-primary" download>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+              Download PandaRoc_v8.1_Setup.exe
+            </a>
+            <div class="download-meta">
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                ~ 351 MB
+              </span>
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                Windows 10 &middot; 11 (x64)
+              </span>
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Inno Setup installer
+              </span>
+            </div>
+          </div>
+
+          <!-- macOS download -->
+          <div class="dl-platform" id="dl-macos">
+            <a href="PandaRoc_v8.1_macOS.zip" class="btn btn-primary" download>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+              Download PandaRoc for macOS
+            </a>
+            <div class="download-meta">
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                ~ 380 MB
+              </span>
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                macOS 12+ (Apple Silicon &amp; Intel)
+              </span>
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Shell installer
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Release spec sidebar -->
+        <div>
+          <div class="dl-spec" id="spec-windows">
+            <h4>Release &middot; v8.1 Glaze</h4>
+            <dl>
+              <dt>Build</dt><dd>8.1.0&nbsp;&middot;&nbsp;2026-05-14</dd>
+              <dt>Size</dt><dd>351.2 MB</dd>
+              <dt>Platform</dt><dd>Windows 10/11 x64</dd>
+              <dt>Engine</dt><dd>Patchright + Chromium</dd>
+              <dt>SHA-256</dt><dd class="hash">Provided with release</dd>
+            </dl>
+          </div>
+          <div class="dl-spec" id="spec-macos" style="display:none;">
+            <h4>Release &middot; v8.1 Glaze</h4>
+            <dl>
+              <dt>Build</dt><dd>8.1.0&nbsp;&middot;&nbsp;2026-05-21</dd>
+              <dt>Size</dt><dd>~380 MB</dd>
+              <dt>Platform</dt><dd>macOS 12+ (universal)</dd>
+              <dt>Engine</dt><dd>Patchright + Chromium</dd>
+              <dt>SHA-256</dt><dd class="hash">Provided with release</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">
+          <img src="assets/logo.png" alt="" />
+          <span><span class="accent">Panda</span>Roc</span>
+        </div>
+        <p class="foot-tag">ROC certificate automation by PandaServe LTD. Built in Cyprus, for Cyprus firms.</p>
+      </div>
+      <div class="foot-col">
+        <h5>Product</h5>
+        <a href="#features">What it does</a>
+        <a href="#video">See it work</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#download">Download</a>
+      </div>
+      <div class="foot-col">
+        <h5>Company</h5>
+        <a href="#who">Who we are</a>
+        <a href="mailto:hello@pandaserve.eu">Contact</a>
+        <a href="#">Support</a>
+      </div>
+      <div class="foot-col">
+        <h5>Legal</h5>
+        <a href="#">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="#">EULA</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>&copy; 2024&ndash;2026 PandaServe LTD &middot; All rights reserved</span>
+      <span>v8.1.0 &middot; Glaze &middot; For the Cyprus ROC</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Platform detection — highlight the user's OS download tab
+(function() {
+  const ua = navigator.userAgent.toLowerCase();
+  let os = 'windows';
+  if (ua.includes('mac os') || ua.includes('macintosh')) os = 'macos';
+
+  const tab = document.querySelector(`.platform-tab[data-platform="${os}"]`);
+  if (tab) tab.classList.add('detected');
+
+  if (os === 'macos') switchPlatform('macos');
+})();
+
+function switchPlatform(platform) {
+  document.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.platform-tab[data-platform="${platform}"]`).classList.add('active');
+
+  document.querySelectorAll('.dl-platform').forEach(p => p.classList.remove('active'));
+  document.getElementById(`dl-${platform}`).classList.add('active');
+
+  document.getElementById('spec-windows').style.display = platform === 'windows' ? 'block' : 'none';
+  document.getElementById('spec-macos').style.display = platform === 'macos' ? 'block' : 'none';
+}
+
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+reveals.forEach(el => observer.observe(el));
+
+// Close mobile menu on nav link click
+document.querySelectorAll('.nav-links .nav-link, .nav-links .nav-cta').forEach(link => {
+  link.addEventListener('click', () => {
+    document.querySelector('.nav-links').classList.remove('open');
+  });
+});
+
+// ═══ PandaRoc API config ═══
+const PANDAROC_API = 'https://api.pandaroc.com';
+
+// Stripe price IDs — update these after creating products in Stripe Dashboard
+const PRICE_IDS = {
+  slots_1:  '', // e.g., 'price_1abc...'
+  slots_5:  '',
+  slots_10: '',
+  slots_20: '',
+};
+
+async function startCheckout(tier) {
+  const priceId = PRICE_IDS[tier];
+  if (!priceId) {
+    alert('Checkout not yet configured for this plan. Please contact support.');
+    return;
+  }
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = 'Redirecting...';
+  try {
+    const token = localStorage.getItem('pandaroc_token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+
+    const res = await fetch(PANDAROC_API + '/stripe/create-checkout', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        price_id: priceId,
+        success_url: window.location.origin + '/success.html',
+        cancel_url: window.location.origin + '/cancel.html',
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        // Not logged in — redirect to register first
+        localStorage.setItem('pandaroc_pending_tier', tier);
+        window.location.href = 'register.html';
+        return;
+      }
+      throw new Error(err.detail || 'Checkout failed');
+    }
+    const data = await res.json();
+    window.location.href = data.checkout_url;
+  } catch (e) {
+    alert(e.message || 'Could not start checkout. Please try again.');
+    btn.disabled = false; btn.textContent = 'Get started';
+  }
+}
+</script>
+
+</body>
+</html>

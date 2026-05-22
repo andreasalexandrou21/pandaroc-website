@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-palette="ember">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Log In — PandaRoc</title>
+<link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --e1:#16140f; --e2:#1f1d18; --e3:#2a2823; --e4:#33312b;
+  --e9:#a09c98; --e11:#c4bfba; --e12:#f0ece7;
+  --tc9:#d07859;
+  --bg-base:var(--e1); --bg-card:var(--e2); --text:var(--e12);
+  --muted:var(--e9); --border:var(--e4); --accent:var(--tc9);
+  --r-sm:8px; --r-lg:14px;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); color:var(--text); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+.grain { position:fixed; inset:0; pointer-events:none; z-index:0; background-image:url('assets/grain-body.svg'); background-size:200px; opacity:0.08; mix-blend-mode:soft-light; }
+.card { position:relative; z-index:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-lg); padding:40px 36px; max-width:400px; width:100%; }
+.brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:6px; }
+.brand img { height:32px; width:auto; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
+.brand span { font-size:24px; font-weight:700; letter-spacing:-0.5px; }
+.brand .accent { color:var(--accent); }
+.subtitle { text-align:center; color:var(--muted); font-size:13px; margin-bottom:28px; }
+.form-group { margin-bottom:16px; }
+.form-label { font-size:12px; font-weight:500; color:var(--e11); margin-bottom:6px; display:block; }
+.form-input { width:100%; padding:10px 12px; background:var(--e3); border:1px solid var(--border); border-radius:var(--r-sm); color:var(--text); font-size:14px; font-family:inherit; outline:none; transition:border-color 0.2s; }
+.form-input:focus { border-color:var(--accent); }
+.btn { display:block; width:100%; padding:12px; background:var(--accent); color:#fff; border:none; border-radius:var(--r-sm); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.2s; }
+.btn:hover { opacity:0.88; }
+.btn:disabled { opacity:0.5; cursor:wait; }
+.error { color:#ef4444; font-size:12px; margin-top:8px; display:none; }
+.footer-link { text-align:center; margin-top:16px; font-size:13px; color:var(--muted); }
+.footer-link a { color:var(--accent); text-decoration:none; }
+.footer-link a:hover { text-decoration:underline; }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="card">
+  <div class="brand">
+    <img src="assets/logo.png" alt="" />
+    <span><span class="accent">Panda</span>Roc</span>
+  </div>
+  <p class="subtitle">Log in to view your license key or manage your subscription.</p>
+  <form id="login-form" onsubmit="return handleLogin(event)">
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-input" id="login-email" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-input" id="login-password" required>
+    </div>
+    <button type="submit" class="btn" id="login-btn">Log In</button>
+    <p class="error" id="login-error"></p>
+  </form>
+  <p class="footer-link">No account yet? <a href="register.html">Start a free trial</a></p>
+  <p class="footer-link" style="margin-top:10px;"><a href="index.html">&larr; Back to PandaRoc</a></p>
+</div>
+
+<script>
+const API = 'https://api.pandaroc.com';
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Logging in...';
+
+  try {
+    const res = await fetch(API + '/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: document.getElementById('login-email').value.trim(),
+        password: document.getElementById('login-password').value,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.detail || 'Login failed';
+      errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Log In';
+      return false;
+    }
+    localStorage.setItem('pandaroc_token', data.access_token);
+    localStorage.setItem('pandaroc_license_key', data.license_key);
+    window.location.href = 'account.html';
+  } catch (err) {
+    errEl.textContent = 'Could not reach server. Please try again.';
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Log In';
+  }
+  return false;
+}
+</script>
+</body>
+</html>

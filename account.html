@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-palette="ember">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Account — PandaRoc</title>
+<link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --e1:#16140f; --e2:#1f1d18; --e3:#2a2823; --e4:#33312b;
+  --e8:#6b6863; --e9:#a09c98; --e11:#c4bfba; --e12:#f0ece7;
+  --tc9:#d07859; --green9:#7bb449;
+  --bg-base:var(--e1); --bg-card:var(--e2); --text:var(--e12);
+  --muted:var(--e9); --border:var(--e4); --accent:var(--tc9);
+  --r-sm:8px; --r-lg:14px;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); color:var(--text); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+.grain { position:fixed; inset:0; pointer-events:none; z-index:0; background-image:url('assets/grain-body.svg'); background-size:200px; opacity:0.08; mix-blend-mode:soft-light; }
+.card { position:relative; z-index:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-lg); padding:40px 36px; max-width:500px; width:100%; }
+.brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:24px; }
+.brand img { height:32px; width:auto; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
+.brand span { font-size:24px; font-weight:700; letter-spacing:-0.5px; }
+.brand .accent { color:var(--accent); }
+.section { margin-bottom:24px; padding-bottom:20px; border-bottom:1px solid var(--border); }
+.section:last-of-type { border-bottom:none; margin-bottom:16px; }
+.label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:6px; }
+.value { font-size:15px; color:var(--e11); }
+.key-value { font-family:'JetBrains Mono',monospace; font-size:17px; color:var(--accent); letter-spacing:1.5px; cursor:pointer; user-select:all; transition:color 0.2s; }
+.key-value:hover { color:var(--e12); }
+.key-hint { font-size:10px; color:var(--e8); margin-top:4px; }
+.badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; }
+.badge::before { content:''; width:6px; height:6px; border-radius:50%; }
+.badge.active { background:rgba(123,180,73,0.15); color:var(--green9); }
+.badge.active::before { background:var(--green9); }
+.badge.trial { background:rgba(208,120,89,0.15); color:var(--accent); }
+.badge.trial::before { background:var(--accent); }
+.badge.expired { background:rgba(239,68,68,0.12); color:#ef4444; }
+.badge.expired::before { background:#ef4444; }
+.badge.none { background:rgba(160,156,152,0.1); color:var(--muted); }
+.badge.none::before { background:var(--muted); }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:9px 18px; background:var(--accent); color:#fff; border:none; border-radius:var(--r-sm); font-size:13px; font-weight:600; cursor:pointer; text-decoration:none; font-family:inherit; transition:opacity 0.2s; }
+.btn:hover { opacity:0.88; }
+.btn:disabled { opacity:0.5; cursor:wait; }
+.btn-ghost { background:transparent; border:1px solid var(--border); color:var(--e11); }
+.btn-ghost:hover { border-color:var(--e9); }
+.actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+.how-to { background:var(--e3); border-radius:var(--r-sm); padding:14px 16px; margin-top:12px; }
+.how-to p { font-size:12px; color:var(--muted); line-height:1.6; }
+.how-to strong { color:var(--e11); }
+.footer-link { text-align:center; margin-top:20px; font-size:13px; color:var(--muted); }
+.footer-link a { color:var(--accent); text-decoration:none; }
+.footer-link a:hover { text-decoration:underline; }
+#loading { text-align:center; color:var(--muted); font-size:14px; padding:40px 0; }
+#account-content { display:none; }
+#login-prompt { display:none; text-align:center; }
+#login-prompt p { color:var(--muted); font-size:14px; margin-bottom:16px; }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="card">
+  <div class="brand">
+    <img src="assets/logo.png" alt="" />
+    <span><span class="accent">Panda</span>Roc</span>
+  </div>
+
+  <div id="loading">Loading account...</div>
+
+  <div id="login-prompt">
+    <p>Log in to view your license key and subscription.</p>
+    <a href="login.html" class="btn">Log In</a>
+    <p style="margin-top:12px;font-size:13px;color:var(--muted);">or <a href="register.html" style="color:var(--accent);">start a free trial</a></p>
+  </div>
+
+  <div id="account-content">
+    <div class="section">
+      <div class="label">License Key</div>
+      <div class="key-value" id="acc-key" onclick="copyKey()" title="Click to copy">&mdash;</div>
+      <div class="key-hint">Click to copy. Use this key in Settings &gt; License inside the PandaRoc app.</div>
+    </div>
+
+    <div class="section">
+      <div class="label">Subscription</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+        <span class="badge none" id="acc-badge">&mdash;</span>
+        <span class="value" id="acc-plan"></span>
+      </div>
+      <div id="acc-slots" style="font-size:12px;color:var(--muted);margin-top:6px;"></div>
+      <div id="acc-period" style="font-size:12px;color:var(--muted);margin-top:4px;"></div>
+    </div>
+
+    <div class="section">
+      <div class="label">Account</div>
+      <div class="value" id="acc-email">&mdash;</div>
+      <div class="value" style="font-size:12px;color:var(--muted);margin-top:4px;" id="acc-name"></div>
+    </div>
+
+    <div id="how-to-activate" class="how-to" style="display:none;">
+      <p>To activate PandaRoc: open the app, click the <strong>gear icon</strong> (top-right), select <strong>License</strong>, paste your key above, and click <strong>Activate</strong>.</p>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="billing-btn" onclick="openBillingPortal()" style="display:none;">Manage Billing</button>
+      <a href="index.html#pricing" class="btn btn-ghost" id="subscribe-btn" style="display:none;">Subscribe</a>
+      <button class="btn btn-ghost" onclick="logout()" style="color:var(--muted);">Log Out</button>
+    </div>
+  </div>
+
+  <p class="footer-link"><a href="index.html">&larr; Back to PandaRoc</a></p>
+</div>
+
+<script>
+const API = 'https://api.pandaroc.com';
+
+async function init() {
+  const token = localStorage.getItem('pandaroc_token');
+  if (!token) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('login-prompt').style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch(API + '/auth/me', {
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    if (!res.ok) {
+      localStorage.removeItem('pandaroc_token');
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('login-prompt').style.display = 'block';
+      return;
+    }
+    const data = await res.json();
+    renderAccount(data);
+  } catch (e) {
+    document.getElementById('loading').textContent = 'Could not reach server. Please try again later.';
+  }
+}
+
+function renderAccount(data) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('account-content').style.display = 'block';
+
+  document.getElementById('acc-key').textContent = data.license_key || '—';
+  localStorage.setItem('pandaroc_license_key', data.license_key || '');
+
+  document.getElementById('acc-email').textContent = data.email || '—';
+  document.getElementById('acc-name').textContent = data.name || '';
+
+  const badge = document.getElementById('acc-badge');
+  const status = data.subscription_status || 'none';
+  badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+  badge.className = 'badge ' + (status === 'active' ? 'active' : status === 'trial' ? 'trial' : status === 'expired' ? 'expired' : 'none');
+
+  document.getElementById('acc-plan').textContent = status === 'none' ? 'No active subscription' : '';
+  document.getElementById('acc-slots').textContent = data.slot_count > 0 ? data.slot_count + ' account slot' + (data.slot_count !== 1 ? 's' : '') : '';
+
+  if (data.trial_ends_at && status === 'trial') {
+    const ends = new Date(data.trial_ends_at);
+    document.getElementById('acc-period').textContent = 'Trial ends: ' + ends.toLocaleDateString();
+  }
+
+  if (status === 'active' || status === 'past_due') {
+    document.getElementById('billing-btn').style.display = '';
+  }
+  if (status === 'none' || status === 'expired' || status === 'trial') {
+    document.getElementById('subscribe-btn').style.display = '';
+  }
+
+  if (data.license_key) {
+    document.getElementById('how-to-activate').style.display = '';
+  }
+}
+
+async function openBillingPortal() {
+  const btn = document.getElementById('billing-btn');
+  btn.disabled = true; btn.textContent = 'Opening...';
+  try {
+    const token = localStorage.getItem('pandaroc_token');
+    const res = await fetch(API + '/stripe/portal', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      window.location.href = data.portal_url;
+    } else {
+      const err = await res.json().catch(() => ({}));
+      alert(err.detail || 'Could not open billing portal.');
+      btn.disabled = false; btn.textContent = 'Manage Billing';
+    }
+  } catch (e) {
+    alert('Could not reach server.');
+    btn.disabled = false; btn.textContent = 'Manage Billing';
+  }
+}
+
+function copyKey() {
+  const key = document.getElementById('acc-key').textContent;
+  if (key && key !== '—') {
+    navigator.clipboard.writeText(key).then(() => {
+      const el = document.getElementById('acc-key');
+      const orig = el.textContent;
+      el.textContent = 'Copied!';
+      el.style.color = '#7bb449';
+      setTimeout(() => { el.textContent = orig; el.style.color = ''; }, 1500);
+    });
+  }
+}
+
+function logout() {
+  localStorage.removeItem('pandaroc_token');
+  localStorage.removeItem('pandaroc_license_key');
+  window.location.href = 'index.html';
+}
+
+init();
+</script>
+</body>
+</html>
