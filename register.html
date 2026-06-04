@@ -122,9 +122,9 @@ async function handleRegister(e) {
     localStorage.setItem('pandaroc_token', data.access_token);
     localStorage.setItem('pandaroc_license_key', data.license_key);
 
-    const pendingTier = localStorage.getItem('pandaroc_pending_tier');
-    if (pendingTier) {
-      localStorage.removeItem('pandaroc_pending_tier');
+    const pendingQty = localStorage.getItem('pandaroc_pending_qty');
+    if (pendingQty) {
+      localStorage.removeItem('pandaroc_pending_qty');
       window.location.href = 'index.html#pricing';
       return false;
     }

@@ -29,8 +29,8 @@
   "operatingSystem": "Windows 10, Windows 11, macOS 12+",
   "offers": {
     "@type": "AggregateOffer",
-    "lowPrice": "10",
-    "highPrice": "120",
+    "lowPrice": "29",
+    "highPrice": "299",
     "priceCurrency": "EUR",
     "offerCount": "4"
   },
@@ -1109,33 +1109,39 @@ footer {
     </div>
     <div class="pricing-strip reveal">
       <div class="price-card">
-        <div class="slots">1 account</div>
-        <div class="amount"><span class="cur">&euro;</span>10</div>
-        <div class="period">per month</div>
-        <button class="price-btn" onclick="startCheckout('slots_1')">Get started</button>
+        <div class="slots">Starter</div>
+        <div class="amount"><span class="cur">&euro;</span>29</div>
+        <div class="period">1 ROC account &middot; per month</div>
+        <button class="price-btn" onclick="startCheckout(1)">Get started</button>
       </div>
       <div class="price-card popular">
         <div class="pop-tag">Popular</div>
-        <div class="slots">5 accounts</div>
-        <div class="amount"><span class="cur">&euro;</span>40</div>
-        <div class="period">per month &middot; &euro;8/slot</div>
-        <button class="price-btn" onclick="startCheckout('slots_5')">Get started</button>
+        <div class="slots">Small Firm</div>
+        <div class="amount"><span class="cur">&euro;</span>99</div>
+        <div class="period">5 ROC accounts &middot; per month</div>
+        <button class="price-btn" onclick="startCheckout(5)">Get started</button>
       </div>
       <div class="price-card">
-        <div class="slots">10 accounts</div>
-        <div class="amount"><span class="cur">&euro;</span>70</div>
-        <div class="period">per month &middot; &euro;7/slot</div>
-        <button class="price-btn" onclick="startCheckout('slots_10')">Get started</button>
+        <div class="slots">Professional</div>
+        <div class="amount"><span class="cur">&euro;</span>179</div>
+        <div class="period">10 ROC accounts &middot; per month</div>
+        <button class="price-btn" onclick="startCheckout(10)">Get started</button>
       </div>
       <div class="price-card">
-        <div class="slots">20 accounts</div>
-        <div class="amount"><span class="cur">&euro;</span>120</div>
-        <div class="period">per month &middot; &euro;6/slot</div>
-        <button class="price-btn" onclick="startCheckout('slots_20')">Get started</button>
+        <div class="slots">Firm</div>
+        <div class="amount"><span class="cur">&euro;</span>299</div>
+        <div class="period">20 ROC accounts &middot; per month</div>
+        <button class="price-btn" onclick="startCheckout(20)">Get started</button>
       </div>
     </div>
-    <p style="text-align:center;margin-top:24px;font-size:14px;color:var(--muted);">
-      Or <a href="register.html" style="color:var(--accent);text-decoration:underline;">start your 7-day free trial</a> &mdash; no card required.
+    <div class="reveal" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;margin-top:28px;">
+      <label for="customQty" style="font-size:14px;color:var(--muted);">Need a different number?</label>
+      <input id="customQty" type="number" min="1" max="20" value="3" style="width:64px;padding:8px 10px;border-radius:8px;border:1px solid var(--border,rgba(255,255,255,0.18));background:transparent;color:inherit;font:inherit;text-align:center;">
+      <span style="font-size:14px;color:var(--muted);">ROC accounts</span>
+      <button class="price-btn" style="width:auto;padding:10px 20px;margin:0;" onclick="startCheckout(parseInt(document.getElementById('customQty').value, 10))">Continue</button>
+    </div>
+    <p style="text-align:center;margin-top:20px;font-size:14px;color:var(--muted);">
+      20+ accounts? <a href="mailto:hello@pandaserve.eu?subject=PandaRoc%20Enterprise" style="color:var(--accent);text-decoration:underline;">Contact us</a> for Enterprise &middot; or <a href="register.html" style="color:var(--accent);text-decoration:underline;">start a 7-day free trial</a> &mdash; no card required.
     </p>
   </div>
 </section>
@@ -1318,21 +1324,12 @@ document.querySelectorAll('.nav-links .nav-link, .nav-links .nav-cta').forEach(l
 // ═══ PandaRoc API config ═══
 const PANDAROC_API = 'https://api.pandaroc.com';
 
-// Stripe price IDs — update these after creating products in Stripe Dashboard
-const PRICE_IDS = {
-  slots_1:  '', // e.g., 'price_1abc...'
-  slots_5:  '',
-  slots_10: '',
-  slots_20: '',
-};
+// Checkout is by ROC-account quantity; the license server holds the per-account price ID.
 
-async function startCheckout(tier) {
-  const priceId = PRICE_IDS[tier];
-  if (!priceId) {
-    alert('Checkout not yet configured for this plan. Please contact support.');
-    return;
-  }
+async function startCheckout(quantity) {
+  const qty = Math.max(1, Math.min(20, parseInt(quantity, 10) || 1));
   const btn = event.target;
+  const original = btn.textContent;
   btn.disabled = true; btn.textContent = 'Redirecting...';
   try {
     const token = localStorage.getItem('pandaroc_token');
@@ -1343,7 +1340,7 @@ async function startCheckout(tier) {
       method: 'POST',
       headers,
       body: JSON.stringify({
-        price_id: priceId,
+        quantity: qty,
         success_url: window.location.origin + '/success.html',
         cancel_url: window.location.origin + '/cancel.html',
       }),
@@ -1351,8 +1348,8 @@ async function startCheckout(tier) {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       if (res.status === 401) {
-        // Not logged in — redirect to register first
-        localStorage.setItem('pandaroc_pending_tier', tier);
+        // Not logged in — remember the chosen quantity and register first
+        localStorage.setItem('pandaroc_pending_qty', String(qty));
         window.location.href = 'register.html';
         return;
       }
@@ -1362,7 +1359,7 @@ async function startCheckout(tier) {
     window.location.href = data.checkout_url;
   } catch (e) {
     alert(e.message || 'Could not start checkout. Please try again.');
-    btn.disabled = false; btn.textContent = 'Get started';
+    btn.disabled = false; btn.textContent = original;
   }
 }
 </script>
