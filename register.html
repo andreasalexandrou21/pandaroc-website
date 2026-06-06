@@ -53,7 +53,7 @@ body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); colo
   <p class="subtitle">Create your account and start automating ROC certificate downloads in minutes.</p>
 
   <div style="text-align:center;">
-    <span class="trial-badge">7-day free trial &mdash; no card required</span>
+    <span class="trial-badge" id="reg-badge">7-day free trial &mdash; no card required</span>
   </div>
 
   <form id="register-form" onsubmit="return handleRegister(event)">
@@ -95,6 +95,16 @@ body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); colo
 <script>
 const API = 'https://api.pandaroc.com';
 
+// Buyer arriving from "Buy now": reflect checkout intent, not trial.
+(function () {
+  if (localStorage.getItem('pandaroc_pending_qty')) {
+    const b = document.getElementById('reg-badge');
+    if (b) b.textContent = 'Final step: create your account, then checkout';
+    const btn = document.getElementById('reg-btn');
+    if (btn) btn.textContent = 'Continue to payment';
+  }
+})();
+
 async function handleRegister(e) {
   e.preventDefault();
   const btn = document.getElementById('reg-btn');
@@ -114,7 +124,11 @@ async function handleRegister(e) {
     });
     const data = await res.json();
     if (!res.ok) {
-      errEl.textContent = data.detail || 'Registration failed';
+      if (res.status === 409) {
+        errEl.innerHTML = 'That email is already registered. <a href="login.html" style="color:var(--accent);text-decoration:underline;">Log in instead</a>.';
+      } else {
+        errEl.textContent = (typeof data.detail === 'string') ? data.detail : 'Please check your details and try again.';
+      }
       errEl.style.display = 'block';
       btn.disabled = false; btn.textContent = 'Start Free Trial';
       return false;
@@ -125,8 +139,24 @@ async function handleRegister(e) {
     const pendingQty = localStorage.getItem('pandaroc_pending_qty');
     if (pendingQty) {
       localStorage.removeItem('pandaroc_pending_qty');
-      window.location.href = 'index.html#pricing';
-      return false;
+      btn.textContent = 'Starting checkout...';
+      // Buyer flow: go straight to payment, then success.html shows the key.
+      try {
+        const co = await fetch(API + '/stripe/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.access_token },
+          body: JSON.stringify({
+            quantity: Math.max(1, Math.min(20, parseInt(pendingQty, 10) || 1)),
+            success_url: window.location.origin + '/success.html',
+            cancel_url: window.location.origin + '/cancel.html',
+          }),
+        });
+        if (co.ok) {
+          const cod = await co.json();
+          window.location.href = cod.checkout_url;
+          return false;
+        }
+      } catch (err2) { /* fall through to trial success — the key is still shown there */ }
     }
     window.location.href = 'success.html?trial=1';
   } catch (err) {
