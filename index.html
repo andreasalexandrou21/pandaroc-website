@@ -988,6 +988,7 @@ footer {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
             Download PandaRoc
           </a>
+          <button class="btn btn-ghost" onclick="startCheckout(1, true)">Start free trial</button>
         </div>
         <div class="hero-meta">
           <span>
@@ -1039,7 +1040,7 @@ footer {
         </div>
         <div class="trust-item">
           <div class="num">7<span class="unit"> day trial</span></div>
-          <div class="label">No key needed</div>
+          <div class="label">Cancel anytime</div>
         </div>
       </div>
     </div>
@@ -1192,43 +1193,43 @@ footer {
     <div class="section-head reveal">
       <div class="eyebrow">Pricing</div>
       <h2>Simple, <em>per-account.</em></h2>
-      <p>Pay for the ROC account slots you use. Every plan includes both agents, name checks, Trello sync, auto-updates and a 7-day free trial with no card required.</p>
+      <p>Pay for the ROC account slots you use. Every plan includes both agents, name checks, Trello sync, auto-updates and a 7-day free trial, cancel anytime.</p>
     </div>
     <div class="pricing-strip reveal">
       <div class="price-card">
         <div class="slots">Starter</div>
         <div class="amount"><span class="cur">&euro;</span>29</div>
         <div class="period">1 ROC account &middot; per month</div>
-        <button class="price-btn" onclick="startCheckout(1)">Buy now</button>
+        <button class="price-btn" onclick="startCheckout(1, false)">Buy now</button>
       </div>
       <div class="price-card popular">
         <div class="pop-tag">Popular</div>
         <div class="slots">Small Firm</div>
         <div class="amount"><span class="cur">&euro;</span>99</div>
         <div class="period">5 ROC accounts &middot; per month</div>
-        <button class="price-btn" onclick="startCheckout(5)">Buy now</button>
+        <button class="price-btn" onclick="startCheckout(5, false)">Buy now</button>
       </div>
       <div class="price-card">
         <div class="slots">Professional</div>
         <div class="amount"><span class="cur">&euro;</span>179</div>
         <div class="period">10 ROC accounts &middot; per month</div>
-        <button class="price-btn" onclick="startCheckout(10)">Buy now</button>
+        <button class="price-btn" onclick="startCheckout(10, false)">Buy now</button>
       </div>
       <div class="price-card">
         <div class="slots">Firm</div>
         <div class="amount"><span class="cur">&euro;</span>299</div>
         <div class="period">20 ROC accounts &middot; per month</div>
-        <button class="price-btn" onclick="startCheckout(20)">Buy now</button>
+        <button class="price-btn" onclick="startCheckout(20, false)">Buy now</button>
       </div>
     </div>
     <div class="reveal" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;margin-top:28px;">
       <label for="customQty" style="font-size:14px;color:var(--muted);">Need a different number?</label>
       <input id="customQty" type="number" min="1" max="20" value="3" style="width:64px;padding:8px 10px;border-radius:8px;border:1px solid var(--border,rgba(255,255,255,0.18));background:transparent;color:inherit;font:inherit;text-align:center;">
       <span style="font-size:14px;color:var(--muted);">ROC accounts</span>
-      <button class="price-btn" style="width:auto;padding:10px 20px;margin:0;" onclick="startCheckout(parseInt(document.getElementById('customQty').value, 10))">Buy now</button>
+      <button class="price-btn" style="width:auto;padding:10px 20px;margin:0;" onclick="startCheckout(parseInt(document.getElementById('customQty').value, 10), false)">Buy now</button>
     </div>
     <p style="text-align:center;margin-top:20px;font-size:14px;color:var(--muted);">
-      20+ accounts? <a href="mailto:hello@pandaserve.eu?subject=PandaRoc%20Enterprise" style="color:var(--accent);text-decoration:underline;">Contact us</a> for Enterprise &middot; or <a href="register.html" style="color:var(--accent);text-decoration:underline;">start a 7-day free trial</a>. No card required.
+      20+ accounts? <a href="mailto:hello@pandaserve.eu?subject=PandaRoc%20Enterprise" style="color:var(--accent);text-decoration:underline;">Contact us</a> for Enterprise &middot; or <a href="#" onclick="startCheckout(1, true); return false;" style="color:var(--accent);text-decoration:underline;">start a 7-day free trial</a>. Cancel anytime.
     </p>
   </div>
 </section>
@@ -1241,7 +1242,7 @@ footer {
         <div>
           <div class="eyebrow" style="margin-bottom:16px;">Ready when you are</div>
           <h2>Install PandaRoc on your <em>workstation.</em></h2>
-          <p>Runs alongside your existing workflow. Comes with a 7-day free trial. No key needed.</p>
+          <p>Runs alongside your existing workflow. Comes with a 7-day free trial. Cancel anytime.</p>
 
           <!-- Platform tabs -->
           <div class="platform-tabs" role="tablist">
@@ -1424,8 +1425,9 @@ const PANDAROC_API = 'https://api.pandaroc.com';
 
 // Checkout is by ROC-account quantity; the license server holds the per-account price ID.
 
-async function startCheckout(quantity) {
+async function startCheckout(quantity, trial) {
   const qty = Math.max(1, Math.min(20, parseInt(quantity, 10) || 1));
+  trial = !!trial;
   const btn = event.target;
   const original = btn.textContent;
   btn.disabled = true; btn.textContent = 'Redirecting...';
@@ -1434,20 +1436,23 @@ async function startCheckout(quantity) {
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = 'Bearer ' + token;
 
+    const successUrl = window.location.origin + '/success.html' + (trial ? '?trial=1' : '');
     const res = await fetch(PANDAROC_API + '/stripe/create-checkout', {
       method: 'POST',
       headers,
       body: JSON.stringify({
         quantity: qty,
-        success_url: window.location.origin + '/success.html',
+        trial: trial,
+        success_url: successUrl,
         cancel_url: window.location.origin + '/cancel.html',
       }),
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       if (res.status === 401) {
-        // Not logged in — remember the chosen quantity and register first
+        // Not logged in — remember the intent and create the account first
         localStorage.setItem('pandaroc_pending_qty', String(qty));
+        localStorage.setItem('pandaroc_pending_trial', trial ? '1' : '0');
         window.location.href = 'register.html';
         return;
       }

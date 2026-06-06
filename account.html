@@ -152,8 +152,9 @@ function renderAccount(data) {
 
   const badge = document.getElementById('acc-badge');
   const status = data.subscription_status || 'none';
-  badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-  badge.className = 'badge ' + (status === 'active' ? 'active' : status === 'trial' ? 'trial' : status === 'expired' ? 'expired' : 'none');
+  badge.textContent = status === 'trialing' ? 'Trial' : status.charAt(0).toUpperCase() + status.slice(1);
+  const isTrialStatus = status === 'trial' || status === 'trialing';
+  badge.className = 'badge ' + (status === 'active' ? 'active' : isTrialStatus ? 'trial' : status === 'expired' ? 'expired' : 'none');
 
   document.getElementById('acc-plan').textContent = status === 'none' ? 'No active subscription' : '';
   document.getElementById('acc-slots').textContent = data.slot_count > 0 ? data.slot_count + ' account slot' + (data.slot_count !== 1 ? 's' : '') : '';
@@ -163,7 +164,7 @@ function renderAccount(data) {
     document.getElementById('acc-period').textContent = 'Trial ends: ' + ends.toLocaleDateString();
   }
 
-  if (status === 'active' || status === 'past_due') {
+  if (status === 'active' || status === 'past_due' || status === 'trialing') {
     document.getElementById('billing-btn').style.display = '';
   }
   if (status === 'none' || status === 'expired' || status === 'trial') {

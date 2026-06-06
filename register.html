@@ -53,7 +53,7 @@ body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); colo
   <p class="subtitle">Create your account and start automating ROC certificate downloads in minutes.</p>
 
   <div style="text-align:center;">
-    <span class="trial-badge" id="reg-badge">7-day free trial &middot; no card required</span>
+    <span class="trial-badge" id="reg-badge">7-day free trial &middot; cancel anytime</span>
   </div>
 
   <form id="register-form" onsubmit="return handleRegister(event)">
@@ -80,7 +80,7 @@ body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); colo
     </div>
     <div class="perk">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-      No credit card needed to start
+      Card required, first charge only after day 7
     </div>
     <div class="perk">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -97,7 +97,7 @@ const API = 'https://api.pandaroc.com';
 
 // Buyer arriving from "Buy now": reflect checkout intent, not trial.
 (function () {
-  if (localStorage.getItem('pandaroc_pending_qty')) {
+  if (localStorage.getItem('pandaroc_pending_trial') === '0') {
     const b = document.getElementById('reg-badge');
     if (b) b.textContent = 'Final step: create your account, then checkout';
     const btn = document.getElementById('reg-btn');
@@ -136,29 +136,40 @@ async function handleRegister(e) {
     localStorage.setItem('pandaroc_token', data.access_token);
     localStorage.setItem('pandaroc_license_key', data.license_key);
 
-    const pendingQty = localStorage.getItem('pandaroc_pending_qty');
-    if (pendingQty) {
-      localStorage.removeItem('pandaroc_pending_qty');
-      btn.textContent = 'Starting checkout...';
-      // Buyer flow: go straight to payment, then success.html shows the key.
-      try {
-        const co = await fetch(API + '/stripe/create-checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.access_token },
-          body: JSON.stringify({
-            quantity: Math.max(1, Math.min(20, parseInt(pendingQty, 10) || 1)),
-            success_url: window.location.origin + '/success.html',
-            cancel_url: window.location.origin + '/cancel.html',
-          }),
-        });
-        if (co.ok) {
-          const cod = await co.json();
-          window.location.href = cod.checkout_url;
-          return false;
-        }
-      } catch (err2) { /* fall through to trial success — the key is still shown there */ }
+    // Every signup goes through Stripe Checkout. Buyers (pending_trial '0') pay now;
+    // everyone else gets the card-required 7-day trial.
+    const pendingQty = Math.max(1, Math.min(20, parseInt(localStorage.getItem('pandaroc_pending_qty') || '1', 10)));
+    const isTrial = localStorage.getItem('pandaroc_pending_trial') !== '0';
+    localStorage.removeItem('pandaroc_pending_qty');
+    localStorage.removeItem('pandaroc_pending_trial');
+
+    btn.textContent = isTrial ? 'Starting your trial...' : 'Starting checkout...';
+    try {
+      const co = await fetch(API + '/stripe/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.access_token },
+        body: JSON.stringify({
+          quantity: pendingQty,
+          trial: isTrial,
+          success_url: window.location.origin + '/success.html' + (isTrial ? '?trial=1' : ''),
+          cancel_url: window.location.origin + '/cancel.html',
+        }),
+      });
+      if (co.ok) {
+        const cod = await co.json();
+        window.location.href = cod.checkout_url;
+        return false;
+      }
+      const cerr = await co.json().catch(() => ({}));
+      errEl.textContent = (typeof cerr.detail === 'string') ? cerr.detail : 'Account created, but checkout could not start. Open your account to try again.';
+      errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Start Free Trial';
+      return false;
+    } catch (err2) {
+      // Account exists; send them to the account page to start checkout from there.
+      window.location.href = 'account.html';
+      return false;
     }
-    window.location.href = 'success.html?trial=1';
   } catch (err) {
     errEl.textContent = 'Could not reach server. Please try again.';
     errEl.style.display = 'block';
