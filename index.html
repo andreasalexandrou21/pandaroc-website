@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark" />
 <meta name="supported-color-schemes" content="dark" />
-<title>PandaRoc — ROC certificate automation for Cyprus firms</title>
+<title>PandaRoc · ROC certificate automation for Cyprus firms</title>
 <meta name="description" content="PandaRoc automates certificate downloads from the Cyprus Department of Registrar of Companies. Desktop app for Windows and macOS, built by PandaServe LTD." />
 <meta name="robots" content="index, follow" />
 <meta name="author" content="PandaServe LTD" />
 <link rel="canonical" href="https://pandaroc.com/" />
-<meta property="og:title" content="PandaRoc — ROC certificate automation for Cyprus firms" />
+<meta property="og:title" content="PandaRoc · ROC certificate automation for Cyprus firms" />
 <meta property="og:description" content="Desktop app that monitors your ROC accounts, downloads certificates and saves them automatically. Built by PandaServe LTD." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://pandaroc.com/" />
 <meta property="og:image" content="https://pandaroc.com/assets/screen_dashboard_live.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="PandaRoc — ROC certificate automation" />
+<meta name="twitter:title" content="PandaRoc · ROC certificate automation" />
 <meta name="twitter:description" content="Desktop app that automates certificate downloads from the Cyprus ROC portal." />
 <meta name="twitter:image" content="https://pandaroc.com/assets/screen_dashboard_live.png" />
 <script type="application/ld+json">
@@ -465,6 +465,70 @@ section { position:relative; z-index:2; }
   letter-spacing:0.02em;
 }
 
+/* ═══ Name Check spotlight ═══ */
+.spotlight {
+  position:relative;
+  display:grid; grid-template-columns:auto 1fr; gap:44px; align-items:center;
+  margin-top:18px;
+  border-radius:var(--r-xl);
+  background:linear-gradient(180deg, color-mix(in oklch, var(--accent) 7%, var(--bg-card)), var(--bg-card));
+  border:1px solid var(--border-strong);
+  padding:40px 44px;
+  overflow:hidden;
+}
+.spotlight::before {
+  content:''; position:absolute; inset:0; border-radius:inherit;
+  background-image:url('assets/grain-card.svg');
+  background-size:220px 220px;
+  opacity:0.05; mix-blend-mode:overlay; pointer-events:none;
+}
+.spotlight::after {
+  content:''; position:absolute;
+  width:360px; height:360px; border-radius:50%;
+  filter:blur(110px);
+  background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 26%, transparent), transparent 70%);
+  top:-160px; right:-120px; pointer-events:none;
+}
+.spotlight > * { position:relative; z-index:1; }
+.spot-visual { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.ring {
+  width:150px; height:150px; border-radius:50%;
+  background:conic-gradient(var(--accent) calc(var(--p, 92) * 1%), var(--e4) 0);
+  display:grid; place-items:center; position:relative;
+  box-shadow:inset 0 0 0 1px var(--border), 0 8px 28px color-mix(in oklch, var(--tc9) 18%, transparent);
+}
+.ring::before {
+  content:''; position:absolute; inset:12px; border-radius:50%;
+  background:var(--bg-card);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.ring .score { position:relative; font-size:38px; font-weight:700; letter-spacing:-0.02em; }
+.ring .score small { font-size:17px; font-weight:600; color:var(--muted); margin-left:1px; }
+.ring-label {
+  font-family:'JetBrains Mono', monospace;
+  font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted);
+}
+.spot-badge {
+  display:inline-flex; align-items:center; gap:7px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px; font-weight:500; letter-spacing:0.06em; text-transform:uppercase;
+  color:var(--accent);
+  background:color-mix(in oklch, var(--accent) 12%, transparent);
+  border:1px solid color-mix(in oklch, var(--accent) 24%, transparent);
+  padding:5px 12px; border-radius:999px;
+  margin-bottom:16px;
+}
+.spot-badge svg { width:13px; height:13px; }
+.spotlight h3 {
+  font-size:26px; font-weight:600; letter-spacing:-0.02em; margin-bottom:10px;
+  text-wrap:balance;
+}
+.spotlight p {
+  font-size:15px; color:var(--text-2); line-height:1.65; max-width:560px;
+  text-wrap:pretty;
+}
+.spotlight .tag-row { border-top:none; padding-top:0; margin-top:20px; }
+
 /* ═══ Video section ═══ */
 .video {
   position:relative;
@@ -815,6 +879,7 @@ footer {
   .app-frame { transform:none; }
   .hero-visual { padding-right:0; }
   .features { grid-template-columns:1fr; }
+  .spotlight { grid-template-columns:1fr; gap:28px; }
   .trust-row { grid-template-columns:repeat(2,1fr); }
   .foot-grid { grid-template-columns:1fr 1fr; }
   .pricing-strip { grid-template-columns:repeat(2,1fr); }
@@ -874,6 +939,9 @@ footer {
   .section-pad { padding:48px 0; }
   .who-meta { grid-template-columns:1fr 1fr; gap:14px; }
   .dl-spec dl { font-size:11.5px; gap:8px 14px; }
+  .spotlight { padding:28px 22px; }
+  .ring { width:128px; height:128px; }
+  .ring .score { font-size:32px; }
 }
 </style>
 </head>
@@ -896,6 +964,7 @@ footer {
     <a href="#video" class="nav-link">See it work</a>
     <a href="#who" class="nav-link">Who we are</a>
     <a href="#pricing" class="nav-link">Pricing</a>
+    <a href="login.html" class="nav-link js-account-link">Log in</a>
     <a href="#download" class="nav-cta">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
       Download
@@ -912,7 +981,7 @@ footer {
         <div class="eyebrow">Now on Windows &amp; macOS</div>
         <h1>Hours of ROC clicks,<br/><em>done in minutes.</em></h1>
         <p class="hero-sub">
-          PandaRoc is a desktop app that monitors your accounts on the Cyprus Registrar of Companies website, picks up pending services, downloads certificates and saves them to your folders &mdash; so your team stops doing it by hand.
+          PandaRoc is a desktop app that monitors your accounts on the Cyprus Registrar of Companies website, picks up pending services, downloads certificates and saves them to your folders, so your team stops doing it by hand.
         </p>
         <div class="hero-ctas">
           <a href="#download" class="btn btn-primary">
@@ -983,7 +1052,7 @@ footer {
     <div class="section-head reveal">
       <div class="eyebrow">What it does</div>
       <h2>You decide what to accept. <em>We handle the rest.</em></h2>
-      <p>PandaRoc watches your ROC accounts around the clock. When new orders come in, you choose which ones to process &mdash; the agents take over from there.</p>
+      <p>PandaRoc watches your ROC accounts around the clock. When new orders come in, you choose which ones to process, and the agents take over from there.</p>
     </div>
 
     <div class="features">
@@ -992,7 +1061,7 @@ footer {
           <i data-lucide="radar"></i>
         </div>
         <h3>Finder</h3>
-        <p>Opens a browser for each of your ROC accounts and stays on standby. When a new order appears it lands in your queue &mdash; accept it and the Downloader takes over.</p>
+        <p>Opens a browser for each of your ROC accounts and stays on standby. When a new order appears it lands in your queue. Accept it and the Downloader takes over.</p>
         <div class="tag-row">
           <span class="tag">Always watching</span>
           <span class="tag">Multi-account</span>
@@ -1018,7 +1087,7 @@ footer {
           <i data-lucide="kanban"></i>
         </div>
         <h3>Trello sync</h3>
-        <p>Every accepted order becomes a Trello card. Labels, custom fields and client names sync both ways &mdash; every five minutes and instantly when you make a decision.</p>
+        <p>Every accepted order becomes a Trello card. Labels, custom fields and client names sync both ways, every five minutes and instantly when you make a decision.</p>
         <div class="tag-row">
           <span class="tag">Two-way sync</span>
           <span class="tag">Auto-labels</span>
@@ -1026,6 +1095,27 @@ footer {
         </div>
       </article>
     </div>
+
+    <!-- Name Check spotlight -->
+    <article class="spotlight reveal">
+      <div class="spot-visual">
+        <div class="ring" style="--p:92;"><span class="score">92<small>%</small></span></div>
+        <div class="ring-label">Approval score</div>
+      </div>
+      <div class="spot-body">
+        <span class="spot-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          New &middot; Included free in every plan
+        </span>
+        <h3>Check a name before you file.</h3>
+        <p>Type a proposed company name and PandaRoc scores how likely it is to be approved. It checks the live Cyprus registry and the official naming rules, catching clashes, restricted words and look-alikes before you submit, not after a rejection.</p>
+        <div class="tag-row">
+          <span class="tag">Live registry check</span>
+          <span class="tag">Approval score</span>
+          <span class="tag">Naming-rule checks</span>
+        </div>
+      </div>
+    </article>
   </div>
 </section>
 
@@ -1035,7 +1125,7 @@ footer {
     <div class="section-head reveal">
       <div class="eyebrow">See it work</div>
       <h2>Watch a full ROC queue <em>clear itself.</em></h2>
-      <p>See PandaRoc accept a day's orders, download the certificates and file them &mdash; while you step away.</p>
+      <p>See PandaRoc accept a day's orders, download the certificates and file them while you step away.</p>
     </div>
 
     <div class="video reveal" role="button" aria-label="Play product demo">
@@ -1067,13 +1157,10 @@ footer {
 
       <div class="who-content reveal">
         <p>
-          <strong>PandaServe LTD</strong> is a Cyprus corporate services firm founded by Panicos Alexandrou. Since 2010 the company has handled formations, annual filings and compliance work for businesses registered on the island &mdash; which means the team spends a big part of every day on the ROC portal.
+          <strong>PandaRoc was built inside a working corporate services firm</strong>, not a software startup. PandaServe LTD has handled company formations, annual filings and compliance in Cyprus since 2010, which means the ROC portal is part of our daily routine.
         </p>
         <p>
-          PandaRoc started when Andreas, Panicos's son, watched his dad spend hours each morning logging into ROC accounts one by one, searching for pending orders, clicking through each service and downloading certificates by hand. He built a tool to do it for him.
-        </p>
-        <p>
-          Other firms in the industry had the exact same problem, so we turned it into a product. PandaRoc runs on your machine, keeps your credentials encrypted locally and works through your queue with the kind of patience that never runs out.
+          PandaRoc began in 2025 as an in-house fix. Andreas built it so his father's team could stop logging into ROC accounts one by one each morning, hunting for pending orders and downloading certificates by hand. Other firms had the same problem, so we turned it into a product. It runs on your own machine, keeps your credentials encrypted and local, and works through your queue with the kind of patience that never runs out.
         </p>
 
         <div class="who-meta">
@@ -1087,7 +1174,7 @@ footer {
           </div>
           <div class="who-meta-item">
             <div class="k">Since</div>
-            <div class="v">2025</div>
+            <div class="v">2010</div>
           </div>
           <div class="who-meta-item">
             <div class="k">Contact</div>
@@ -1105,7 +1192,7 @@ footer {
     <div class="section-head reveal">
       <div class="eyebrow">Pricing</div>
       <h2>Simple, <em>per-account.</em></h2>
-      <p>Pay for the ROC account slots you use. Every plan includes both agents, Trello sync, auto-updates and a 7-day free trial with no card required.</p>
+      <p>Pay for the ROC account slots you use. Every plan includes both agents, name checks, Trello sync, auto-updates and a 7-day free trial with no card required.</p>
     </div>
     <div class="pricing-strip reveal">
       <div class="price-card">
@@ -1141,7 +1228,7 @@ footer {
       <button class="price-btn" style="width:auto;padding:10px 20px;margin:0;" onclick="startCheckout(parseInt(document.getElementById('customQty').value, 10))">Buy now</button>
     </div>
     <p style="text-align:center;margin-top:20px;font-size:14px;color:var(--muted);">
-      20+ accounts? <a href="mailto:hello@pandaserve.eu?subject=PandaRoc%20Enterprise" style="color:var(--accent);text-decoration:underline;">Contact us</a> for Enterprise &middot; or <a href="register.html" style="color:var(--accent);text-decoration:underline;">start a 7-day free trial</a> &mdash; no card required.
+      20+ accounts? <a href="mailto:hello@pandaserve.eu?subject=PandaRoc%20Enterprise" style="color:var(--accent);text-decoration:underline;">Contact us</a> for Enterprise &middot; or <a href="register.html" style="color:var(--accent);text-decoration:underline;">start a 7-day free trial</a>. No card required.
     </p>
   </div>
 </section>
@@ -1154,7 +1241,7 @@ footer {
         <div>
           <div class="eyebrow" style="margin-bottom:16px;">Ready when you are</div>
           <h2>Install PandaRoc on your <em>workstation.</em></h2>
-          <p>Runs alongside your existing workflow. Comes with a 7-day free trial &mdash; no key needed.</p>
+          <p>Runs alongside your existing workflow. Comes with a 7-day free trial. No key needed.</p>
 
           <!-- Platform tabs -->
           <div class="platform-tabs" role="tablist">
@@ -1262,8 +1349,9 @@ footer {
       <div class="foot-col">
         <h5>Company</h5>
         <a href="#who">Who we are</a>
+        <a href="login.html" class="js-account-link">Log in</a>
         <a href="mailto:hello@pandaserve.eu">Contact</a>
-        <a href="#">Support</a>
+        <a href="mailto:hello@pandaserve.eu?subject=PandaRoc%20support">Support</a>
       </div>
       <div class="foot-col">
         <h5>Legal</h5>
@@ -1320,6 +1408,16 @@ document.querySelectorAll('.nav-links .nav-link, .nav-links .nav-cta').forEach(l
     document.querySelector('.nav-links').classList.remove('open');
   });
 });
+
+// Swap "Log in" for "My account" when a session token is present
+(function() {
+  if (localStorage.getItem('pandaroc_token')) {
+    document.querySelectorAll('.js-account-link').forEach(a => {
+      a.textContent = 'My account';
+      a.setAttribute('href', 'account.html');
+    });
+  }
+})();
 
 // ═══ PandaRoc API config ═══
 const PANDAROC_API = 'https://api.pandaroc.com';

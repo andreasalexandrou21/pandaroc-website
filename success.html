@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark" />
-<title>You're In — PandaRoc</title>
+<title>You're In · PandaRoc</title>
 <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
@@ -64,7 +64,7 @@ body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); colo
   <div id="key-section" class="key-section" style="display:none;">
     <div class="key-label">Your License Key</div>
     <div class="key-box" id="license-key" onclick="copyKey()" title="Click to copy"></div>
-    <p class="key-hint" id="key-hint">Click to copy &mdash; you'll need this in the app.</p>
+    <p class="key-hint" id="key-hint">Click to copy. You'll need this in the app.</p>
   </div>
 
   <div class="steps" id="steps-section" style="display:none;">
@@ -154,7 +154,7 @@ function copyKey() {
     const hint = document.getElementById('key-hint');
     hint.textContent = 'Copied to clipboard!';
     hint.style.color = '#7bb449';
-    setTimeout(() => { hint.textContent = 'Click to copy — you’ll need this in the app.'; hint.style.color = ''; }, 2500);
+    setTimeout(() => { hint.textContent = 'Click to copy. You\'ll need this in the app.'; hint.style.color = ''; }, 2500);
   });
 }
 
