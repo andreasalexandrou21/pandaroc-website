@@ -1352,13 +1352,14 @@ footer {
         <a href="#who">Who we are</a>
         <a href="login.html" class="js-account-link">Log in</a>
         <a href="mailto:hello@pandaserve.eu">Contact</a>
-        <a href="mailto:hello@pandaserve.eu?subject=PandaRoc%20support">Support</a>
+        <a href="faq.html">Help &amp; FAQ</a>
       </div>
       <div class="foot-col">
         <h5>Legal</h5>
-        <a href="#">Terms</a>
-        <a href="#">Privacy</a>
-        <a href="#">EULA</a>
+        <a href="terms.html">Terms</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="eula.html">EULA</a>
+        <a href="refund.html">Refunds</a>
       </div>
     </div>
     <div class="foot-bottom">
@@ -1367,6 +1368,7 @@ footer {
   </div>
 </footer>
 
+<script src="auth.js"></script>
 <script>
 // Platform detection — highlight the user's OS download tab
 (function() {
@@ -1421,7 +1423,7 @@ document.querySelectorAll('.nav-links .nav-link, .nav-links .nav-cta').forEach(l
 })();
 
 // ═══ PandaRoc API config ═══
-const PANDAROC_API = 'https://api.pandaroc.com';
+// PANDAROC_API + auth helpers (saveTokens / authFetch) come from auth.js
 
 // Checkout is by ROC-account quantity; the license server holds the per-account price ID.
 
@@ -1432,14 +1434,10 @@ async function startCheckout(quantity, trial) {
   const original = btn.textContent;
   btn.disabled = true; btn.textContent = 'Redirecting...';
   try {
-    const token = localStorage.getItem('pandaroc_token');
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = 'Bearer ' + token;
-
     const successUrl = window.location.origin + '/success.html' + (trial ? '?trial=1' : '');
-    const res = await fetch(PANDAROC_API + '/stripe/create-checkout', {
+    const res = await authFetch('/stripe/create-checkout', {
       method: 'POST',
-      headers,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         quantity: qty,
         trial: trial,

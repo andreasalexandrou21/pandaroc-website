@@ -112,11 +112,12 @@ body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); colo
   <p class="footer-link"><a href="index.html">&larr; Back to PandaRoc</a></p>
 </div>
 
+<script src="auth.js"></script>
 <script>
 const API = 'https://api.pandaroc.com';
 
 async function init() {
-  const token = localStorage.getItem('pandaroc_token');
+  const token = localStorage.getItem('pandaroc_token') || localStorage.getItem('pandaroc_refresh');
   if (!token) {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('login-prompt').style.display = 'block';
@@ -124,11 +125,9 @@ async function init() {
   }
 
   try {
-    const res = await fetch(API + '/auth/me', {
-      headers: { 'Authorization': 'Bearer ' + token },
-    });
+    const res = await authFetch('/auth/me');
     if (!res.ok) {
-      localStorage.removeItem('pandaroc_token');
+      clearTokens();
       document.getElementById('loading').style.display = 'none';
       document.getElementById('login-prompt').style.display = 'block';
       return;
@@ -180,11 +179,7 @@ async function openBillingPortal() {
   const btn = document.getElementById('billing-btn');
   btn.disabled = true; btn.textContent = 'Opening...';
   try {
-    const token = localStorage.getItem('pandaroc_token');
-    const res = await fetch(API + '/stripe/portal', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token },
-    });
+    const res = await authFetch('/stripe/portal', { method: 'POST' });
     if (res.ok) {
       const data = await res.json();
       window.location.href = data.portal_url;
@@ -213,8 +208,7 @@ function copyKey() {
 }
 
 function logout() {
-  localStorage.removeItem('pandaroc_token');
-  localStorage.removeItem('pandaroc_license_key');
+  clearTokens();
   window.location.href = 'index.html';
 }
 

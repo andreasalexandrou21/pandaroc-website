@@ -1,0 +1,31 @@
+/* Shared styling for PandaRoc legal pages (terms, privacy, eula, refund). */
+:root {
+  --e1:#16140f; --e2:#1f1d18; --e3:#2a2823; --e4:#33312b;
+  --e8:#6b6863; --e9:#a09c98; --e11:#c4bfba; --e12:#f0ece7;
+  --tc9:#d07859;
+  --bg-base:var(--e1); --bg-card:var(--e2); --text:var(--e12);
+  --muted:var(--e9); --border:var(--e4); --accent:var(--tc9);
+  --r-sm:8px; --r-lg:14px;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); color:var(--text); min-height:100vh; padding:48px 24px; line-height:1.7; }
+.grain { position:fixed; inset:0; pointer-events:none; z-index:0; background-image:url('assets/grain-body.svg'); background-size:200px; opacity:0.08; mix-blend-mode:soft-light; }
+.wrap { position:relative; z-index:1; max-width:760px; margin:0 auto; }
+.brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:8px; }
+.brand img { height:30px; width:auto; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
+.brand span { font-size:22px; font-weight:700; letter-spacing:-0.5px; }
+.brand .accent { color:var(--accent); }
+h1 { text-align:center; font-size:28px; font-weight:700; letter-spacing:-0.5px; margin-top:18px; }
+.updated { text-align:center; color:var(--muted); font-size:13px; margin-top:8px; }
+.intro { color:var(--e11); font-size:14px; margin:24px 0; padding:16px 18px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-lg); }
+h2 { font-size:17px; font-weight:600; color:var(--e12); margin-top:30px; margin-bottom:10px; }
+p, li { color:var(--e11); font-size:14px; }
+p { margin-bottom:12px; }
+ul { margin:0 0 12px 22px; }
+li { margin-bottom:6px; }
+strong { color:var(--e12); font-weight:600; }
+a { color:var(--accent); text-decoration:underline; }
+.note { font-size:12px; color:var(--e8); font-style:italic; margin-top:24px; }
+.back { text-align:center; margin-top:32px; font-size:13px; }
+.back a { color:var(--accent); text-decoration:none; }
+.back a:hover { text-decoration:underline; }

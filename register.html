@@ -92,6 +92,7 @@ body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); colo
   <p class="footer-link" style="margin-top:10px;"><a href="index.html">&larr; Back to PandaRoc</a></p>
 </div>
 
+<script src="auth.js"></script>
 <script>
 const API = 'https://api.pandaroc.com';
 
@@ -133,8 +134,7 @@ async function handleRegister(e) {
       btn.disabled = false; btn.textContent = 'Start Free Trial';
       return false;
     }
-    localStorage.setItem('pandaroc_token', data.access_token);
-    localStorage.setItem('pandaroc_license_key', data.license_key);
+    saveTokens(data);
 
     // Every signup goes through Stripe Checkout. Buyers (pending_trial '0') pay now;
     // everyone else gets the card-required 7-day trial.

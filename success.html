@@ -101,6 +101,7 @@ body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); colo
   </div>
 </div>
 
+<script src="auth.js"></script>
 <script>
 const API = 'https://api.pandaroc.com';
 const params = new URLSearchParams(window.location.search);
@@ -128,12 +129,10 @@ async function init() {
     return;
   }
 
-  const token = localStorage.getItem('pandaroc_token');
+  const token = localStorage.getItem('pandaroc_token') || localStorage.getItem('pandaroc_refresh');
   if (token) {
     try {
-      const res = await fetch(API + '/auth/me', {
-        headers: { 'Authorization': 'Bearer ' + token },
-      });
+      const res = await authFetch('/auth/me');
       if (res.ok) {
         const data = await res.json();
         if (data.license_key) {
