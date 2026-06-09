@@ -10,7 +10,8 @@
   --e9:#a09c98; --e10:#9f9b96; --e11:#c4bfba; --e12:#f0ece7;
   --tc8:#bf6d4d; --tc9:#d07959; --tc10:#dd8b6f; --tc11:#e7a58c; --tc12:#f3cdba;
   --green9:#7bb449; --green10:#8ec45a;
-  --amber9:#e8891a;
+  --amber9:#e8891a; --amber10:#f0a032;
+  --red9:#e5544b; --red10:#ec6a5e;
 
   --bg-base:var(--e1);
   --bg-card:var(--e2);

@@ -5,181 +5,281 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark" />
 <meta name="robots" content="noindex" />
-<title>Start your free trial · PandaRoc</title>
+<title>Create your account · PandaRoc</title>
 <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="shared/tokens.css" />
-<style>
-body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:28px; }
-.auth-card { position:relative; z-index:2; width:100%; max-width:440px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-xl); padding:42px 38px; box-shadow:var(--shadow-lg); overflow:hidden; }
-.auth-card::before { content:''; position:absolute; inset:0; background-image:url('assets/grain-card.svg'); background-size:220px; opacity:0.05; mix-blend-mode:overlay; pointer-events:none; }
-.auth-card > * { position:relative; }
-.auth-glow { position:absolute; top:-160px; left:50%; transform:translateX(-50%); width:380px; height:300px; border-radius:50%; filter:blur(120px); background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 26%, transparent), transparent 70%); pointer-events:none; z-index:0; }
-.auth-brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:16px; }
-.auth-brand img { height:30px; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
-.auth-brand span { font-size:22px; font-weight:700; letter-spacing:-0.3px; }
-.auth-brand .accent { color:var(--accent); }
-.auth-sub { text-align:center; color:var(--muted); font-size:13.5px; line-height:1.55; margin-bottom:18px; }
-.trial-badge { display:inline-flex; align-items:center; gap:7px; font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:500; letter-spacing:0.05em; text-transform:uppercase; color:var(--green10); background:color-mix(in oklch, var(--green10) 12%, transparent); border:1px solid color-mix(in oklch, var(--green10) 26%, transparent); padding:6px 13px; border-radius:999px; margin-bottom:22px; }
-.trial-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--green10); box-shadow:0 0 7px var(--green10); }
-.badge-row { text-align:center; }
-.field { margin-bottom:15px; }
-.field label { display:block; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
-.field input { width:100%; padding:12px 14px; background:var(--bg-elev); border:1px solid var(--border-strong); border-radius:var(--r-md); color:var(--text); font-family:inherit; font-size:14px; outline:none; transition:border-color var(--dur) var(--ease); }
-.field input::placeholder { color:var(--subtle); }
-.field input:focus { border-color:var(--accent); }
-.auth-submit { width:100%; justify-content:center; margin-top:8px; }
-.auth-error { color:#ef6a5e; font-size:12.5px; margin-top:12px; text-align:center; display:none; }
-.auth-error a { color:var(--accent); }
-.perks { display:flex; flex-direction:column; gap:10px; margin:22px 0 4px; padding:18px 20px; background:var(--bg-elev); border:1px solid var(--border); border-radius:var(--r-lg); }
-.perk { display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--text-2); }
-.perk svg { flex-shrink:0; width:15px; height:15px; color:var(--green10); }
-.auth-links { text-align:center; margin-top:20px; font-size:13px; color:var(--muted); }
-.auth-links a { color:var(--accent); }
-.auth-links a:hover { text-decoration:underline; }
-.auth-back { text-align:center; margin-top:10px; font-size:12.5px; }
-.auth-back a { color:var(--muted); }
-.auth-back a:hover { color:var(--text); }
-</style>
+<link rel="stylesheet" href="pages.css" />
 </head>
-<body>
+<body class="auth-body">
 <div class="grain-body" aria-hidden="true"></div>
 <div class="grain-coarse" aria-hidden="true"></div>
-<div class="auth-card">
-  <div class="auth-glow" aria-hidden="true"></div>
-  <div class="auth-brand">
-    <img src="assets/logo.png" alt="" />
-    <span><span class="accent">Panda</span>Roc</span>
-  </div>
-  <p class="auth-sub">Create your account and start automating ROC certificate downloads in minutes.</p>
 
-  <div class="badge-row">
-    <span class="trial-badge" id="reg-badge">7-day free trial · cancel anytime</span>
-  </div>
+<div class="auth-shell">
 
-  <form id="register-form" onsubmit="return handleRegister(event)">
-    <div class="field">
-      <label for="reg-name">Full name</label>
-      <input type="text" id="reg-name" placeholder="e.g. Panicos Alexandrou" required>
+  <!-- LEFT: brand / value -->
+  <aside class="auth-aside">
+    <div class="aside-glow" aria-hidden="true"></div>
+    <div class="flow-field" aria-hidden="true">
+      <svg viewBox="0 0 800 900" preserveAspectRatio="none">
+        <path d="M-40 200 C 240 80, 520 360, 880 180" />
+        <path d="M-40 420 C 280 280, 560 540, 880 360" />
+        <path d="M-40 660 C 240 520, 520 760, 880 560" />
+      </svg>
     </div>
-    <div class="field">
-      <label for="reg-email">Email</label>
-      <input type="email" id="reg-email" placeholder="you@company.com" required>
-    </div>
-    <div class="field">
-      <label for="reg-password">Password</label>
-      <input type="password" id="reg-password" placeholder="At least 8 characters" minlength="8" required>
-    </div>
-    <button type="submit" class="btn btn-primary auth-submit" id="reg-btn">Start Free Trial</button>
-    <p class="auth-error" id="reg-error"></p>
-  </form>
 
-  <div class="perks">
-    <div class="perk">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-      Full access to all features for 7 days
-    </div>
-    <div class="perk">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-      Card required, first charge only after day 7
-    </div>
-    <div class="perk">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-      Works on Windows and macOS
-    </div>
-  </div>
+    <a href="index.html#top" class="auth-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></a>
 
-  <p class="auth-links">Already have an account? <a href="login.html">Log in</a></p>
-  <p class="auth-back"><a href="index.html">&larr; Back to PandaRoc</a></p>
+    <div class="aside-mid">
+      <h2>Start your <em>7-day free trial.</em></h2>
+      <div class="aside-points">
+        <div class="aside-point">
+          <div class="pi"><i data-lucide="zap"></i></div>
+          <div><div class="pt">Set up in minutes</div><div class="ps">Create your account, download the app and connect your first ROC account.</div></div>
+        </div>
+        <div class="aside-point">
+          <div class="pi"><i data-lucide="badge-check"></i></div>
+          <div><div class="pt">Free name checks, every plan</div><div class="ps">Score a company name against the live Cyprus registry before you file.</div></div>
+        </div>
+        <div class="aside-point">
+          <div class="pi"><i data-lucide="credit-card"></i></div>
+          <div><div class="pt">No charge during the trial</div><div class="ps">Cancel any time in the first 7 days and you won't pay a cent.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="aside-foot"><i data-lucide="map-pin"></i>Built in Cyprus by PandaServe LTD · since 2010</div>
+  </aside>
+
+  <!-- RIGHT: form -->
+  <main class="auth-main">
+    <div class="auth-topbar">
+      <a href="index.html#top" class="home-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>Back to site</a>
+      <div class="auth-switch">Already have an account? <a href="login.html">Log in</a></div>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-head">
+        <div class="eyebrow">Get started</div>
+        <h1>Create your account</h1>
+        <p id="regSubhead">7-day free trial. A card is required, with no charge for the first 7 days.</p>
+      </div>
+
+      <form id="registerForm" novalidate>
+        <p class="auth-error" id="registerError"></p>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="firstName">First name</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="firstName" name="firstName" placeholder="Andreas" autocomplete="given-name" required />
+            </div>
+          </div>
+          <div class="field">
+            <label for="lastName">Last name</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="lastName" name="lastName" placeholder="Papadopoulos" autocomplete="family-name" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="company">Firm / company</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>
+            <input type="text" id="company" name="company" placeholder="Your corporate-services firm" autocomplete="organization" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">Work email</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+            <input type="email" id="email" name="email" placeholder="you@yourfirm.com" autocomplete="email" required />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="password" name="password" placeholder="At least 8 characters" autocomplete="new-password" required oninput="scorePw(this.value)" />
+            <button type="button" class="toggle-pw" aria-label="Show password" onclick="togglePw('password', this)"><i data-lucide="eye"></i></button>
+          </div>
+          <div class="pw-strength" id="pwStrength">
+            <div class="pw-bars"><span></span><span></span><span></span><span></span></div>
+            <div class="pw-label" id="pwLabel"></div>
+          </div>
+        </div>
+
+        <div class="auth-opts" style="margin-bottom:20px;">
+          <label class="check terms"><input type="checkbox" name="terms" required /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></span>I agree to the <a href="terms.html">Terms</a>, <a href="eula.html">License</a> and <a href="privacy.html">Privacy Policy</a>.</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="registerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>Create account &amp; start trial</button>
+
+        <div id="googleAuth" style="display:none;">
+          <div class="auth-divider">or</div>
+          <div id="googleBtn"></div>
+        </div>
+      </form>
+
+      <p class="auth-fineprint">Your ROC credentials are never collected here. They stay encrypted on your machine.</p>
+    </div>
+  </main>
 </div>
 
 <script src="auth.js"></script>
 <script>
 const API = 'https://api.pandaroc.com';
+// To enable Google sign-up: set this to your Google OAuth Web client ID
+// (xxxx.apps.googleusercontent.com) and add GOOGLE_CLIENT_ID to the license-server .env.
+const GOOGLE_CLIENT_ID = '';
 
-// Buyer arriving from "Buy now": reflect checkout intent, not trial.
+document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
+
+// Buyer arriving from a "Buy now" click: reflect immediate checkout, not a trial.
 (function () {
   if (localStorage.getItem('pandaroc_pending_trial') === '0') {
-    const b = document.getElementById('reg-badge');
-    if (b) b.textContent = 'Final step: create your account, then checkout';
-    const btn = document.getElementById('reg-btn');
-    if (btn) btn.textContent = 'Continue to payment';
+    const sub = document.getElementById('regSubhead');
+    if (sub) sub.textContent = 'Final step: create your account, then continue to payment.';
+    const btn = document.getElementById('registerBtn');
+    if (btn) btn.lastChild.textContent = 'Continue to payment';
   }
 })();
 
-async function handleRegister(e) {
-  e.preventDefault();
-  const btn = document.getElementById('reg-btn');
-  const errEl = document.getElementById('reg-error');
-  errEl.style.display = 'none';
-  btn.disabled = true; btn.textContent = 'Creating account...';
+function togglePw(id, btn){
+  const inp = document.getElementById(id);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.innerHTML = show
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.2A9.1 9.1 0 0 1 12 4c7 0 10 8 10 8a18 18 0 0 1-2.2 3.2M6.6 6.6A18 18 0 0 0 2 12s3 8 10 8a9 9 0 0 0 4.3-1.1"/><path d="m2 2 20 20"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  if (window.lucide) lucide.createIcons();
+}
 
+function scorePw(v){
+  let s = 0;
+  if (v.length >= 8) s++;
+  if (/[A-Z]/.test(v) && /[a-z]/.test(v)) s++;
+  if (/\d/.test(v)) s++;
+  if (/[^A-Za-z0-9]/.test(v)) s++;
+  if (v.length === 0) s = 0;
+  const el = document.getElementById('pwStrength');
+  const lbl = document.getElementById('pwLabel');
+  el.className = 'pw-strength' + (s ? ' s' + s : '');
+  lbl.textContent = v.length === 0 ? '' : ['Weak', 'Weak', 'Fair', 'Good', 'Strong'][s];
+}
+
+function showError(msg){
+  const el = document.getElementById('registerError');
+  el.innerHTML = msg;
+  el.style.display = 'block';
+}
+
+const regBtn = document.getElementById('registerBtn');
+function resetRegBtn(label){ regBtn.disabled = false; regBtn.lastChild.textContent = label || 'Create account & start trial'; }
+
+// Shared by email signup and Google signup: start the trial/checkout the buyer intended.
+async function continueAfterAuth(accessToken){
+  const pendingQty = Math.max(1, Math.min(20, parseInt(localStorage.getItem('pandaroc_pending_qty') || '1', 10)));
+  const isTrial = localStorage.getItem('pandaroc_pending_trial') !== '0';
+  localStorage.removeItem('pandaroc_pending_qty');
+  localStorage.removeItem('pandaroc_pending_trial');
+  try {
+    const co = await fetch(API + '/stripe/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken },
+      body: JSON.stringify({
+        quantity: pendingQty,
+        trial: isTrial,
+        success_url: window.location.origin + '/success.html' + (isTrial ? '?trial=1' : ''),
+        cancel_url: window.location.origin + '/cancel.html',
+      }),
+    });
+    if (co.ok) { const cod = await co.json(); window.location.href = cod.checkout_url; return; }
+    const cerr = await co.json().catch(() => ({}));
+    showError((typeof cerr.detail === 'string') ? cerr.detail : 'Account created, but checkout could not start. Open your account to try again.');
+    resetRegBtn();
+  } catch (e) {
+    window.location.href = 'account.html';
+  }
+}
+
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  document.getElementById('registerError').style.display = 'none';
+  if (!document.querySelector('input[name="terms"]').checked) {
+    showError('Please agree to the Terms to continue.');
+    return;
+  }
+  const name = (document.getElementById('firstName').value.trim() + ' ' + document.getElementById('lastName').value.trim()).trim();
+  regBtn.disabled = true; regBtn.lastChild.textContent = 'Creating account...';
   try {
     const res = await fetch(API + '/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: document.getElementById('reg-name').value.trim(),
-        email: document.getElementById('reg-email').value.trim(),
-        password: document.getElementById('reg-password').value,
+        name: name,
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value,
       }),
     });
     const data = await res.json();
     if (!res.ok) {
       if (res.status === 409) {
-        errEl.innerHTML = 'That email is already registered. <a href="login.html" style="color:var(--accent);text-decoration:underline;">Log in instead</a>.';
+        showError('That email is already registered. <a href="login.html">Log in instead</a>.');
       } else {
-        errEl.textContent = (typeof data.detail === 'string') ? data.detail : 'Please check your details and try again.';
+        showError((typeof data.detail === 'string') ? data.detail : 'Please check your details and try again.');
       }
-      errEl.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Start Free Trial';
-      return false;
+      resetRegBtn();
+      return;
     }
     saveTokens(data);
-
-    // Every signup goes through Stripe Checkout. Buyers (pending_trial '0') pay now;
-    // everyone else gets the card-required 7-day trial.
-    const pendingQty = Math.max(1, Math.min(20, parseInt(localStorage.getItem('pandaroc_pending_qty') || '1', 10)));
     const isTrial = localStorage.getItem('pandaroc_pending_trial') !== '0';
-    localStorage.removeItem('pandaroc_pending_qty');
-    localStorage.removeItem('pandaroc_pending_trial');
-
-    btn.textContent = isTrial ? 'Starting your trial...' : 'Starting checkout...';
-    try {
-      const co = await fetch(API + '/stripe/create-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.access_token },
-        body: JSON.stringify({
-          quantity: pendingQty,
-          trial: isTrial,
-          success_url: window.location.origin + '/success.html' + (isTrial ? '?trial=1' : ''),
-          cancel_url: window.location.origin + '/cancel.html',
-        }),
-      });
-      if (co.ok) {
-        const cod = await co.json();
-        window.location.href = cod.checkout_url;
-        return false;
-      }
-      const cerr = await co.json().catch(() => ({}));
-      errEl.textContent = (typeof cerr.detail === 'string') ? cerr.detail : 'Account created, but checkout could not start. Open your account to try again.';
-      errEl.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Start Free Trial';
-      return false;
-    } catch (err2) {
-      // Account exists; send them to the account page to start checkout from there.
-      window.location.href = 'account.html';
-      return false;
-    }
+    regBtn.lastChild.textContent = isTrial ? 'Starting your trial...' : 'Starting checkout...';
+    await continueAfterAuth(data.access_token);
   } catch (err) {
-    errEl.textContent = 'Could not reach server. Please try again.';
-    errEl.style.display = 'block';
-    btn.disabled = false; btn.textContent = 'Start Free Trial';
+    showError('Could not reach the server. Please try again.');
+    resetRegBtn();
   }
-  return false;
+});
+
+// ── Google sign-up (Google Identity Services) ──
+async function onGoogleCredential(resp){
+  document.getElementById('registerError').style.display = 'none';
+  try {
+    const res = await fetch(API + '/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential: resp.credential }),
+    });
+    const data = await res.json();
+    if (!res.ok) { showError(data.detail || 'Google sign-up failed.'); return; }
+    saveTokens(data);
+    await continueAfterAuth(data.access_token);
+  } catch (e) {
+    showError('Could not reach the server. Please try again.');
+  }
 }
+
+function initGoogle(){
+  if (!GOOGLE_CLIENT_ID || !(window.google && google.accounts && google.accounts.id)) return;
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onGoogleCredential });
+  const wrap = document.getElementById('googleAuth');
+  wrap.style.display = '';
+  const slot = document.getElementById('googleBtn');
+  const w = Math.max(220, Math.min(400, slot.offsetWidth || 360));
+  google.accounts.id.renderButton(slot, { theme: 'filled_black', size: 'large', shape: 'pill', text: 'signup_with', logo_alignment: 'center', width: w });
+}
+window.onGoogleLibraryLoad = initGoogle;
+if (window.google && google.accounts && google.accounts.id) initGoogle();
 </script>
 </body>
 </html>
