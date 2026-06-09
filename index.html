@@ -115,6 +115,7 @@ section { position:relative; z-index:2; }
 .rail-comet { position:absolute; top:0; left:50%; transform:translate(-50%,-50%); width:16px; height:16px; border-radius:50%; background:var(--tc11); box-shadow:0 0 0 5px color-mix(in oklch, var(--accent) 22%, transparent), 0 0 24px 4px color-mix(in oklch, var(--accent) 60%, transparent); opacity:0; }
 
 .node { position:relative; display:grid; grid-template-columns:1fr 96px 1fr; align-items:center; min-height:220px; }
+.node > * { grid-row:1; }
 .node:not(:last-child){ margin-bottom:28px; }
 .node-dot { grid-column:2; justify-self:center; width:54px; height:54px; border-radius:50%; display:grid; place-items:center; background:var(--bg-card); border:1px solid var(--border-strong); color:var(--muted); z-index:3; transition:all 0.5s var(--ease); position:relative; }
 .node-dot svg, .node-dot i { width:22px; height:22px; }
