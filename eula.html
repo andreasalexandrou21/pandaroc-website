@@ -1,61 +1,146 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-palette="ember">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark" />
 <title>End User License Agreement · PandaRoc</title>
+<meta name="description" content="The license terms for installing and using the PandaRoc desktop application, from PandaServe LTD." />
 <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="legal.css" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="shared/tokens.css" />
+<link rel="stylesheet" href="pages.css" />
 </head>
 <body>
-<div class="grain"></div>
-<div class="wrap">
-  <div class="brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></div>
-  <h1>End User License Agreement</h1>
-  <p class="updated">Last updated: 8 June 2026</p>
+<div class="grain-body" aria-hidden="true"></div>
+<div class="grain-coarse" aria-hidden="true"></div>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
-  <div class="intro">This End User License Agreement ("EULA") is between you and <strong>PandaServe LTD</strong> (reg. no. HE 317541) and governs your use of the PandaRoc desktop application. By installing or using the app, you accept this EULA.</div>
+<nav class="nav">
+  <a href="index.html#top" class="nav-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></a>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="nav-links">
+    <a href="index.html#features" class="nav-link">What it does</a>
+    <a href="index.html#video" class="nav-link">See it work</a>
+    <a href="index.html#who" class="nav-link">Who we are</a>
+    <a href="index.html#pricing" class="nav-link">Pricing</a>
+    <a href="account.html" class="nav-link">My account</a>
+    <a href="index.html#download" class="nav-cta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      Download
+    </a>
+  </div>
+</nav>
 
-  <h2>1. License grant</h2>
-  <p>We grant you a non-exclusive, non-transferable, revocable license to install and use PandaRoc on your devices, for the number of ROC accounts covered by your active subscription, for your internal business use.</p>
+<header class="page-hero">
+  <div class="page-glow" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="crumbs"><a href="index.html#top">Home</a><span class="sep">/</span><span class="here">EULA</span></div>
+    <div class="eyebrow">Legal</div>
+    <h1>End User <em>License</em> Agreement</h1>
+    <p class="lead">The license terms for installing and using the PandaRoc desktop app.</p>
+    <div class="page-updated">Last updated: 8 June 2026</div>
+  </div>
+</header>
 
-  <h2>2. Restrictions</h2>
-  <ul>
-    <li>Do not copy the software except for a reasonable backup.</li>
-    <li>Do not distribute, sublicense, rent, lease, or sell it.</li>
-    <li>Do not reverse-engineer, decompile, or disassemble it, except to the extent the law expressly permits.</li>
-    <li>Do not bypass, disable, or tamper with licensing or activation.</li>
-    <li>Do not share your license key.</li>
-  </ul>
+<section class="page-section last">
+  <div class="wrap">
+    <div class="legal-layout">
+      <aside class="toc">
+        <h4>On this page</h4>
+        <a href="#e1">1. License grant</a>
+        <a href="#e2">2. Restrictions</a>
+        <a href="#e3">3. Ownership</a>
+        <a href="#e4">4. Updates</a>
+        <a href="#e5">5. Third-party components</a>
+        <a href="#e6">6. Term &amp; termination</a>
+        <a href="#e7">7. No warranty</a>
+        <a href="#e8">8. Limitation of liability</a>
+        <a href="#e9">9. Governing law</a>
+        <a href="#e10">10. Contact</a>
+      </aside>
+      <div class="prose reveal">
+        <div class="legal-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>PandaServe LTD · reg. no. HE 317541</div>
+        <p>This End User License Agreement (&ldquo;EULA&rdquo;) is between you and <strong>PandaServe LTD</strong> (reg. no. HE 317541) and governs your use of the PandaRoc desktop application. By installing or using the app, you accept this EULA.</p>
 
-  <h2>3. Ownership</h2>
-  <p>PandaRoc is licensed, not sold. All intellectual property rights in the software remain with PandaServe LTD.</p>
+        <h2 id="e1"><span class="num">01</span>License grant</h2>
+        <p>We grant you a non-exclusive, non-transferable, revocable license to install and use PandaRoc on your devices, for the number of ROC accounts covered by your active subscription, for your internal business use.</p>
 
-  <h2>4. Updates</h2>
-  <p>The app may check for and install updates to improve functionality, compatibility, and security. This EULA applies to all updates unless an update is accompanied by its own terms.</p>
+        <h2 id="e2"><span class="num">02</span>Restrictions</h2>
+        <ul>
+          <li>Do not copy the software except for a reasonable backup.</li>
+          <li>Do not distribute, sublicense, rent, lease, or sell it.</li>
+          <li>Do not reverse-engineer, decompile, or disassemble it, except to the extent the law expressly permits.</li>
+          <li>Do not bypass, disable, or tamper with licensing or activation.</li>
+          <li>Do not share your license key.</li>
+        </ul>
 
-  <h2>5. Third-party components</h2>
-  <p>PandaRoc includes third-party software. Notably, it uses <strong>SumatraPDF</strong> (licensed under the GPLv3) as a separate executable for silent printing, and <strong>Chromium</strong> via Patchright for automation. These components are governed by their own licenses; copies of the applicable notices are available on request.</p>
+        <h2 id="e3"><span class="num">03</span>Ownership</h2>
+        <p>PandaRoc is licensed, not sold. All intellectual property rights in the software remain with PandaServe LTD.</p>
 
-  <h2>6. Term and termination</h2>
-  <p>This EULA is effective until terminated. It ends automatically if you breach it or when your subscription ends. On termination you must stop using the software, and the app may lock access.</p>
+        <h2 id="e4"><span class="num">04</span>Updates</h2>
+        <p>The app may check for and install updates to improve functionality, compatibility, and security. This EULA applies to all updates unless an update is accompanied by its own terms.</p>
 
-  <h2>7. No warranty</h2>
-  <p>To the maximum extent permitted by law, the software is provided "as is" without warranties of any kind, express or implied.</p>
+        <h2 id="e5"><span class="num">05</span>Third-party components</h2>
+        <p>PandaRoc includes third-party software. Notably, it uses <strong>SumatraPDF</strong> (licensed under the GPLv3) as a separate executable for silent printing, and <strong>Chromium</strong> via Patchright for automation. These components are governed by their own licenses; copies of the applicable notices are available on request.</p>
 
-  <h2>8. Limitation of liability</h2>
-  <p>The limitation of liability in our <a href="terms.html">Terms of Service</a> applies to this EULA.</p>
+        <h2 id="e6"><span class="num">06</span>Term and termination</h2>
+        <p>This EULA is effective until terminated. It ends automatically if you breach it or when your subscription ends. On termination you must stop using the software, and the app may lock access.</p>
 
-  <h2>9. Governing law</h2>
-  <p>This EULA is governed by the laws of the Republic of Cyprus.</p>
+        <h2 id="e7"><span class="num">07</span>No warranty</h2>
+        <p>To the maximum extent permitted by law, the software is provided &ldquo;as is&rdquo; without warranties of any kind, express or implied.</p>
 
-  <h2>10. Contact</h2>
-  <p>Questions? Email <a href="mailto:hello@pandaserve.eu">hello@pandaserve.eu</a>.</p>
+        <h2 id="e8"><span class="num">08</span>Limitation of liability</h2>
+        <p>The limitation of liability in our <a href="terms.html">Terms of Service</a> applies to this EULA.</p>
 
-  <p class="note">This document is provided for general information and is not legal advice.</p>
-  <p class="back"><a href="index.html">&larr; Back to PandaRoc</a></p>
-</div>
+        <h2 id="e9"><span class="num">09</span>Governing law</h2>
+        <p>This EULA is governed by the laws of the Republic of Cyprus.</p>
+
+        <h2 id="e10"><span class="num">10</span>Contact</h2>
+        <p>Questions? Email <a href="mailto:hello@pandaserve.eu">hello@pandaserve.eu</a>.</p>
+
+        <div class="note">This document is provided for general information and is not legal advice.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></div>
+        <p class="foot-tag">ROC certificate automation by PandaServe LTD. Built in Cyprus, for Cyprus firms.</p>
+      </div>
+      <div class="foot-col"><h5>Product</h5><a href="index.html#features">What it does</a><a href="index.html#video">See it work</a><a href="index.html#pricing">Pricing</a><a href="index.html#download">Download</a></div>
+      <div class="foot-col"><h5>Company</h5><a href="index.html#who">Who we are</a><a href="account.html">My account</a><a href="mailto:hello@pandaserve.eu">Contact</a><a href="faq.html">Help &amp; FAQ</a></div>
+      <div class="foot-col"><h5>Legal</h5><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="eula.html">EULA</a><a href="refund.html">Refunds</a></div>
+    </div>
+    <div class="foot-bottom"><span>&copy; 2010&ndash;2026 PandaServe LTD &middot; All rights reserved</span><span>hello@pandaserve.eu</span></div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
+const io = new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target);} }); }, { threshold:0.1 });
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const progress = document.getElementById('scrollProgress');
+const tocLinks = [...document.querySelectorAll('.toc a')];
+const heads = tocLinks.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function onScroll(){
+  const y=window.scrollY, h=document.documentElement.scrollHeight-window.innerHeight;
+  if(progress) progress.style.width=Math.min(100,(y/Math.max(h,1))*100)+'%';
+  let active=heads[0];
+  heads.forEach(hd=>{ if(hd.getBoundingClientRect().top <= 130) active=hd; });
+  tocLinks.forEach(a=>a.classList.toggle('active', active && a.getAttribute('href')==='#'+active.id));
+}
+window.addEventListener('scroll', onScroll, { passive:true }); onScroll();
+document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.nav-links').classList.remove('open')));
+</script>
 </body>
 </html>

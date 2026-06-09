@@ -1,152 +1,243 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-palette="ember">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark" />
 <title>Help &amp; FAQ · PandaRoc</title>
-<meta name="description" content="Answers to common questions about PandaRoc — activation, pricing, billing, the free trial, and support." />
+<meta name="description" content="Answers to common questions about PandaRoc: activation, pricing, billing, the free trial, security and support." />
 <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<style>
-:root {
-  --e1:#16140f; --e2:#1f1d18; --e3:#2a2823; --e4:#33312b;
-  --e8:#6b6863; --e9:#a09c98; --e11:#c4bfba; --e12:#f0ece7;
-  --tc9:#d07859; --green9:#7bb449;
-  --bg-base:var(--e1); --bg-card:var(--e2); --text:var(--e12);
-  --muted:var(--e9); --border:var(--e4); --accent:var(--tc9);
-  --r-sm:8px; --r-lg:14px;
-}
-*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); color:var(--text); min-height:100vh; padding:48px 24px; }
-.grain { position:fixed; inset:0; pointer-events:none; z-index:0; background-image:url('assets/grain-body.svg'); background-size:200px; opacity:0.08; mix-blend-mode:soft-light; }
-.wrap { position:relative; z-index:1; max-width:760px; margin:0 auto; }
-.brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:8px; }
-.brand img { height:32px; width:auto; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
-.brand span { font-size:24px; font-weight:700; letter-spacing:-0.5px; }
-.brand .accent { color:var(--accent); }
-.page-title { text-align:center; font-size:28px; font-weight:700; letter-spacing:-0.5px; margin-top:18px; }
-.page-sub { text-align:center; color:var(--muted); font-size:14px; margin-top:8px; margin-bottom:36px; }
-.faq { display:flex; flex-direction:column; gap:10px; }
-details { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden; }
-details[open] { border-color:var(--accent); }
-summary { list-style:none; cursor:pointer; padding:18px 22px; font-size:15px; font-weight:600; color:var(--e12); display:flex; align-items:center; justify-content:space-between; gap:14px; transition:color 0.15s; }
-summary::-webkit-details-marker { display:none; }
-summary:hover { color:var(--accent); }
-summary::after { content:'+'; flex-shrink:0; font-size:20px; font-weight:400; color:var(--accent); line-height:1; transition:transform 0.2s; }
-details[open] summary::after { transform:rotate(45deg); }
-.answer { padding:0 22px 20px; color:var(--e11); font-size:14px; line-height:1.7; }
-.answer p { margin-bottom:10px; }
-.answer p:last-child { margin-bottom:0; }
-.answer strong { color:var(--e12); font-weight:600; }
-.answer code { font-family:'JetBrains Mono',monospace; font-size:13px; background:var(--e3); padding:2px 6px; border-radius:5px; color:var(--accent); }
-.answer a { color:var(--accent); text-decoration:underline; }
-.contact { margin-top:40px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-lg); padding:32px; text-align:center; }
-.contact h2 { font-size:18px; font-weight:700; margin-bottom:8px; }
-.contact p { color:var(--muted); font-size:14px; margin-bottom:20px; line-height:1.6; }
-.btn { display:inline-flex; align-items:center; gap:8px; padding:12px 26px; background:var(--accent); color:#fff; border:none; border-radius:var(--r-sm); font-size:14px; font-weight:600; cursor:pointer; text-decoration:none; font-family:inherit; transition:opacity 0.2s; }
-.btn:hover { opacity:0.88; }
-.btn svg { width:16px; height:16px; }
-.back { text-align:center; margin-top:32px; font-size:13px; }
-.back a { color:var(--accent); text-decoration:none; }
-.back a:hover { text-decoration:underline; }
-</style>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="shared/tokens.css" />
+<link rel="stylesheet" href="pages.css" />
 </head>
 <body>
-<div class="grain"></div>
-<div class="wrap">
-  <div class="brand">
-    <img src="assets/logo.png" alt="" />
-    <span><span class="accent">Panda</span>Roc</span>
-  </div>
-  <h1 class="page-title">Help &amp; FAQ</h1>
-  <p class="page-sub">Common questions about activation, billing, and using PandaRoc. Can't find your answer? Email us below.</p>
+<div class="grain-body" aria-hidden="true"></div>
+<div class="grain-coarse" aria-hidden="true"></div>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
-  <div class="faq">
-    <details>
-      <summary>What is PandaRoc?</summary>
-      <div class="answer">
-        <p>PandaRoc is a desktop app that automates downloading company registration certificates from the Cyprus Registrar of Companies (ROC / DRCOR) eFiling portal. It watches your pending services, downloads certificates as they're issued, and keeps everything organised — so you don't have to log in and check by hand.</p>
-      </div>
-    </details>
-    <details>
-      <summary>How does the 7-day free trial work?</summary>
-      <div class="answer">
-        <p>You get <strong>full access to every feature for 7 days</strong>. A card is required to start, but you're <strong>not charged until the trial ends</strong>, and you can cancel anytime before then at no cost. If you cancel during the trial, you simply won't be billed.</p>
-      </div>
-    </details>
-    <details>
-      <summary>How is pricing structured?</summary>
-      <div class="answer">
-        <p>Pricing is <strong>per ROC account, per month</strong>. Pick how many accounts you need:</p>
-        <p>Starter — 1 account — €29 · Small Firm — 5 accounts — €99 · Professional — 10 accounts — €179 · Firm — 20 accounts — €299.</p>
-        <p>You can choose any number from 1 to 20 on the <a href="index.html#pricing">pricing page</a>. Need more than 20? <a href="mailto:hello@pandaserve.eu?subject=PandaRoc%20Enterprise">Contact us</a> for Enterprise.</p>
-      </div>
-    </details>
-    <details>
-      <summary>What counts as a "ROC account slot"?</summary>
-      <div class="answer">
-        <p>One slot = one ROC eFiling login that PandaRoc manages for you. If your firm files under three separate ROC accounts, you'd want a 3-account plan. The app lets you add up to the number of accounts your subscription covers.</p>
-      </div>
-    </details>
-    <details>
-      <summary>How do I activate the app after subscribing?</summary>
-      <div class="answer">
-        <p>Three steps:</p>
-        <p>1. Download and install PandaRoc for <a href="index.html#download">Windows or macOS</a>.<br>
-        2. Open the app and click the <strong>gear icon</strong> (top-right), then choose <strong>License</strong>.<br>
-        3. Paste your license key and click <strong>Activate</strong>.</p>
-      </div>
-    </details>
-    <details>
-      <summary>Where do I find my license key?</summary>
-      <div class="answer">
-        <p>It's shown on the confirmation page right after you subscribe, and it's always available on your <a href="account.html">account page</a> once you're logged in. The key looks like <code>PR-XXXX-XXXX-XXXX</code>.</p>
-      </div>
-    </details>
-    <details>
-      <summary>Can I change how many accounts I'm paying for?</summary>
-      <div class="answer">
-        <p>Yes. Go to your <a href="account.html">account page</a> and click <strong>Manage Billing</strong> to open the secure billing portal, where you can increase or decrease your account count at any time. Your price adjusts accordingly.</p>
-      </div>
-    </details>
-    <details>
-      <summary>How do I cancel, and what's your refund policy?</summary>
-      <div class="answer">
-        <p>You can cancel anytime from <strong>Manage Billing</strong> on your <a href="account.html">account page</a> — your access continues until the end of the period you've paid for.</p>
-        <p>We also offer a <strong>14-day money-back guarantee</strong>: if PandaRoc isn't right for you, email us within 14 days of a payment and we'll refund it in full.</p>
-      </div>
-    </details>
-    <details>
-      <summary>Is my ROC login information secure?</summary>
-      <div class="answer">
-        <p>Yes. Your ROC credentials and all automation run <strong>locally on your own computer</strong> — they're never sent to our servers. Our license server only handles your PandaRoc account and subscription, nothing to do with the registry itself.</p>
-      </div>
-    </details>
-    <details>
-      <summary>Which operating systems are supported?</summary>
-      <div class="answer">
-        <p>Windows 10 and 11 (64-bit), and macOS 12 or later (Apple Silicon and Intel).</p>
-      </div>
-    </details>
-    <details>
-      <summary>The app won't activate or says my license is invalid — what should I do?</summary>
-      <div class="answer">
-        <p>First, check your internet connection and make sure you copied the full key exactly from your <a href="account.html">account page</a>. If it still won't activate, email us with your account email and we'll sort it out quickly.</p>
-      </div>
-    </details>
-  </div>
-
-  <div class="contact">
-    <h2>Still need help?</h2>
-    <p>Email our team and we'll get back to you. We're a Cyprus-based company and happy to help in English or Greek.</p>
-    <a class="btn" href="mailto:hello@pandaserve.eu?subject=PandaRoc%20support">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-      Email us
+<nav class="nav">
+  <a href="index.html#top" class="nav-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></a>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="nav-links">
+    <a href="index.html#features" class="nav-link">What it does</a>
+    <a href="index.html#video" class="nav-link">See it work</a>
+    <a href="index.html#who" class="nav-link">Who we are</a>
+    <a href="index.html#pricing" class="nav-link">Pricing</a>
+    <a href="account.html" class="nav-link">My account</a>
+    <a href="index.html#download" class="nav-cta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      Download
     </a>
   </div>
+</nav>
 
-  <p class="back"><a href="index.html">&larr; Back to PandaRoc</a></p>
-</div>
+<header class="page-hero">
+  <div class="page-glow" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="crumbs"><a href="index.html#top">Home</a><span class="sep">/</span><span class="here">Help &amp; FAQ</span></div>
+    <div class="eyebrow">Support</div>
+    <h1>How can we <em>help?</em></h1>
+    <p class="lead">Answers to the questions Cyprus firms ask most, from setup and security to billing and the day-to-day.</p>
+    <div class="help-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="faqSearch" placeholder="Search help articles…" autocomplete="off" />
+    </div>
+  </div>
+</header>
+
+<!-- Topics -->
+<section class="page-section">
+  <div class="wrap">
+    <div class="topic-grid reveal">
+      <a href="#getting-started" class="topic">
+        <div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v16a2 2 0 0 0 2 2h12"/><path d="m9 9 3 3 5-5"/></svg></div>
+        <h3>Getting started</h3>
+        <p>Install, activate your license and connect your first ROC account.</p>
+      </a>
+      <a href="#security" class="topic">
+        <div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>Security &amp; data</h3>
+        <p>Where your ROC credentials live and how they are protected.</p>
+      </a>
+      <a href="#billing" class="topic">
+        <div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+        <h3>Plans &amp; billing</h3>
+        <p>How per-account pricing, trials and cancellation work.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="page-section last">
+  <div class="wrap">
+    <div class="faq" id="faqList">
+
+      <div class="faq-group-title" data-group id="getting-started">Getting started</div>
+
+      <div class="faq-item">
+        <button class="faq-q">What exactly does PandaRoc do?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p>PandaRoc is a desktop app that monitors your accounts on the Cyprus Registrar of Companies (ROC / DRCOR) website, picks up pending services, downloads the certificates and saves them into your folders, so your team stops logging in and checking by hand. You decide which orders to accept; the Finder and Downloader agents handle the rest.</p></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">Which operating systems are supported?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p><strong>Windows 10 and 11</strong> (64-bit), and <strong>macOS 12 or later</strong> (Apple Silicon and Intel). One license activates the app on every machine in your plan.</p></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">How do I activate the app after subscribing?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p>Three steps:</p><p>1. Download and install PandaRoc for <a href="index.html#download">Windows or macOS</a>.<br />2. Open the app, click the <strong>gear icon</strong> (top-right), then choose <strong>License</strong>.<br />3. Paste your license key and click <strong>Activate</strong>. After that it stays activated and updates itself automatically.</p></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">Where do I find my license key?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p>It is shown on the confirmation page right after you subscribe, and it is always available on your <a href="account.html">account page</a> once you are logged in. The key looks like <code>PR-XXXX-XXXX-XXXX</code>.</p></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">Does the app update itself?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p>Yes. Auto-update is built in, so PandaRoc checks for new versions and installs them in the background. You are always on the current build without reinstalling.</p></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">The app won't activate or says my license is invalid, what should I do?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p>First, check your internet connection and make sure you copied the full key exactly from your <a href="account.html">account page</a>. If it still won't activate, email us with your account email and we will sort it out quickly.</p></div></div>
+      </div>
+
+      <div class="faq-group-title" data-group id="security">Security &amp; data</div>
+
+      <div class="faq-item">
+        <button class="faq-q">Is my ROC login information secure?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p><strong>Your credentials never leave your machine.</strong> Your ROC logins and all automation run locally on your own computer, stored in an encrypted local vault. Our license server only handles your PandaRoc account and subscription, nothing to do with the registry itself.</p></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">Where are the downloaded certificates stored?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p>Certificates are saved straight into the folders you choose on your own workstation or network drive. The files stay with you; PandaRoc just puts them where they belong.</p></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">Does PandaRoc work with Trello?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p>If your firm uses a Trello board, PandaRoc can keep it in step as orders move through the pipeline. It is entirely optional, and the app works fully without it.</p></div></div>
+      </div>
+
+      <div class="faq-group-title" data-group id="billing">Plans &amp; billing</div>
+
+      <div class="faq-item">
+        <button class="faq-q">How is pricing structured?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p>You pay <strong>per ROC account, per month</strong>, not per user or per machine. Starter covers 1 account (€29), Small Firm 5 (€99), Professional 10 (€179) and Firm 20 (€299). You can choose any number from 1 to 20 on the <a href="index.html#pricing">pricing page</a>. Need more than 20? <a href="mailto:hello@pandaserve.eu?subject=PandaRoc%20Enterprise">Talk to us about Enterprise.</a></p></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">What counts as a "ROC account slot"?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p>One slot equals one ROC eFiling login that PandaRoc manages for you. If your firm files under three separate ROC accounts, you would want a 3-account plan. The app lets you add up to the number of accounts your subscription covers.</p></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">Is the name check really free?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p><strong>Yes, name approval checks are included free in every plan</strong>, with no per-check fees. Type a proposed company name and PandaRoc scores how likely it is to be approved against the live Cyprus registry and the naming rules.</p></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">How does the 7-day free trial work?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p>You get <strong>full access to every feature for 7 days</strong>. A card is required to start, but you are <strong>not charged until the trial ends</strong>, and you can cancel anytime before then at no cost. If you cancel during the trial, you simply won't be billed.</p></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">Can I change how many accounts I'm paying for?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p>Yes. Go to your <a href="account.html">account page</a> and open <strong>Manage billing</strong> to reach the secure billing portal, where you can increase or decrease your account count at any time. Your price adjusts accordingly.</p></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">How do I cancel, and what's your refund policy?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p>You can cancel anytime from <strong>Manage billing</strong> on your <a href="account.html">account page</a>. Your access continues until the end of the period you have paid for.</p><p>We also offer a <strong>14-day money-back guarantee</strong>: if PandaRoc isn't right for you, email us within 14 days of a payment and we will refund it in full. See our <a href="refund.html">refund policy</a> for details.</p></div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">What happens to returned or rejected orders?<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a-inner"><p>The Downloader tracks whether a name has been approved or rejected and flags any returned orders in your queue, so nothing slips through unnoticed and you can act on it right away.</p></div></div>
+      </div>
+
+      <p id="noResults" style="display:none;color:var(--muted);font-size:15px;padding:30px 4px;">No articles match that search. Try a different term, or <a href="mailto:hello@pandaserve.eu" style="color:var(--accent);">email us</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section class="page-section last">
+  <div class="wrap">
+    <div class="contact-card reveal">
+      <div>
+        <h2>Still stuck?</h2>
+        <p>We are a small Cyprus team and we answer our own email, in English or Greek. Tell us what's happening and we will sort it.</p>
+      </div>
+      <a href="mailto:hello@pandaserve.eu?subject=PandaRoc%20support" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>hello@pandaserve.eu</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></div>
+        <p class="foot-tag">ROC certificate automation by PandaServe LTD. Built in Cyprus, for Cyprus firms.</p>
+      </div>
+      <div class="foot-col"><h5>Product</h5><a href="index.html#features">What it does</a><a href="index.html#video">See it work</a><a href="index.html#pricing">Pricing</a><a href="index.html#download">Download</a></div>
+      <div class="foot-col"><h5>Company</h5><a href="index.html#who">Who we are</a><a href="account.html">My account</a><a href="mailto:hello@pandaserve.eu">Contact</a><a href="faq.html">Help &amp; FAQ</a></div>
+      <div class="foot-col"><h5>Legal</h5><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="eula.html">EULA</a><a href="refund.html">Refunds</a></div>
+    </div>
+    <div class="foot-bottom"><span>&copy; 2010&ndash;2026 PandaServe LTD &middot; All rights reserved</span><span>hello@pandaserve.eu</span></div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
+const io = new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target);} }); }, { threshold:0.12 });
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const progress = document.getElementById('scrollProgress');
+window.addEventListener('scroll', ()=>{ const y=window.scrollY, h=document.documentElement.scrollHeight-window.innerHeight; if(progress) progress.style.width=Math.min(100,(y/Math.max(h,1))*100)+'%'; }, { passive:true });
+
+// accordion
+document.querySelectorAll('.faq-q').forEach(q=>{
+  q.addEventListener('click', ()=>{
+    const item = q.parentElement;
+    const a = item.querySelector('.faq-a');
+    const open = item.classList.contains('open');
+    if (open){ item.classList.remove('open'); a.style.maxHeight = '0px'; }
+    else { item.classList.add('open'); a.style.maxHeight = a.scrollHeight + 'px'; }
+  });
+});
+
+// search filter
+const search = document.getElementById('faqSearch');
+const items = [...document.querySelectorAll('.faq-item')];
+const groups = [...document.querySelectorAll('[data-group]')];
+const noRes = document.getElementById('noResults');
+search.addEventListener('input', ()=>{
+  const term = search.value.trim().toLowerCase();
+  let any = false;
+  items.forEach(it=>{
+    const t = it.textContent.toLowerCase();
+    const match = !term || t.includes(term);
+    it.style.display = match ? '' : 'none';
+    if (match) any = true;
+  });
+  groups.forEach(g=>{
+    let sib = g.nextElementSibling, visible=false;
+    while (sib && sib.classList.contains('faq-item')){ if(sib.style.display!=='none') visible=true; sib=sib.nextElementSibling; }
+    g.style.display = (!term || visible) ? '' : 'none';
+  });
+  noRes.style.display = any ? 'none' : '';
+});
+document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.nav-links').classList.remove('open')));
+</script>
 </body>
 </html>

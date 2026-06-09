@@ -1,67 +1,156 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-palette="ember">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark" />
 <title>Terms of Service · PandaRoc</title>
+<meta name="description" content="The terms governing your use of PandaRoc, provided by PandaServe LTD, Cyprus." />
 <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="legal.css" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="shared/tokens.css" />
+<link rel="stylesheet" href="pages.css" />
 </head>
 <body>
-<div class="grain"></div>
-<div class="wrap">
-  <div class="brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></div>
-  <h1>Terms of Service</h1>
-  <p class="updated">Last updated: 8 June 2026</p>
+<div class="grain-body" aria-hidden="true"></div>
+<div class="grain-coarse" aria-hidden="true"></div>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
-  <div class="intro">These Terms of Service govern your access to and use of PandaRoc, provided by <strong>PandaServe LTD</strong> (reg. no. HE 317541), Cyprus. By creating an account or using the app, you agree to these terms.</div>
+<nav class="nav">
+  <a href="index.html#top" class="nav-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></a>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="nav-links">
+    <a href="index.html#features" class="nav-link">What it does</a>
+    <a href="index.html#video" class="nav-link">See it work</a>
+    <a href="index.html#who" class="nav-link">Who we are</a>
+    <a href="index.html#pricing" class="nav-link">Pricing</a>
+    <a href="account.html" class="nav-link">My account</a>
+    <a href="index.html#download" class="nav-cta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      Download
+    </a>
+  </div>
+</nav>
 
-  <h2>1. Who we are</h2>
-  <p>PandaRoc is operated by PandaServe LTD, a company registered in Cyprus under number HE 317541, with its registered office at Chrysanthou Mylona 1, Panayides Building, Floor 3, Office 1, 3030 Limassol, Cyprus. You can reach us at <a href="mailto:hello@pandaserve.eu">hello@pandaserve.eu</a>.</p>
+<header class="page-hero">
+  <div class="page-glow" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="crumbs"><a href="index.html#top">Home</a><span class="sep">/</span><span class="here">Terms of Service</span></div>
+    <div class="eyebrow">Legal</div>
+    <h1><em>Terms</em> of Service</h1>
+    <p class="lead">The agreement between you and PandaServe LTD for using the PandaRoc app and website.</p>
+    <div class="page-updated">Last updated: 8 June 2026</div>
+  </div>
+</header>
 
-  <h2>2. The service</h2>
-  <p>PandaRoc is desktop software that automates downloading company certificates from the Cyprus Registrar of Companies (ROC / DRCOR) eFiling portal. PandaRoc is an independent product and is <strong>not affiliated with, endorsed by, or operated by</strong> the Registrar of Companies, DRCOR, or any government authority.</p>
+<section class="page-section last">
+  <div class="wrap">
+    <div class="legal-layout">
+      <aside class="toc">
+        <h4>On this page</h4>
+        <a href="#t1">1. Who we are</a>
+        <a href="#t2">2. The service</a>
+        <a href="#t3">3. Accounts</a>
+        <a href="#t4">4. Subscriptions &amp; billing</a>
+        <a href="#t5">5. Free trial</a>
+        <a href="#t6">6. Cancellation &amp; refunds</a>
+        <a href="#t7">7. Acceptable use</a>
+        <a href="#t8">8. Your data &amp; the ROC portal</a>
+        <a href="#t9">9. Intellectual property</a>
+        <a href="#t10">10. Disclaimers</a>
+        <a href="#t11">11. Limitation of liability</a>
+        <a href="#t12">12. Changes</a>
+        <a href="#t13">13. Governing law</a>
+        <a href="#t14">14. Contact</a>
+      </aside>
+      <div class="prose reveal">
+        <div class="legal-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>PandaServe LTD · reg. no. HE 317541</div>
+        <p>These Terms of Service govern your access to and use of PandaRoc, provided by <strong>PandaServe LTD</strong> (reg. no. HE 317541), Cyprus. By creating an account or using the app, you agree to these terms.</p>
 
-  <h2>3. Accounts</h2>
-  <p>You must provide accurate information and keep your password secure. You are responsible for all activity under your account. Notify us promptly of any unauthorised use.</p>
+        <h2 id="t1"><span class="num">01</span>Who we are</h2>
+        <p>PandaRoc is operated by PandaServe LTD, a company registered in Cyprus under number HE 317541, with its registered office at Chrysanthou Mylona 1, Panayides Building, Floor 3, Office 1, 3030 Limassol, Cyprus. You can reach us at <a href="mailto:hello@pandaserve.eu">hello@pandaserve.eu</a>.</p>
 
-  <h2>4. Subscriptions, billing and taxes</h2>
-  <p>PandaRoc is sold as a monthly subscription priced per ROC account, in euro (EUR). Subscriptions <strong>renew automatically</strong> each month until cancelled. Payments are processed by our payment provider, Stripe; by subscribing you authorise the recurring charge. Applicable VAT and taxes are added at checkout. You can change the number of accounts on your plan at any time through the billing portal, and your price adjusts accordingly.</p>
+        <h2 id="t2"><span class="num">02</span>The service</h2>
+        <p>PandaRoc is desktop software that automates downloading company certificates from the Cyprus Registrar of Companies (ROC / DRCOR) eFiling portal. PandaRoc is an independent product and is <strong>not affiliated with, endorsed by, or operated by</strong> the Registrar of Companies, DRCOR, or any government authority.</p>
 
-  <h2>5. Free trial</h2>
-  <p>New customers may start a 7-day free trial. A payment method is required, but you are not charged until the trial ends. Cancel any time during the trial and you will not be billed.</p>
+        <h2 id="t3"><span class="num">03</span>Accounts</h2>
+        <p>You must provide accurate information and keep your password secure. You are responsible for all activity under your account. Notify us promptly of any unauthorised use.</p>
 
-  <h2>6. Cancellation and refunds</h2>
-  <p>You can cancel at any time from the billing portal on your account page; your access continues until the end of the period you have paid for. We also offer a 14-day money-back guarantee — see our <a href="refund.html">Refund &amp; Cancellation Policy</a>.</p>
+        <h2 id="t4"><span class="num">04</span>Subscriptions, billing and taxes</h2>
+        <p>PandaRoc is sold as a monthly subscription priced per ROC account, in euro (EUR). Subscriptions <strong>renew automatically</strong> each month until cancelled. Payments are processed by our payment provider, Stripe; by subscribing you authorise the recurring charge. Applicable VAT and taxes are added at checkout. You can change the number of accounts on your plan at any time through the billing portal, and your price adjusts accordingly.</p>
 
-  <h2>7. Acceptable use</h2>
-  <p>You agree to use PandaRoc only with ROC accounts you are authorised to operate, and in compliance with applicable law and the ROC portal's own terms of use. You must not misuse the service, attempt to reverse-engineer or circumvent licensing, or resell or share your license key. Use of the software is also subject to our <a href="eula.html">End User License Agreement</a>.</p>
+        <h2 id="t5"><span class="num">05</span>Free trial</h2>
+        <p>New customers may start a 7-day free trial. A payment method is required, but you are not charged until the trial ends. Cancel any time during the trial and you will not be billed.</p>
 
-  <h2>8. Your data and the ROC portal</h2>
-  <p>Your ROC login credentials and the documents you download stay on your own device — they are not sent to us. You are solely responsible for your use of the ROC portal through the app. See our <a href="privacy.html">Privacy Policy</a> for how we handle your personal data.</p>
+        <h2 id="t6"><span class="num">06</span>Cancellation and refunds</h2>
+        <p>You can cancel at any time from the billing portal on your account page; your access continues until the end of the period you have paid for. We also offer a 14-day money-back guarantee. See our <a href="refund.html">Refund &amp; Cancellation Policy</a>.</p>
 
-  <h2>9. Intellectual property</h2>
-  <p>PandaRoc, including its software, branding and content, is owned by PandaServe LTD and protected by law. We grant you a limited right to use it under these terms and the EULA.</p>
+        <h2 id="t7"><span class="num">07</span>Acceptable use</h2>
+        <p>You agree to use PandaRoc only with ROC accounts you are authorised to operate, and in compliance with applicable law and the ROC portal's own terms of use. You must not misuse the service, attempt to reverse-engineer or circumvent licensing, or resell or share your license key. Use of the software is also subject to our <a href="eula.html">End User License Agreement</a>.</p>
 
-  <h2>10. Disclaimers</h2>
-  <p>PandaRoc is provided "as is" and "as available". We do not guarantee uninterrupted or error-free operation, and we cannot guarantee that the ROC portal will remain compatible with the app. PandaRoc does not provide legal, accounting, or professional advice.</p>
+        <h2 id="t8"><span class="num">08</span>Your data and the ROC portal</h2>
+        <p>Your ROC login credentials and the documents you download stay on your own device, they are not sent to us. You are solely responsible for your use of the ROC portal through the app. See our <a href="privacy.html">Privacy Policy</a> for how we handle your personal data.</p>
 
-  <h2>11. Limitation of liability</h2>
-  <p>To the maximum extent permitted by law, PandaServe LTD's total liability arising from or related to the service is limited to the amount you paid us in the 12 months before the claim. We are not liable for indirect, incidental, or consequential losses.</p>
+        <h2 id="t9"><span class="num">09</span>Intellectual property</h2>
+        <p>PandaRoc, including its software, branding and content, is owned by PandaServe LTD and protected by law. We grant you a limited right to use it under these terms and the EULA.</p>
 
-  <h2>12. Changes to these terms</h2>
-  <p>We may update these terms from time to time. We will notify you of material changes; continued use after changes take effect means you accept them.</p>
+        <h2 id="t10"><span class="num">10</span>Disclaimers</h2>
+        <p>PandaRoc is provided &ldquo;as is&rdquo; and &ldquo;as available&rdquo;. We do not guarantee uninterrupted or error-free operation, and we cannot guarantee that the ROC portal will remain compatible with the app. PandaRoc does not provide legal, accounting, or professional advice.</p>
 
-  <h2>13. Governing law</h2>
-  <p>These terms are governed by the laws of the Republic of Cyprus, and the courts of Cyprus have exclusive jurisdiction.</p>
+        <h2 id="t11"><span class="num">11</span>Limitation of liability</h2>
+        <p>To the maximum extent permitted by law, PandaServe LTD's total liability arising from or related to the service is limited to the amount you paid us in the 12 months before the claim. We are not liable for indirect, incidental, or consequential losses.</p>
 
-  <h2>14. Contact</h2>
-  <p>Questions about these terms? Email <a href="mailto:hello@pandaserve.eu">hello@pandaserve.eu</a>.</p>
+        <h2 id="t12"><span class="num">12</span>Changes to these terms</h2>
+        <p>We may update these terms from time to time. We will notify you of material changes; continued use after changes take effect means you accept them.</p>
 
-  <p class="note">This document is provided for general information and is not legal advice.</p>
-  <p class="back"><a href="index.html">&larr; Back to PandaRoc</a></p>
-</div>
+        <h2 id="t13"><span class="num">13</span>Governing law</h2>
+        <p>These terms are governed by the laws of the Republic of Cyprus, and the courts of Cyprus have exclusive jurisdiction.</p>
+
+        <h2 id="t14"><span class="num">14</span>Contact</h2>
+        <p>Questions about these terms? Email <a href="mailto:hello@pandaserve.eu">hello@pandaserve.eu</a>.</p>
+
+        <div class="note">This document is provided for general information and is not legal advice.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></div>
+        <p class="foot-tag">ROC certificate automation by PandaServe LTD. Built in Cyprus, for Cyprus firms.</p>
+      </div>
+      <div class="foot-col"><h5>Product</h5><a href="index.html#features">What it does</a><a href="index.html#video">See it work</a><a href="index.html#pricing">Pricing</a><a href="index.html#download">Download</a></div>
+      <div class="foot-col"><h5>Company</h5><a href="index.html#who">Who we are</a><a href="account.html">My account</a><a href="mailto:hello@pandaserve.eu">Contact</a><a href="faq.html">Help &amp; FAQ</a></div>
+      <div class="foot-col"><h5>Legal</h5><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="eula.html">EULA</a><a href="refund.html">Refunds</a></div>
+    </div>
+    <div class="foot-bottom"><span>&copy; 2010&ndash;2026 PandaServe LTD &middot; All rights reserved</span><span>hello@pandaserve.eu</span></div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
+const io = new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target);} }); }, { threshold:0.1 });
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const progress = document.getElementById('scrollProgress');
+const tocLinks = [...document.querySelectorAll('.toc a')];
+const heads = tocLinks.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function onScroll(){
+  const y=window.scrollY, h=document.documentElement.scrollHeight-window.innerHeight;
+  if(progress) progress.style.width=Math.min(100,(y/Math.max(h,1))*100)+'%';
+  let active=heads[0];
+  heads.forEach(hd=>{ if(hd.getBoundingClientRect().top <= 130) active=hd; });
+  tocLinks.forEach(a=>a.classList.toggle('active', active && a.getAttribute('href')==='#'+active.id));
+}
+window.addEventListener('scroll', onScroll, { passive:true }); onScroll();
+document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.nav-links').classList.remove('open')));
+</script>
 </body>
 </html>

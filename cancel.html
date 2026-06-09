@@ -1,50 +1,50 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-palette="ember">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark" />
-<title>Checkout Cancelled · PandaRoc</title>
+<meta name="robots" content="noindex" />
+<title>Checkout cancelled · PandaRoc</title>
 <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="shared/tokens.css" />
 <style>
-:root {
-  --e1:#16140f; --e2:#1f1d18; --e4:#33312b;
-  --e9:#a09c98; --e11:#c4bfba; --e12:#f0ece7;
-  --tc9:#d07859;
-  --bg-base:var(--e1); --bg-card:var(--e2); --text:var(--e12);
-  --muted:var(--e9); --border:var(--e4); --accent:var(--tc9);
-  --r-sm:8px; --r-lg:14px;
-}
-*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); color:var(--text); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
-.grain { position:fixed; inset:0; pointer-events:none; z-index:0; background-image:url('assets/grain-body.svg'); background-size:200px; opacity:0.08; mix-blend-mode:soft-light; }
-.card { position:relative; z-index:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-lg); padding:48px 36px; max-width:420px; width:100%; text-align:center; }
-.brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:20px; }
-.brand img { height:32px; width:auto; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
-.brand span { font-size:24px; font-weight:700; letter-spacing:-0.5px; }
-.brand .accent { color:var(--accent); }
-h1 { font-size:20px; font-weight:600; margin-bottom:12px; }
-.msg { color:var(--muted); font-size:14px; line-height:1.6; margin-bottom:28px; }
-.actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-.btn { display:inline-flex; align-items:center; gap:6px; padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:var(--r-sm); font-size:13px; font-weight:600; text-decoration:none; font-family:inherit; transition:opacity 0.2s; }
-.btn:hover { opacity:0.88; }
-.btn-ghost { background:transparent; border:1px solid var(--border); color:var(--e11); }
-.btn-ghost:hover { border-color:var(--e9); }
+body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:28px; }
+.auth-card { position:relative; z-index:2; width:100%; max-width:430px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-xl); padding:46px 38px; box-shadow:var(--shadow-lg); overflow:hidden; text-align:center; }
+.auth-card::before { content:''; position:absolute; inset:0; background-image:url('assets/grain-card.svg'); background-size:220px; opacity:0.05; mix-blend-mode:overlay; pointer-events:none; }
+.auth-card > * { position:relative; }
+.auth-glow { position:absolute; top:-150px; left:50%; transform:translateX(-50%); width:360px; height:280px; border-radius:50%; filter:blur(120px); background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 22%, transparent), transparent 70%); pointer-events:none; z-index:0; }
+.auth-brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:22px; }
+.auth-brand img { height:30px; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
+.auth-brand span { font-size:22px; font-weight:700; letter-spacing:-0.3px; }
+.auth-brand .accent { color:var(--accent); }
+.auth-icon { width:56px; height:56px; border-radius:50%; display:grid; place-items:center; margin:0 auto 18px; background:rgba(255,255,255,0.04); border:1px solid var(--border-strong); color:var(--muted); }
+.auth-icon svg { width:26px; height:26px; }
+.auth-title { font-size:23px; font-weight:800; letter-spacing:-0.02em; margin-bottom:10px; }
+.auth-sub { color:var(--muted); font-size:14px; line-height:1.6; margin-bottom:28px; }
+.auth-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 </style>
 </head>
 <body>
-<div class="grain"></div>
-<div class="card">
-  <div class="brand">
+<div class="grain-body" aria-hidden="true"></div>
+<div class="grain-coarse" aria-hidden="true"></div>
+<div class="auth-card">
+  <div class="auth-glow" aria-hidden="true"></div>
+  <div class="auth-brand">
     <img src="assets/logo.png" alt="" />
     <span><span class="accent">Panda</span>Roc</span>
   </div>
-  <h1>Checkout Cancelled</h1>
-  <p class="msg">No worries, you weren't charged. You can try again anytime from the pricing page, or start with a free 7-day trial instead.</p>
-  <div class="actions">
-    <a href="index.html#pricing" class="btn">View Pricing</a>
-    <a href="register.html" class="btn btn-ghost">Start Free Trial</a>
+  <div class="auth-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+  </div>
+  <h1 class="auth-title">Checkout cancelled</h1>
+  <p class="auth-sub">No worries, you weren't charged. You can try again anytime from the pricing page, or start with a free 7-day trial instead.</p>
+  <div class="auth-actions">
+    <a href="index.html#pricing" class="btn btn-primary">View pricing</a>
+    <a href="register.html" class="btn btn-ghost">Start free trial</a>
   </div>
 </div>
 </body>

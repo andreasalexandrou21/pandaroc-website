@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-palette="ember" data-grain="medium">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark" />
-<meta name="supported-color-schemes" content="dark" />
 <title>PandaRoc · ROC certificate automation for Cyprus firms</title>
 <meta name="description" content="PandaRoc automates certificate downloads from the Cyprus Department of Registrar of Companies. Desktop app for Windows and macOS, built by PandaServe LTD." />
 <meta name="robots" content="index, follow" />
@@ -45,903 +44,316 @@
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="shared/tokens.css" />
 <style>
-/* ═══ TOKENS — Ember dark (from app) ═══ */
-:root {
-  --e1:#16140f; --e2:#1f1d18; --e3:#2a2823; --e4:#33312b;
-  --e5:#3b3933; --e6:#474441; --e7:#55524d; --e8:#6b6863;
-  --e9:#a09c98; --e10:#9f9b96; --e11:#c4bfba; --e12:#f0ece7;
-  --tc8:#bf6d4d; --tc9:#d07959; --tc10:#dd8b6f; --tc11:#e7a58c;
-  --green9:#7bb449; --green10:#8ec45a;
-  --amber9:#e8891a;
+/* ════════ PANDAROC — FLOWLINE ════════ */
 
-  --bg-base:var(--e1);
-  --bg-card:var(--e2);
-  --bg-elev:var(--e3);
-  --bg-hover:var(--e4);
-  --text:var(--e12);
-  --text-2:var(--e11);
-  --muted:var(--e9);
-  --subtle:var(--e8);
-  --border:var(--e4);
-  --border-strong:var(--e6);
-  --accent:var(--tc9);
-  --accent-2:var(--tc10);
-  --accent-soft:rgba(208,121,89,0.14);
-  --accent-soft:color-mix(in oklch, var(--tc9) 14%, transparent);
-  --accent-faint:rgba(208,121,89,0.07);
-  --accent-faint:color-mix(in oklch, var(--tc9) 7%, transparent);
-  --nav-bg:rgba(28,24,20,0.72);
+/* Flowing curve field behind hero */
+.flow-field { position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.flow-field svg { position:absolute; width:140%; height:100%; left:-20%; top:0; }
+.flow-field path { fill:none; stroke:var(--accent); stroke-width:1.4; opacity:0.16; stroke-dasharray:7 12; animation:drift 26s linear infinite; }
+.flow-field path:nth-child(2){ opacity:0.1; animation-duration:34s; stroke-width:1; }
+.flow-field path:nth-child(3){ opacity:0.07; animation-duration:42s; }
+@keyframes drift { to { stroke-dashoffset:-380; } }
+.hero-glow { position:absolute; width:760px; height:760px; border-radius:50%; filter:blur(140px); background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 44%, transparent), transparent 70%); top:-220px; left:50%; transform:translateX(-50%); z-index:0; pointer-events:none; opacity:0.62; }
 
-  --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:20px; --r-2xl:28px;
-  --ease:cubic-bezier(0.16,1,0.3,1);
-  --dur:240ms;
-
-  --shadow-sm:0 1px 2px rgba(20,12,4,0.45),0 1px 1px rgba(20,12,4,0.30);
-  --shadow-md:0 6px 18px rgba(20,12,4,0.50),0 2px 6px rgba(20,12,4,0.32);
-  --shadow-lg:0 18px 44px rgba(20,12,4,0.58),0 6px 14px rgba(20,12,4,0.38);
-  --shadow-xl:0 36px 90px rgba(20,12,4,0.62),0 14px 30px rgba(20,12,4,0.4);
-}
-
-* { box-sizing:border-box; margin:0; padding:0; }
-html {
-  scroll-behavior:smooth;
-  scroll-padding-top:80px;
-}
-html, body { background:var(--bg-base); color:var(--text); color-scheme:dark; }
-body {
-  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
-  font-feature-settings:'cv11','ss01','ss03';
-  font-variant-numeric:tabular-nums;
-  -webkit-font-smoothing:antialiased;
-  font-size:15px; line-height:1.55;
-  overflow-x:hidden;
-}
-
-.mono { font-family:'JetBrains Mono', ui-monospace, monospace; }
-
-a { color:inherit; text-decoration:none; }
-button { font-family:inherit; cursor:pointer; border:none; background:none; }
-
-/* ═══ Grain texture ═══ */
-.grain-body, .grain-coarse {
-  position:fixed; inset:0; z-index:1; pointer-events:none;
-}
-.grain-body {
-  background-image:url('assets/grain-body.svg');
-  background-size:200px 200px;
-  opacity:0.085;
-  mix-blend-mode:soft-light;
-}
-.grain-coarse {
-  background-image:url('assets/grain-coarse.svg');
-  background-size:480px 480px;
-  opacity:0.04;
-  mix-blend-mode:soft-light;
-}
-
-/* ═══ Ambient glow ═══ */
-.ambient {
-  position:absolute; inset:0; pointer-events:none; overflow:hidden;
-  z-index:0;
-}
-.ambient::before, .ambient::after {
-  content:''; position:absolute; border-radius:50%;
-  filter:blur(120px); opacity:0.55;
-}
-.ambient::before {
-  width:720px; height:720px;
-  background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 55%, transparent), transparent 70%);
-  top:-200px; right:-180px;
-}
-.ambient::after {
-  width:520px; height:520px;
-  background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 30%, transparent), transparent 70%);
-  bottom:-200px; left:-120px;
-  opacity:0.35;
-}
-
-/* ═══ Scroll reveal ═══ */
-.reveal {
-  opacity:0;
-  transform:translateY(32px);
-  transition:opacity 0.7s var(--ease), transform 0.7s var(--ease);
-}
-.reveal.visible {
-  opacity:1;
-  transform:translateY(0);
-}
-
-/* ═══ NAV ═══ */
-.nav {
-  position:sticky; top:0; z-index:50;
-  display:flex; align-items:center; justify-content:space-between;
-  padding:16px 40px;
-  background:var(--nav-bg);
-  backdrop-filter:blur(28px) saturate(180%);
-  -webkit-backdrop-filter:blur(28px) saturate(180%);
-  border-bottom:1px solid var(--border);
-}
-.nav::after {
-  content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
-  background:linear-gradient(90deg, transparent 0%, color-mix(in oklch, var(--accent) 35%, transparent) 30%, color-mix(in oklch, var(--accent) 35%, transparent) 70%, transparent 100%);
-  pointer-events:none;
-}
-.nav-brand {
-  display:flex; align-items:center; gap:10px;
-  font-weight:700; font-size:15px; letter-spacing:-0.3px;
-}
-.nav-brand img { height:26px; width:auto; filter:drop-shadow(0 1px 3px rgba(0,0,0,0.25)); }
-.nav-brand .accent { color:var(--accent); }
-.nav-links {
-  display:flex; align-items:center; gap:6px;
-}
-.nav-link {
-  padding:7px 14px; border-radius:999px;
-  font-size:13px; font-weight:500; color:var(--muted);
-  transition:color var(--dur) var(--ease), background var(--dur) var(--ease);
-}
-.nav-link:hover { color:var(--text); background:rgba(255,255,255,0.04); }
-
-.nav-cta {
-  display:inline-flex; align-items:center; gap:7px;
-  padding:8px 16px; border-radius:var(--r-md);
-  font-size:13px; font-weight:600; color:#fff;
-  background:linear-gradient(180deg, var(--tc10), var(--tc9));
-  border:1px solid var(--tc8);
-  box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.18);
-  transition:transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), background var(--dur) var(--ease);
-}
-.nav-cta:hover {
-  background:linear-gradient(180deg, var(--tc11), var(--tc10));
-  transform:translateY(-1px);
-  box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.2);
-}
-.nav-cta svg { width:14px; height:14px; }
-
-
-/* Mobile menu */
-.nav-toggle {
-  display:none;
-  width:36px; height:36px;
-  border-radius:var(--r-md);
-  color:var(--muted);
-  align-items:center; justify-content:center;
-  transition:color var(--dur) var(--ease), background var(--dur) var(--ease);
-}
-.nav-toggle:hover { color:var(--text); background:rgba(255,255,255,0.04); }
-.nav-toggle svg { width:20px; height:20px; }
-
-/* ═══ Container ═══ */
-.wrap {
-  max-width:1320px; margin:0 auto; padding:0 40px;
-  position:relative; z-index:2;
-}
-
-/* ═══ Eyebrow ═══ */
-.eyebrow {
-  display:inline-flex; align-items:center; gap:8px;
-  font-family:'JetBrains Mono', monospace;
-  font-size:11px; font-weight:500; letter-spacing:0.14em;
-  text-transform:uppercase;
-  color:var(--accent);
-}
-.eyebrow::before {
-  content:''; width:18px; height:1px; background:currentColor; opacity:0.5;
-}
-
-/* ═══ HERO ═══ */
-.hero {
-  position:relative; padding:96px 0 60px;
-  overflow:hidden;
-  min-height:100vh;
-  min-height:100dvh;
-  display:flex; align-items:center;
-}
-.hero-grid {
-  display:grid; grid-template-columns:1.15fr 1fr; gap:64px;
-  align-items:center;
-}
-.hero h1 {
-  font-size:clamp(48px, 6.4vw, 88px);
-  line-height:0.98; letter-spacing:-0.035em;
-  font-weight:700;
-  margin:24px 0 24px;
-  color:var(--text);
-  text-wrap:balance;
-}
-.hero h1 em {
-  font-style:normal;
-  background:linear-gradient(180deg, var(--tc11) 0%, var(--tc9) 80%);
-  -webkit-background-clip:text; background-clip:text;
-  -webkit-text-fill-color:transparent; color:transparent;
-}
-.hero-sub {
-  font-size:18px; line-height:1.55; color:var(--text-2);
-  max-width:520px; margin-bottom:36px;
-  text-wrap:pretty;
-}
-.hero-ctas {
-  display:flex; flex-wrap:wrap; align-items:center; gap:14px;
-  margin-bottom:32px;
-}
-.btn {
-  display:inline-flex; align-items:center; gap:9px;
-  padding:14px 22px; border-radius:var(--r-md);
-  font-size:14px; font-weight:600;
-  border:1px solid transparent;
-  transition:all var(--dur) var(--ease);
-}
-.btn svg { width:16px; height:16px; }
-.btn-primary {
-  color:#fff;
-  background:linear-gradient(180deg, var(--tc10), var(--tc9));
-  border-color:var(--tc8);
-  box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.18);
-}
-.btn-primary:hover {
-  background:linear-gradient(180deg, var(--tc11), var(--tc10));
-  transform:translateY(-1px);
-  box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.22);
-}
-.btn-ghost {
-  color:var(--text-2);
-  background:rgba(255,255,255,0.03);
-  border-color:var(--border-strong);
-}
-.btn-ghost:hover {
-  background:rgba(255,255,255,0.06);
-  color:var(--text);
-  border-color:var(--e7);
-}
-
-.hero-meta {
-  display:flex; flex-wrap:wrap; gap:24px;
-  font-size:12px; color:var(--muted);
-  font-family:'JetBrains Mono', monospace;
-}
+/* ── HERO (centered) ── */
+.hero { position:relative; z-index:2; padding:78px 0 90px; text-align:center; overflow:hidden; }
+.hero .eyebrow { justify-content:center; }
+.eyebrow.pill { background:color-mix(in oklch, var(--accent) 9%, transparent); border:1px solid color-mix(in oklch, var(--accent) 22%, transparent); padding:6px 13px 6px 11px; border-radius:999px; color:var(--text-2); }
+.eyebrow.pill::before { width:0; }
+.eyebrow.pill .dot { width:6px; height:6px; border-radius:50%; background:var(--green10); box-shadow:0 0 0 3px color-mix(in oklch, var(--green10) 22%, transparent); }
+.hero h1 { font-size:clamp(48px, 7vw, 98px); line-height:0.95; letter-spacing:-0.04em; font-weight:800; margin:24px auto 22px; max-width:15ch; text-wrap:balance; }
+.hero h1 em { font-style:normal; background:linear-gradient(180deg, var(--tc11), var(--tc9)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.hero-sub { font-size:18px; line-height:1.6; color:var(--text-2); max-width:620px; margin:0 auto 32px; text-wrap:pretty; }
+.hero-ctas { display:flex; flex-wrap:wrap; gap:14px; justify-content:center; margin-bottom:16px; }
+.hero-meta { display:flex; flex-wrap:wrap; gap:8px 22px; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted); letter-spacing:0.03em; }
 .hero-meta span { display:inline-flex; align-items:center; gap:7px; }
 .hero-meta svg { width:14px; height:14px; opacity:0.7; }
 
-/* ═══ HERO RIGHT — app frame ═══ */
-.hero-visual { position:relative; padding-right:40px; }
-.app-frame {
-  position:relative;
-  border-radius:var(--r-xl);
-  background:var(--bg-card);
-  border:1px solid var(--border);
-  box-shadow:var(--shadow-xl);
-  overflow:hidden;
-  transform:perspective(1800px) rotateY(-8deg) rotateX(3deg);
-  transform-origin:left center;
-  max-width:100%;
-}
-.app-frame::before {
-  content:''; position:absolute; inset:0; border-radius:inherit;
-  background-image:url('assets/grain-card.svg');
-  background-size:220px 220px;
-  opacity:0.05; mix-blend-mode:overlay;
-  pointer-events:none; z-index:2;
-}
-.app-frame::after {
-  content:''; position:absolute; inset:0; border-radius:inherit;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
-  pointer-events:none; z-index:3;
-}
-.app-frame .titlebar {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:10px 14px;
-  background:rgba(34,26,23,0.78);
-  border-bottom:1px solid var(--border);
-  backdrop-filter:blur(10px);
-  position:relative; z-index:1;
-}
-.app-frame .titlebar-left {
-  display:flex; align-items:center; gap:8px;
-  font-size:12px; font-weight:600;
-}
+.rise { opacity:0; transform:translateY(24px); animation:rise 0.9s var(--ease-out) forwards; }
+.rise.d1{animation-delay:.05s}.rise.d2{animation-delay:.15s}.rise.d3{animation-delay:.25s}.rise.d4{animation-delay:.35s}.rise.d5{animation-delay:.45s}
+@keyframes rise { to { opacity:1; transform:none; } }
+
+/* Hero product frame — rises from the curves, gentle scroll parallax */
+.hero-frame { position:relative; max-width:1000px; margin:56px auto 0; z-index:2; opacity:0; transform:translateY(40px) scale(0.97); animation:frameIn 1.1s var(--ease-out) 0.5s forwards; }
+@keyframes frameIn { to { opacity:1; transform:none; } }
+.app-frame { position:relative; border-radius:var(--r-xl); background:var(--bg-card); border:1px solid var(--border-strong); box-shadow:var(--shadow-xl); overflow:hidden; }
+.app-frame::after { content:''; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 1px 0 rgba(255,255,255,0.06); pointer-events:none; }
+.app-frame .titlebar { display:flex; align-items:center; justify-content:space-between; padding:11px 16px; background:rgba(34,26,23,0.82); border-bottom:1px solid var(--border); }
+.app-frame .titlebar-left { display:flex; align-items:center; gap:9px; font-size:12.5px; font-weight:600; }
 .app-frame .titlebar-left img { height:16px; }
-.app-frame .titlebar-controls { display:flex; gap:8px; }
-.app-frame .titlebar-controls span {
-  width:11px; height:11px; border-radius:50%;
-}
-.app-frame .titlebar-controls span:nth-child(1) { background:#ec6a5e; }
-.app-frame .titlebar-controls span:nth-child(2) { background:#f4bf4f; }
-.app-frame .titlebar-controls span:nth-child(3) { background:#61c554; }
-.app-frame .screen {
-  width:100%; display:block;
-}
+.app-frame .titlebar-left .accent { color:var(--accent); }
+.app-frame .dots { display:flex; gap:8px; }
+.app-frame .dots span { width:11px; height:11px; border-radius:50%; }
+.app-frame .dots span:nth-child(1){background:#ec6a5e;}.app-frame .dots span:nth-child(2){background:#f4bf4f;}.app-frame .dots span:nth-child(3){background:#61c554;}
+.app-frame .screen { width:100%; display:block; }
+.hero-frame::before { content:''; position:absolute; inset:-1px -1px auto -1px; height:1px; background:linear-gradient(90deg, transparent, var(--accent), transparent); z-index:3; }
+.hero-reflect { position:absolute; left:8%; right:8%; bottom:-46px; height:90px; border-radius:50%; filter:blur(34px); background:radial-gradient(ellipse, color-mix(in oklch, var(--tc9) 30%, transparent), transparent 72%); z-index:0; pointer-events:none; }
 
-/* Floating overlays */
-
-/* ═══ Trust strip ═══ */
-.trust {
-  border-top:1px solid var(--border);
-  border-bottom:1px solid var(--border);
-  padding:28px 0;
-  margin-top:80px;
-}
-.trust-row {
-  display:grid; grid-template-columns:repeat(4,1fr); gap:24px;
-  align-items:center;
-}
-.trust-item {
-  display:flex; flex-direction:column; gap:4px;
-}
-.trust-item .num {
-  font-size:28px; font-weight:700; letter-spacing:-0.02em;
-  color:var(--text);
-}
-.trust-item .num .unit { font-size:14px; color:var(--muted); margin-left:4px; font-weight:500; }
-.trust-item .label {
-  font-family:'JetBrains Mono', monospace;
-  font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase;
-  color:var(--muted);
-}
-
-/* ═══ Section ═══ */
+/* ── Section heads ── */
 section { position:relative; z-index:2; }
-.section-pad { padding:120px 0; }
-.section-head {
-  display:flex; flex-direction:column; gap:18px;
-  margin-bottom:64px;
-  max-width:760px;
-}
-.section-head h2 {
-  font-size:clamp(36px, 4.4vw, 56px);
-  line-height:1.02; letter-spacing:-0.03em;
-  font-weight:700;
-  text-wrap:balance;
-}
-.section-head h2 em {
-  font-style:normal;
-  background:linear-gradient(180deg, var(--tc11), var(--tc9));
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-}
-.section-head p {
-  font-size:17px; color:var(--text-2);
-  max-width:580px;
-  text-wrap:pretty;
-}
+.section-head { display:flex; flex-direction:column; gap:16px; margin-bottom:24px; max-width:780px; }
+.section-head.center { margin-left:auto; margin-right:auto; text-align:center; align-items:center; }
+.section-head h2 { font-size:clamp(34px, 4.6vw, 58px); line-height:1.02; letter-spacing:-0.03em; font-weight:800; text-wrap:balance; }
+.section-head h2 em { font-style:normal; background:linear-gradient(180deg, var(--tc11), var(--tc9)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.section-head p { font-size:17px; color:var(--text-2); max-width:600px; text-wrap:pretty; line-height:1.6; }
 
-/* ═══ Feature trio ═══ */
-.features {
-  display:grid; grid-template-columns:repeat(3, 1fr); gap:18px;
-}
-.feature {
-  position:relative;
-  border-radius:var(--r-xl);
-  background:var(--bg-card);
-  border:1px solid var(--border);
-  padding:32px 28px 28px;
-  overflow:hidden;
-  transition:transform var(--dur) var(--ease), border-color var(--dur) var(--ease);
-}
-.feature::before {
-  content:''; position:absolute; inset:0; border-radius:inherit;
-  background-image:url('assets/grain-card.svg');
-  background-size:220px 220px;
-  opacity:0.045; mix-blend-mode:overlay;
-  pointer-events:none;
-}
-.feature:hover {
-  transform:translateY(-4px);
-  border-color:var(--border-strong);
-}
-.feature > * { position:relative; }
-.feature .icon-box {
-  width:42px; height:42px; border-radius:var(--r-md);
-  display:grid; place-items:center;
-  background:rgba(208,121,89,0.12);
-  background:color-mix(in oklch, var(--accent) 12%, transparent);
-  color:var(--accent);
-  margin-bottom:24px;
-  border:1px solid rgba(208,121,89,0.22);
-  border:1px solid color-mix(in oklch, var(--accent) 22%, transparent);
-}
-.feature .icon-box svg { width:20px; height:20px; }
-.feature h3 {
-  font-size:20px; font-weight:600; letter-spacing:-0.01em;
-  margin-bottom:8px;
-}
-.feature p {
-  font-size:14px; color:var(--text-2); line-height:1.6;
-  text-wrap:pretty;
-}
-.feature .tag-row {
-  display:flex; flex-wrap:wrap; gap:6px;
-  margin-top:20px;
-  padding-top:20px;
-  border-top:1px solid var(--border);
-}
-.feature .tag {
-  font-size:11px; font-weight:500;
-  padding:3px 9px; border-radius:999px;
-  background:rgba(255,255,255,0.04);
-  border:1px solid var(--border);
-  color:var(--text-2);
-  font-family:'JetBrains Mono', monospace;
-  letter-spacing:0.02em;
-}
+/* ── STAT band ── */
+.stats { position:relative; z-index:2; border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:44px 0; background:color-mix(in oklch, var(--e2) 40%, transparent); }
+.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
+.stat-item .n { font-size:42px; font-weight:800; letter-spacing:-0.02em; line-height:1; background:linear-gradient(180deg,var(--e12),var(--tc11)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.stat-item .n .u { font-size:18px; color:var(--muted); margin-left:3px; -webkit-text-fill-color:var(--muted); }
+.stat-item .l { font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-top:9px; }
 
-/* ═══ Name Check spotlight ═══ */
-.spotlight {
-  position:relative;
-  display:grid; grid-template-columns:auto 1fr; gap:44px; align-items:center;
-  margin-top:18px;
-  border-radius:var(--r-xl);
-  background:linear-gradient(180deg, color-mix(in oklch, var(--accent) 7%, var(--bg-card)), var(--bg-card));
-  border:1px solid var(--border-strong);
-  padding:40px 44px;
-  overflow:hidden;
-}
-.spotlight::before {
-  content:''; position:absolute; inset:0; border-radius:inherit;
-  background-image:url('assets/grain-card.svg');
-  background-size:220px 220px;
-  opacity:0.05; mix-blend-mode:overlay; pointer-events:none;
-}
-.spotlight::after {
-  content:''; position:absolute;
-  width:360px; height:360px; border-radius:50%;
-  filter:blur(110px);
-  background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 26%, transparent), transparent 70%);
-  top:-160px; right:-120px; pointer-events:none;
-}
-.spotlight > * { position:relative; z-index:1; }
-.spot-visual { display:flex; flex-direction:column; align-items:center; gap:12px; }
-.ring {
-  width:150px; height:150px; border-radius:50%;
-  background:conic-gradient(var(--accent) calc(var(--p, 92) * 1%), var(--e4) 0);
-  display:grid; place-items:center; position:relative;
-  box-shadow:inset 0 0 0 1px var(--border), 0 8px 28px color-mix(in oklch, var(--tc9) 18%, transparent);
-}
-.ring::before {
-  content:''; position:absolute; inset:12px; border-radius:50%;
-  background:var(--bg-card);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
-}
-.ring .score { position:relative; font-size:38px; font-weight:700; letter-spacing:-0.02em; }
-.ring .score small { font-size:17px; font-weight:600; color:var(--muted); margin-left:1px; }
-.ring-label {
-  font-family:'JetBrains Mono', monospace;
-  font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted);
-}
-.spot-badge {
-  display:inline-flex; align-items:center; gap:7px;
-  font-family:'JetBrains Mono', monospace;
-  font-size:11px; font-weight:500; letter-spacing:0.06em; text-transform:uppercase;
-  color:var(--accent);
-  background:color-mix(in oklch, var(--accent) 12%, transparent);
-  border:1px solid color-mix(in oklch, var(--accent) 24%, transparent);
-  padding:5px 12px; border-radius:999px;
-  margin-bottom:16px;
-}
-.spot-badge svg { width:13px; height:13px; }
-.spotlight h3 {
-  font-size:26px; font-weight:600; letter-spacing:-0.02em; margin-bottom:10px;
-  text-wrap:balance;
-}
-.spotlight p {
-  font-size:15px; color:var(--text-2); line-height:1.65; max-width:560px;
-  text-wrap:pretty;
-}
-.spotlight .tag-row { border-top:none; padding-top:0; margin-top:20px; }
+/* ── PIPELINE (scroll-fill timeline) ── */
+.pipeline { position:relative; padding:108px 0 90px; }
+.pipe { position:relative; max-width:1120px; margin:76px auto 0; }
+.rail { position:absolute; top:0; bottom:0; left:50%; width:2px; transform:translateX(-50%); background:var(--border); border-radius:2px; }
+.rail-fill { position:absolute; top:0; left:0; width:100%; height:0; background:linear-gradient(180deg, var(--tc11), var(--tc9)); border-radius:2px; box-shadow:0 0 14px color-mix(in oklch, var(--accent) 60%, transparent); }
+.rail-comet { position:absolute; top:0; left:50%; transform:translate(-50%,-50%); width:16px; height:16px; border-radius:50%; background:var(--tc11); box-shadow:0 0 0 5px color-mix(in oklch, var(--accent) 22%, transparent), 0 0 24px 4px color-mix(in oklch, var(--accent) 60%, transparent); opacity:0; }
 
-/* ═══ Video section ═══ */
-.video {
-  position:relative;
-  border-radius:var(--r-2xl);
-  border:1px solid var(--border);
-  background:var(--bg-card);
-  overflow:hidden;
-  aspect-ratio:16/9;
-  cursor:pointer;
-  transition:border-color var(--dur) var(--ease);
-}
-.video:hover { border-color:var(--border-strong); }
-.video::before {
-  content:''; position:absolute; inset:0;
-  background:
-    radial-gradient(circle at 30% 30%, color-mix(in oklch, var(--tc9) 22%, transparent), transparent 60%),
-    radial-gradient(circle at 70% 70%, color-mix(in oklch, var(--tc9) 15%, transparent), transparent 60%),
-    linear-gradient(180deg, var(--e2), var(--e1));
-}
-.video::after {
-  content:''; position:absolute; inset:0;
-  background-image:url('assets/grain-coarse.svg');
-  background-size:480px 480px;
-  opacity:0.18; mix-blend-mode:soft-light;
-}
-.video-inner {
-  position:relative; z-index:2;
-  width:100%; height:100%;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:24px;
-}
-.play-btn {
-  width:104px; height:104px; border-radius:50%;
-  display:grid; place-items:center;
-  background:linear-gradient(180deg, var(--tc10), var(--tc9));
-  border:1px solid var(--tc8);
-  box-shadow:var(--shadow-xl), 0 0 0 12px color-mix(in oklch, var(--tc9) 12%, transparent), 0 0 0 24px color-mix(in oklch, var(--tc9) 6%, transparent);
-  transition:transform var(--dur) var(--ease);
-}
-.video:hover .play-btn { transform:scale(1.05); }
-.play-btn svg {
-  width:36px; height:36px; color:#fff;
-  margin-left:4px;
-}
-.video-label {
-  font-family:'JetBrains Mono', monospace;
-  font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
-  color:var(--muted);
-}
-.video-caption {
-  display:flex; align-items:center; justify-content:space-between;
-  margin-top:18px;
-  font-size:13px; color:var(--muted);
-}
-.video-caption .dur {
-  font-family:'JetBrains Mono', monospace;
-}
+.node { position:relative; display:grid; grid-template-columns:1fr 96px 1fr; align-items:center; min-height:220px; }
+.node:not(:last-child){ margin-bottom:28px; }
+.node-dot { grid-column:2; justify-self:center; width:54px; height:54px; border-radius:50%; display:grid; place-items:center; background:var(--bg-card); border:1px solid var(--border-strong); color:var(--muted); z-index:3; transition:all 0.5s var(--ease); position:relative; }
+.node-dot svg, .node-dot i { width:22px; height:22px; }
+.node-dot .ord { position:absolute; top:-9px; right:-9px; width:22px; height:22px; border-radius:50%; background:var(--bg-elev); border:1px solid var(--border-strong); font-family:'JetBrains Mono',monospace; font-size:10px; display:grid; place-items:center; color:var(--muted); }
+.node.lit .node-dot { background:color-mix(in oklch, var(--accent) 16%, var(--bg-card)); border-color:var(--accent); color:var(--accent); box-shadow:0 0 0 6px color-mix(in oklch, var(--accent) 12%, transparent), 0 10px 30px color-mix(in oklch, var(--accent) 24%, transparent); transform:scale(1.06); }
+.node.lit .node-dot .ord { color:var(--accent); border-color:color-mix(in oklch,var(--accent) 40%,transparent); }
 
-/* ═══ Who we are ═══ */
-.who {
-  display:grid; grid-template-columns:1fr 1.05fr; gap:80px;
-  align-items:start;
-}
-.who-side {
-  position:sticky; top:120px;
-}
-.who-mark {
-  width:88px; height:88px; border-radius:24px;
-  background:var(--bg-card);
-  border:1px solid var(--border-strong);
-  display:grid; place-items:center;
-  margin-bottom:28px;
-  position:relative;
-  overflow:hidden;
-}
-.who-mark::before {
-  content:''; position:absolute; inset:0;
-  background:radial-gradient(circle at 30% 20%, color-mix(in oklch, var(--tc9) 30%, transparent), transparent 60%);
-}
-.who-mark img { height:60px; width:auto; position:relative; z-index:1; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.4)); }
+/* node card */
+.node-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-xl); padding:32px 32px 28px; box-shadow:var(--shadow-md); opacity:0; transform:translateY(28px); transition:opacity 0.7s var(--ease), transform 0.7s var(--ease), border-color 0.5s var(--ease); position:relative; overflow:hidden; }
+.node-card::before { content:''; position:absolute; inset:0; background-image:url('assets/grain-card.svg'); background-size:220px; opacity:0.05; mix-blend-mode:overlay; pointer-events:none; }
+.node-card > * { position:relative; }
+.node.in .node-card { opacity:1; transform:none; }
+.node.lit .node-card { border-color:color-mix(in oklch, var(--accent) 30%, transparent); }
+.node:nth-child(odd) .node-card { grid-column:1; }
+.node:nth-child(even) .node-card { grid-column:3; }
+.node-kicker { display:inline-flex; align-items:center; gap:8px; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+.node-card h3 { font-size:25px; font-weight:700; letter-spacing:-0.02em; margin-bottom:12px; }
+.node-card .lead { font-size:15px; color:var(--text-2); line-height:1.62; margin-bottom:20px; text-wrap:pretty; }
+.node-tags { display:flex; flex-wrap:wrap; gap:6px; }
+.node-tags .tag { font-size:11px; font-weight:500; padding:3px 9px; border-radius:999px; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--text-2); font-family:'JetBrains Mono',monospace; }
 
-.who-content p {
-  font-size:18px; line-height:1.65; color:var(--text-2);
-  margin-bottom:20px;
-  text-wrap:pretty;
-}
-.who-content p:first-of-type::first-letter {
-  font-size:64px; float:left; line-height:0.9;
-  padding-right:14px; margin-top:6px;
-  font-weight:600;
-  color:var(--accent);
-}
-.who-content p strong {
-  color:var(--text); font-weight:600;
-}
+/* node visual on the opposite side */
+.node-viz { opacity:0; transform:translateY(28px); transition:opacity 0.7s var(--ease) 0.08s, transform 0.7s var(--ease) 0.08s; }
+.node.in .node-viz { opacity:1; transform:none; }
+.node:nth-child(odd) .node-viz { grid-column:3; }
+.node:nth-child(even) .node-viz { grid-column:1; }
 
-.who-meta {
-  display:grid; grid-template-columns:repeat(2,1fr); gap:18px;
-  margin-top:36px;
-  padding-top:32px;
-  border-top:1px solid var(--border);
-}
-.who-meta-item {
-  font-family:'JetBrains Mono', monospace;
-}
-.who-meta-item .k {
-  font-size:10.5px; letter-spacing:0.14em; text-transform:uppercase;
-  color:var(--muted);
-  margin-bottom:6px;
-}
-.who-meta-item .v {
-  font-size:14px; color:var(--text); font-weight:500;
-}
+/* crafted mini app window */
+.mini { background:var(--bg-elev); border:1px solid var(--border-strong); border-radius:var(--r-lg); overflow:hidden; box-shadow:var(--shadow-lg); position:relative; }
+.mini::after { content:''; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 1px 0 rgba(255,255,255,0.05); pointer-events:none; }
+.mini-bar { display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--border); font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--muted); letter-spacing:0.05em; background:rgba(34,26,23,0.5); }
+.mini-bar .led { width:7px; height:7px; border-radius:50%; background:var(--green10); box-shadow:0 0 7px var(--green10); animation:ledpulse 2.4s ease-in-out infinite; }
+.mini-bar .led.amber { background:var(--amber9); box-shadow:0 0 7px var(--amber9); }
+@keyframes ledpulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+.mini-bar .right { margin-left:auto; opacity:0.7; }
+.mini-body { padding:16px; }
 
-/* ═══ Download section ═══ */
-.download {
-  position:relative;
-  border-radius:var(--r-2xl);
-  border:1px solid var(--border-strong);
-  background:linear-gradient(180deg,
-    color-mix(in oklch, var(--accent) 8%, var(--bg-card)) 0%,
-    var(--bg-card) 100%);
-  padding:64px;
-  overflow:hidden;
-}
-.download::before {
-  content:''; position:absolute; inset:0; border-radius:inherit;
-  background-image:url('assets/grain-coarse.svg');
-  background-size:480px 480px;
-  opacity:0.05; mix-blend-mode:overlay;
-  pointer-events:none;
-}
-.download::after {
-  content:''; position:absolute;
-  width:600px; height:600px; border-radius:50%;
-  filter:blur(120px);
-  background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 35%, transparent), transparent 70%);
-  top:-300px; right:-200px;
-  pointer-events:none;
-}
-.download-grid {
-  position:relative; z-index:2;
-  display:grid; grid-template-columns:1.2fr 1fr; gap:60px;
-  align-items:start;
-}
-.download h2 {
-  font-size:clamp(34px, 3.8vw, 48px);
-  line-height:1.02; letter-spacing:-0.03em;
-  font-weight:700; margin-bottom:18px;
-  text-wrap:balance;
-}
-.download h2 em {
-  font-style:normal;
-  background:linear-gradient(180deg, var(--tc11), var(--tc9));
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-}
-.download p {
-  font-size:16px; color:var(--text-2);
-  max-width:480px; margin-bottom:32px;
-}
+/* finder rows */
+.mrow { display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:9px; background:rgba(255,255,255,0.02); border:1px solid var(--border); margin-bottom:8px; transition:all 0.4s var(--ease); }
+.mrow:last-child{margin-bottom:0;}
+.mrow .mi { width:30px; height:30px; border-radius:8px; display:grid; place-items:center; flex:none; background:rgba(255,255,255,0.04); color:var(--muted); }
+.mrow .mi svg { width:15px; height:15px; }
+.mrow .mtwrap { min-width:0; }
+.mrow .mt { font-size:12.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mrow .ms { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.02em; }
+.mrow .mstat { margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:10px; display:inline-flex; align-items:center; gap:6px; padding:3px 8px; border-radius:999px; white-space:nowrap; }
+.mstat.watching { color:var(--muted); background:rgba(255,255,255,0.03); }
+.mstat.found { color:var(--tc11); background:color-mix(in oklch, var(--accent) 14%, transparent); border:1px solid color-mix(in oklch, var(--accent) 26%, transparent); }
+.mstat.ok { color:var(--green10); background:color-mix(in oklch, var(--green10) 12%, transparent); }
+.mrow .pulse { width:6px; height:6px; border-radius:50%; background:currentColor; animation:pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:.4;transform:scale(.8)} 50%{opacity:1;transform:scale(1.2)} }
+.mrow.hot { background:color-mix(in oklch, var(--accent) 8%, transparent); border-color:color-mix(in oklch, var(--accent) 26%, transparent); }
+.mrow.hot .mi { background:color-mix(in oklch, var(--accent) 16%, transparent); color:var(--accent); }
 
-/* Platform tabs */
-.platform-tabs {
-  display:inline-flex;
-  background:rgba(255,255,255,0.08);
-  border:1px solid var(--border-strong);
-  border-radius:var(--r-md);
-  padding:4px;
-  margin-bottom:28px;
-  gap:4px;
-}
-.platform-tab {
-  display:flex; align-items:center; gap:8px;
-  padding:12px 24px;
-  border-radius:calc(var(--r-md) - 2px);
-  font-size:14px; font-weight:600;
-  color:var(--text-2);
-  transition:all var(--dur) var(--ease);
-}
-.platform-tab svg { width:16px; height:16px; }
-.platform-tab:hover { color:var(--text); }
-.platform-tab.active {
-  color:#fff;
-  background:var(--accent);
-  box-shadow:var(--shadow-md);
-}
-.platform-tab.detected::after {
-  content:'your OS';
-  font-size:9px;
-  font-weight:500;
-  text-transform:uppercase;
-  letter-spacing:0.08em;
-  color:var(--green10);
-  margin-left:2px;
-}
+/* downloader file card */
+.dl-file { display:flex; align-items:center; gap:12px; padding:13px; border-radius:10px; background:rgba(255,255,255,0.02); border:1px solid var(--border); margin-bottom:12px; }
+.dl-file .fi { width:38px; height:38px; border-radius:9px; display:grid; place-items:center; background:color-mix(in oklch, var(--accent) 14%, transparent); color:var(--accent); flex:none; }
+.dl-file .fi svg { width:18px; height:18px; }
+.dl-file .fname { font-size:12.5px; font-weight:600; }
+.dl-file .fpath { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); }
+.dl-prog { height:6px; border-radius:4px; background:rgba(255,255,255,0.06); overflow:hidden; margin:14px 0 10px; }
+.dl-prog i { display:block; height:100%; width:0; border-radius:4px; background:linear-gradient(90deg, var(--tc10), var(--tc9)); transition:width 1.4s var(--ease); }
+.node.in .dl-prog i { width:100%; }
+.dl-meta { display:flex; align-items:center; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); }
+.dl-meta .ok { color:var(--green10); display:inline-flex; align-items:center; gap:5px; }
+.dl-meta .ok svg { width:12px; height:12px; }
 
-.dl-platform { display:none; }
-.dl-platform.active { display:block; }
+/* orders kanban */
+.kanban { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; }
+.kcol { background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:9px; padding:10px; }
+.kcol h6 { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:9px; display:flex; align-items:center; gap:5px; }
+.kcol h6 .c { width:6px; height:6px; border-radius:2px; }
+.kcard { background:var(--bg-card); border:1px solid var(--border); border-radius:7px; padding:9px; margin-bottom:7px; box-shadow:var(--shadow-sm); }
+.kcard:last-child{margin-bottom:0;}
+.kcard .kl { height:3px; width:30px; border-radius:2px; margin-bottom:7px; }
+.kcard .kt { font-size:10.5px; font-weight:600; line-height:1.3; }
+.kcard .km { font-family:'JetBrains Mono',monospace; font-size:8.5px; color:var(--muted); margin-top:4px; }
+.kcard.glide { animation:glidein 0.7s var(--ease) both; }
+@keyframes glidein { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+.sync-note { display:flex; align-items:center; gap:7px; margin-top:13px; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); }
+.sync-note svg { width:13px; height:13px; opacity:0.8; }
+.sync-note .accent { color:var(--accent); }
 
-.download .btn-primary { padding:16px 28px; font-size:15px; }
-.download-meta {
-  margin-top:24px;
-  font-family:'JetBrains Mono', monospace;
-  font-size:12px; color:var(--muted);
-  display:flex; flex-wrap:wrap; gap:18px;
-}
-.download-meta span { display:inline-flex; align-items:center; gap:6px; }
-.download-meta svg { width:13px; height:13px; opacity:0.7; }
+/* ── NAME CHECK spotlight ── */
+.namecheck { padding:60px 0 100px; }
+.nc-card { position:relative; border-radius:var(--r-2xl); border:1px solid var(--border-strong); background:linear-gradient(160deg, color-mix(in oklch, var(--accent) 7%, var(--bg-card)), var(--bg-card)); overflow:hidden; display:grid; grid-template-columns:1.1fr 1fr; gap:48px; padding:56px 56px; align-items:center; }
+.nc-card::after { content:''; position:absolute; width:560px; height:560px; border-radius:50%; filter:blur(120px); background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 26%, transparent), transparent 70%); top:-280px; right:-160px; pointer-events:none; }
+.nc-card > * { position:relative; z-index:1; }
+.nc-badge { display:inline-flex; align-items:center; gap:8px; padding:6px 13px; border-radius:999px; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--green10); background:color-mix(in oklch, var(--green10) 12%, transparent); border:1px solid color-mix(in oklch, var(--green10) 26%, transparent); margin-bottom:20px; }
+.nc-badge .new { color:var(--accent); }
+.nc-copy h2 { font-size:clamp(30px,3.6vw,46px); font-weight:800; letter-spacing:-0.03em; line-height:1.04; margin-bottom:16px; text-wrap:balance; }
+.nc-copy p { font-size:16px; color:var(--text-2); line-height:1.62; margin-bottom:22px; text-wrap:pretty; }
+.nc-tags { display:flex; flex-wrap:wrap; gap:8px; }
+.nc-tags .tag { font-size:11.5px; font-weight:500; padding:5px 11px; border-radius:999px; background:rgba(255,255,255,0.04); border:1px solid var(--border-strong); color:var(--text-2); display:inline-flex; align-items:center; gap:6px; }
+.nc-tags .tag svg { width:13px; height:13px; color:var(--accent); }
 
-.dl-spec {
-  background:rgba(20,12,4,0.4);
-  border:1px solid var(--border);
-  border-radius:var(--r-lg);
-  padding:24px;
-  backdrop-filter:blur(20px);
-}
-.dl-spec h4 {
-  font-family:'JetBrains Mono', monospace;
-  font-size:11px; font-weight:500;
-  letter-spacing:0.14em; text-transform:uppercase;
-  color:var(--accent);
-  margin-bottom:18px;
-}
-.dl-spec dl {
-  display:grid; grid-template-columns:auto 1fr; gap:10px 20px;
-  font-family:'JetBrains Mono', monospace; font-size:12.5px;
-}
-.dl-spec dt { color:var(--muted); }
-.dl-spec dd {
-  color:var(--text);
-  word-break:break-all;
-}
-.dl-spec dd.hash { font-size:11px; line-height:1.5; color:var(--text-2); }
+/* name-check demo panel */
+.nc-demo { background:var(--bg-elev); border:1px solid var(--border-strong); border-radius:var(--r-xl); padding:24px; box-shadow:var(--shadow-lg); }
+.nc-input { display:flex; align-items:center; gap:10px; padding:13px 15px; border-radius:var(--r-md); background:rgba(255,255,255,0.03); border:1px solid var(--border-strong); margin-bottom:22px; }
+.nc-input svg { width:17px; height:17px; color:var(--accent); flex:none; }
+.nc-input .val { font-size:14px; font-weight:600; }
+.nc-input .caret { width:1.5px; height:16px; background:var(--accent); margin-left:1px; animation:blink 1.1s step-end infinite; }
+@keyframes blink { 50% { opacity:0; } }
+.nc-ringwrap { display:flex; align-items:center; gap:22px; }
+.nc-ring { --p:0; position:relative; width:120px; height:120px; flex:none; border-radius:50%;
+  background:conic-gradient(var(--green10) calc(var(--p)*1%), rgba(255,255,255,0.06) 0);
+  display:grid; place-items:center; transition:--p 1.4s var(--ease); }
+.nc-ring::before { content:''; position:absolute; inset:9px; border-radius:50%; background:var(--bg-elev); }
+.nc-ring .score { position:relative; font-size:34px; font-weight:800; letter-spacing:-0.02em; line-height:1; }
+.nc-ring .score .pct { font-size:15px; color:var(--muted); }
+.nc-ring .lbl { position:relative; font-family:'JetBrains Mono',monospace; font-size:8.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-top:3px; }
+.nc-factors { flex:1; display:flex; flex-direction:column; gap:10px; }
+.nc-factor { display:flex; align-items:center; gap:9px; font-size:12px; color:var(--text-2); }
+.nc-factor svg { width:15px; height:15px; color:var(--green10); flex:none; }
+.nc-factor.warn svg { color:var(--amber9); }
 
-/* ═══ Pricing preview ═══ */
-.pricing-strip {
-  display:grid; grid-template-columns:repeat(4, 1fr); gap:14px;
-  margin-top:48px;
-}
-.price-card {
-  position:relative;
-  border-radius:var(--r-lg);
-  background:var(--bg-card);
-  border:1px solid var(--border);
-  padding:24px 20px;
-  text-align:center;
-  overflow:hidden;
-  transition:transform var(--dur) var(--ease), border-color var(--dur) var(--ease);
-}
-.price-card::before {
-  content:''; position:absolute; inset:0; border-radius:inherit;
-  background-image:url('assets/grain-card.svg');
-  background-size:220px 220px;
-  opacity:0.045; mix-blend-mode:overlay;
-  pointer-events:none;
-}
-.price-card:hover {
-  transform:translateY(-3px);
-  border-color:var(--border-strong);
-}
-.price-card > * { position:relative; }
-.price-card .slots {
-  font-family:'JetBrains Mono', monospace;
-  font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
-  color:var(--accent);
-  margin-bottom:12px;
-}
-.price-card .amount {
-  font-size:32px; font-weight:700; letter-spacing:-0.02em;
-  margin-bottom:4px;
-}
-.price-card .amount .cur { font-size:16px; font-weight:500; color:var(--muted); vertical-align:super; }
-.price-card .period {
-  font-size:12px; color:var(--muted);
-}
-.price-card.popular {
-  border-color:rgba(208,121,89,0.4);
-  border-color:color-mix(in oklch, var(--accent) 40%, transparent);
-  background:linear-gradient(180deg, rgba(208,121,89,0.06), var(--bg-card));
-  background:linear-gradient(180deg, color-mix(in oklch, var(--accent) 6%, var(--bg-card)), var(--bg-card));
-}
-.price-card.popular .pop-tag {
-  position:absolute; top:0; right:0;
-  padding:4px 10px;
-  font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
-  background:var(--accent);
-  color:#fff;
-  border-radius:0 0 0 var(--r-sm);
-}
-.price-btn {
-  display:inline-block; margin-top:16px; padding:8px 24px;
-  background:var(--accent); color:#fff;
-  border:none; border-radius:var(--r-sm);
-  font-size:13px; font-weight:600; cursor:pointer;
-  transition:opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
-  position:relative;
-}
-.price-btn:hover { opacity:0.88; transform:translateY(-1px); }
-.price-btn:disabled { opacity:0.5; cursor:wait; }
+/* ── SEE IT WORK ── */
+.demo-band { padding:80px 0; }
+.demo-frame { position:relative; max-width:1000px; margin:36px auto 0; border-radius:var(--r-xl); border:1px solid var(--border-strong); background:var(--bg-card); box-shadow:var(--shadow-xl); overflow:hidden; aspect-ratio:16/9; display:grid; place-items:center; }
+.demo-frame::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 50% 40%, color-mix(in oklch, var(--accent) 12%, transparent), transparent 60%); }
+.demo-frame .grain-ph { position:absolute; inset:0; background-image:url('assets/grain-card.svg'); background-size:260px; opacity:0.06; mix-blend-mode:overlay; }
+.demo-inner { position:relative; text-align:center; z-index:1; }
+.demo-play { width:74px; height:74px; border-radius:50%; display:grid; place-items:center; margin:0 auto 20px; background:linear-gradient(180deg, var(--tc10), var(--tc9)); box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.2); color:#fff; transition:transform var(--dur) var(--ease); }
+.demo-play svg { width:28px; height:28px; margin-left:3px; }
+.demo-frame:hover .demo-play { transform:scale(1.06); }
+.demo-tag { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+.demo-cap { font-size:13px; color:var(--muted); margin-top:14px; }
+.demo-time { position:absolute; bottom:16px; right:18px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); background:rgba(0,0,0,0.4); padding:4px 10px; border-radius:999px; border:1px solid var(--border); }
 
-/* ═══ FOOTER ═══ */
-footer {
-  border-top:1px solid var(--border);
-  padding:56px 0 40px;
-  margin-top:60px;
-  position:relative; z-index:2;
-}
-.foot-grid {
-  display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:48px;
-  margin-bottom:48px;
-}
-.foot-brand {
-  display:flex; align-items:center; gap:10px;
-  font-weight:700; font-size:16px; letter-spacing:-0.3px;
-  margin-bottom:14px;
-}
-.foot-brand img { height:24px; }
-.foot-brand .accent { color:var(--accent); }
-.foot-tag {
-  font-size:13px; color:var(--muted); max-width:280px; line-height:1.55;
-}
-.foot-col h5 {
-  font-family:'JetBrains Mono', monospace;
-  font-size:11px; font-weight:500;
-  letter-spacing:0.14em; text-transform:uppercase;
-  color:var(--muted);
-  margin-bottom:18px;
-}
-.foot-col a {
-  display:block;
-  font-size:13.5px; color:var(--text-2);
-  padding:5px 0;
-  transition:color var(--dur) var(--ease);
-}
-.foot-col a:hover { color:var(--accent); }
-.foot-bottom {
-  border-top:1px solid var(--border);
-  padding-top:28px;
-  display:flex; align-items:center; justify-content:space-between;
-  font-family:'JetBrains Mono', monospace;
-  font-size:11.5px; color:var(--subtle);
-  letter-spacing:0.02em;
-}
+/* ── WHO WE ARE ── */
+.who { padding:90px 0; }
+.who-grid { display:grid; grid-template-columns:1.25fr 1fr; gap:56px; align-items:start; }
+.who-copy h2 { font-size:clamp(32px,4.2vw,52px); font-weight:800; letter-spacing:-0.03em; line-height:1.04; margin-bottom:24px; text-wrap:balance; }
+.who-copy h2 em { font-style:normal; background:linear-gradient(180deg,var(--tc11),var(--tc9)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.who-copy p { font-size:16px; color:var(--text-2); line-height:1.7; margin-bottom:18px; text-wrap:pretty; }
+.who-copy p strong { color:var(--text); font-weight:600; }
+.who-facts { background:var(--bg-card); border:1px solid var(--border-strong); border-radius:var(--r-xl); padding:10px 28px; box-shadow:var(--shadow-md); }
+.who-fact { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 0; border-bottom:1px solid var(--border); }
+.who-fact:last-child { border-bottom:none; }
+.who-fact .k { font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+.who-fact .v { font-size:15px; font-weight:600; text-align:right; }
+.who-fact .v.accent { color:var(--accent); }
+.who-badge { display:flex; align-items:center; gap:13px; padding:18px 0 4px; }
+.who-badge img { height:34px; }
+.who-badge .wb-t { font-weight:700; font-size:15px; }
+.who-badge .wb-s { font-size:12px; color:var(--muted); }
 
-/* ═══ Responsive ═══ */
-@media (max-width: 1060px) {
-  .hero-grid, .who, .download-grid { grid-template-columns:1fr; gap:48px; }
-  .app-frame { transform:none; }
-  .hero-visual { padding-right:0; }
-  .features { grid-template-columns:1fr; }
-  .spotlight { grid-template-columns:1fr; gap:28px; }
-  .trust-row { grid-template-columns:repeat(2,1fr); }
-  .foot-grid { grid-template-columns:1fr 1fr; }
-  .pricing-strip { grid-template-columns:repeat(2,1fr); }
-  .download { padding:40px 32px; }
-  .section-pad { padding:80px 0; }
-  .wrap { padding:0 24px; }
-  .nav { padding:14px 24px; }
-  .who-side { position:static; }
+/* ── PRICING ── */
+.pricing { padding:90px 0; }
+.price-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:48px; }
+.price-card { position:relative; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-xl); padding:30px 26px; display:flex; flex-direction:column; transition:transform var(--dur) var(--ease), border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+.price-card:hover { transform:translateY(-4px); border-color:var(--border-strong); box-shadow:var(--shadow-lg); }
+.price-card.popular { border-color:color-mix(in oklch, var(--accent) 42%, transparent); background:linear-gradient(180deg, color-mix(in oklch, var(--accent) 8%, var(--bg-card)), var(--bg-card)); box-shadow:var(--shadow-lg); }
+.price-tag { position:absolute; top:-11px; left:50%; transform:translateX(-50%); font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; color:#fff; background:linear-gradient(180deg,var(--tc10),var(--tc9)); border:1px solid var(--tc8); padding:5px 12px; border-radius:999px; box-shadow:var(--shadow-sm); }
+.price-name { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
+.price-amt { font-size:46px; font-weight:800; letter-spacing:-0.03em; line-height:1; }
+.price-amt .cur { font-size:24px; vertical-align:top; color:var(--text-2); }
+.price-unit { font-size:13px; color:var(--muted); margin-top:10px; margin-bottom:22px; }
+.price-card .btn { width:100%; justify-content:center; margin-top:auto; }
+.price-note { text-align:center; margin-top:30px; font-size:13.5px; color:var(--muted); }
+.price-note a { color:var(--accent); border-bottom:1px solid color-mix(in oklch, var(--accent) 40%, transparent); }
+.includes { display:flex; flex-wrap:wrap; gap:10px 22px; justify-content:center; margin-top:26px; }
+.includes span { display:inline-flex; align-items:center; gap:7px; font-size:13px; color:var(--text-2); }
+.includes svg { width:15px; height:15px; color:var(--green10); }
+
+/* ── DOWNLOAD ── */
+.download { padding:40px 0 110px; }
+.dl-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:44px; }
+.dl-card { position:relative; background:var(--bg-card); border:1px solid var(--border-strong); border-radius:var(--r-xl); padding:34px; overflow:hidden; }
+.dl-card::after { content:''; position:absolute; width:360px; height:360px; border-radius:50%; filter:blur(120px); background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 18%, transparent), transparent 70%); top:-200px; right:-120px; pointer-events:none; }
+.dl-card > * { position:relative; }
+.dl-os { display:flex; align-items:center; gap:11px; margin-bottom:20px; }
+.dl-os .oi { width:40px; height:40px; border-radius:10px; display:grid; place-items:center; background:rgba(255,255,255,0.04); border:1px solid var(--border-strong); color:var(--accent); }
+.dl-os .oi svg { width:20px; height:20px; }
+.dl-os .ot { font-size:17px; font-weight:700; }
+.dl-os .os { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); }
+.dl-specs { display:grid; grid-template-columns:1fr 1fr; gap:14px 18px; margin:22px 0 24px; padding:20px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+.dl-spec .sk { font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+.dl-spec .sv { font-size:13px; font-weight:600; }
+
+/* ── CTA band ── */
+.cta-band { padding:30px 0 110px; }
+.cta-card { position:relative; border-radius:var(--r-2xl); border:1px solid var(--border-strong); background:linear-gradient(180deg, color-mix(in oklch, var(--accent) 9%, var(--bg-card)), var(--bg-card)); padding:72px 64px; overflow:hidden; text-align:center; }
+.cta-card::after { content:''; position:absolute; width:680px; height:680px; border-radius:50%; filter:blur(120px); background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 30%, transparent), transparent 70%); top:-340px; left:50%; transform:translateX(-50%); pointer-events:none; }
+.cta-card > * { position:relative; z-index:1; }
+.cta-card h2 { font-size:clamp(32px,4.2vw,52px); font-weight:800; letter-spacing:-0.03em; margin-bottom:16px; text-wrap:balance; }
+.cta-card h2 em { font-style:normal; background:linear-gradient(180deg,var(--tc11),var(--tc9)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.cta-card p { font-size:17px; color:var(--text-2); max-width:500px; margin:0 auto 32px; line-height:1.6; }
+.cta-ctas { display:flex; flex-wrap:wrap; gap:14px; justify-content:center; }
+
+/* reveal */
+.reveal { opacity:0; transform:translateY(28px); transition:opacity 0.7s var(--ease), transform 0.7s var(--ease); }
+.reveal.visible { opacity:1; transform:none; }
+
+/* real app screenshot frame */
+.shot { position:relative; border-radius:var(--r-lg); overflow:hidden; border:1px solid var(--border-strong); box-shadow:var(--shadow-lg); background:var(--bg-elev); }
+.shot::after { content:''; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 1px 0 rgba(255,255,255,0.05); pointer-events:none; z-index:2; }
+.shot-bar { display:flex; align-items:center; gap:9px; padding:9px 13px; background:rgba(34,26,23,0.72); border-bottom:1px solid var(--border); }
+.shot-bar .dots { display:flex; gap:7px; }
+.shot-bar .dots span { width:10px; height:10px; border-radius:50%; }
+.shot-bar .dots span:nth-child(1){background:#ec6a5e;} .shot-bar .dots span:nth-child(2){background:#f4bf4f;} .shot-bar .dots span:nth-child(3){background:#61c554;}
+.shot-bar .cap { margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.07em; text-transform:uppercase; color:var(--muted); }
+.shot img { width:100%; display:block; }
+/* name-check feature shot (real app) */
+.nc-shot { position:relative; border-radius:var(--r-lg); overflow:hidden; border:1px solid var(--border-strong); box-shadow:var(--shadow-lg); aspect-ratio:13/10; }
+.nc-shot img { width:100%; height:100%; object-fit:cover; object-position:center 50%; display:block; }
+
+/* scroll progress bar */
+.scroll-progress { position:fixed; top:0; left:0; height:2px; width:0; z-index:100; background:linear-gradient(90deg, var(--tc9), var(--tc11)); box-shadow:0 0 10px color-mix(in oklch, var(--accent) 70%, transparent); }
+
+/* parallax + stagger */
+[data-parallax] { will-change:transform; }
+.stagger > * { opacity:0; transform:translateY(24px); transition:opacity 0.65s var(--ease), transform 0.65s var(--ease); }
+.stagger.visible > * { opacity:1; transform:none; }
+.hero-frame { perspective:1700px; }
+.app-frame { transform-style:preserve-3d; }
+
+/* heading word reveal */
+.wreveal .w { display:inline-block; opacity:0; transform:translateY(0.5em); transition:opacity 0.6s var(--ease), transform 0.6s var(--ease); }
+.wreveal.visible .w { opacity:1; transform:none; }
+
+@media (max-width: 980px) {
+  .nc-card, .who-grid { grid-template-columns:1fr; gap:34px; }
+  .price-grid { grid-template-columns:1fr 1fr; gap:16px; }
+  .dl-grid { grid-template-columns:1fr; }
 }
-@media (max-width: 768px) {
-  .hero { padding:72px 0 40px; min-height:auto; }
-  .hero h1 { font-size:clamp(36px, 8vw, 48px); }
-  .hero-sub { font-size:16px; }
-  .section-pad { padding:64px 0; }
-  .section-head { margin-bottom:40px; }
-  .section-head h2 { font-size:clamp(28px, 5.5vw, 40px); }
-  .download { padding:32px 24px; }
-  .download-grid { gap:36px; }
-  .download h2 { font-size:clamp(26px, 5vw, 36px); }
-  .who { gap:32px; }
-  .who-content p { font-size:16px; }
-  .who-content p:first-of-type::first-letter { font-size:48px; }
-  .hero-meta { gap:16px; font-size:11px; }
-  .play-btn { width:80px; height:80px; }
-  .play-btn svg { width:28px; height:28px; }
+@media (max-width: 900px) {
+  .node { grid-template-columns:44px 1fr; gap:18px; min-height:0; margin-bottom:40px !important; }
+  .rail { left:22px; }
+  .node-dot { grid-column:1; width:44px; height:44px; }
+  .node-card, .node-viz { grid-column:2 !important; }
+  .node-viz { margin-top:16px; }
+  .rail-comet { left:22px; }
 }
 @media (max-width: 600px) {
-  .nav-links {
-    display:none;
-    position:fixed; top:60px; left:0; right:0;
-    background:var(--nav-bg);
-    backdrop-filter:blur(28px) saturate(180%);
-    -webkit-backdrop-filter:blur(28px) saturate(180%);
-    flex-direction:column;
-    padding:16px 24px;
-    border-bottom:1px solid var(--border);
-    gap:4px;
-  }
-  .nav-links.open { display:flex; }
-  .nav-toggle { display:flex; }
-  .wrap { padding:0 16px; }
-  .trust-row { grid-template-columns:1fr 1fr; gap:18px; }
-  .pricing-strip { grid-template-columns:1fr; }
-  .foot-grid { grid-template-columns:1fr; gap:32px; }
-  .foot-bottom { flex-direction:column; gap:12px; text-align:center; }
-  .hero h1 { font-size:clamp(32px, 9vw, 42px); }
-  .hero { padding:48px 0 32px; }
-  .hero-sub { font-size:15px; }
-  .hero-ctas .btn { width:100%; justify-content:center; }
-  .download { padding:24px 16px; }
-  .download-grid { gap:24px; }
-  .download .btn-primary { width:100%; justify-content:center; font-size:14px; padding:14px 20px; }
-  .download-meta { flex-direction:column; gap:10px; }
-  .platform-tabs { flex-direction:column; width:100%; }
-  .platform-tab { justify-content:center; }
-  .section-head h2 { font-size:clamp(24px, 7vw, 34px); }
-  .section-pad { padding:48px 0; }
-  .who-meta { grid-template-columns:1fr 1fr; gap:14px; }
-  .dl-spec dl { font-size:11.5px; gap:8px 14px; }
-  .spotlight { padding:28px 22px; }
-  .ring { width:128px; height:128px; }
-  .ring .score { font-size:32px; }
+  .stats-row { grid-template-columns:1fr 1fr; gap:28px 16px; }
+  .price-grid { grid-template-columns:1fr; }
+  .nc-card, .dl-card, .cta-card { padding:36px 22px; }
+  .nc-ringwrap { flex-direction:column; align-items:flex-start; }
 }
 </style>
 </head>
@@ -949,22 +361,20 @@ footer {
 
 <div class="grain-body" aria-hidden="true"></div>
 <div class="grain-coarse" aria-hidden="true"></div>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
 <!-- NAV -->
 <nav class="nav">
-  <a href="#" class="nav-brand">
-    <img src="assets/logo.png" alt="" />
-    <span><span class="accent">Panda</span>Roc</span>
-  </a>
-  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle menu">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  <a href="#top" class="nav-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></a>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
   <div class="nav-links">
     <a href="#features" class="nav-link">What it does</a>
     <a href="#video" class="nav-link">See it work</a>
     <a href="#who" class="nav-link">Who we are</a>
     <a href="#pricing" class="nav-link">Pricing</a>
-    <a href="login.html" class="nav-link js-account-link">Log in</a>
+    <a href="account.html" class="nav-link">My account</a>
     <a href="#download" class="nav-cta">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
       Download
@@ -973,214 +383,165 @@ footer {
 </nav>
 
 <!-- HERO -->
-<section class="hero">
-  <div class="ambient"></div>
+<section class="hero" id="top">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="flow-field" aria-hidden="true" id="flowField" data-parallax="0.16">
+    <svg viewBox="0 0 1200 700" preserveAspectRatio="none">
+      <path d="M-50 180 C 300 60, 600 320, 1250 140" />
+      <path d="M-50 340 C 350 220, 700 480, 1250 300" />
+      <path d="M-50 520 C 300 420, 650 640, 1250 460" />
+    </svg>
+  </div>
   <div class="wrap">
-    <div class="hero-grid">
-      <div class="hero-copy">
-        <div class="eyebrow">Now on Windows &amp; macOS</div>
-        <h1>Hours of ROC clicks,<br/><em>done in minutes.</em></h1>
-        <p class="hero-sub">
-          PandaRoc is a desktop app that monitors your accounts on the Cyprus Registrar of Companies website, picks up pending services, downloads certificates and saves them to your folders, so your team stops doing it by hand.
-        </p>
-        <div class="hero-ctas">
-          <a href="#download" class="btn btn-primary">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-            Download PandaRoc
-          </a>
-          <button class="btn btn-ghost" onclick="startCheckout(1, true)">Start free trial</button>
-        </div>
-        <div class="hero-meta">
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-            Windows 10/11 &middot; macOS 12+
-          </span>
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            Encrypted credentials, local-only
-          </span>
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.13-6.84L21 8"/><path d="M21 3v5h-5"/></svg>
-            Auto-update built-in
-          </span>
-        </div>
-      </div>
-
-      <div class="hero-visual">
-        <div class="app-frame">
-          <div class="titlebar">
-            <div class="titlebar-left">
-              <img src="assets/logo.png" alt="" />
-              <span><span style="color:var(--accent);">Panda</span>Roc</span>
-            </div>
-            <div class="titlebar-controls">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
-          <img src="assets/screen_dashboard_live.png" alt="PandaRoc dashboard" class="screen" />
-        </div>
-
-      </div>
+    <div class="eyebrow pill rise d1"><span class="dot"></span>Now on Windows &amp; macOS</div>
+    <h1 class="rise d2">Hours of ROC clicks, <em>done in minutes.</em></h1>
+    <p class="hero-sub rise d3">PandaRoc is a desktop app that monitors your accounts on the Cyprus Registrar of Companies website, picks up pending services, downloads certificates and saves them to your folders, so your team stops doing it by hand.</p>
+    <div class="hero-ctas rise d4">
+      <a href="#download" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        Download PandaRoc
+      </a>
+      <a href="#" class="btn btn-ghost" onclick="startCheckout(1, true); return false;">Start free trial</a>
+    </div>
+    <div class="hero-meta rise d5">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Windows 10/11 · macOS 12+</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Encrypted credentials, local-only</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/></svg>Auto-update built-in</span>
     </div>
 
-    <!-- Trust strip -->
-    <div class="trust reveal">
-      <div class="trust-row">
-        <div class="trust-item">
-          <div class="num">2<span class="unit"> agents</span></div>
-          <div class="label">Finder &middot; Downloader</div>
-        </div>
-        <div class="trust-item">
-          <div class="num">2<span class="unit"> platforms</span></div>
-          <div class="label">Windows &middot; macOS</div>
-        </div>
-        <div class="trust-item">
-          <div class="num">0<span class="unit"> cloud creds</span></div>
-          <div class="label">Local encrypted vault</div>
-        </div>
-        <div class="trust-item">
-          <div class="num">7<span class="unit"> day trial</span></div>
-          <div class="label">Cancel anytime</div>
-        </div>
+    <div class="hero-frame">
+      <div class="hero-reflect" aria-hidden="true"></div>
+      <div class="app-frame">
+        <img src="assets/shots/dashboard.png" alt="PandaRoc dashboard" class="screen" />
       </div>
     </div>
   </div>
 </section>
 
-<!-- FEATURES -->
-<section id="features" class="section-pad">
+<!-- STATS -->
+<section class="stats">
   <div class="wrap">
-    <div class="section-head reveal">
+    <div class="stats-row reveal stagger">
+      <div class="stat-item"><div class="n"><span class="cv" data-count="2">0</span><span class="u"> agents</span></div><div class="l">Finder · Downloader</div></div>
+      <div class="stat-item"><div class="n"><span class="cv" data-count="2">0</span><span class="u"> platforms</span></div><div class="l">Windows · macOS</div></div>
+      <div class="stat-item"><div class="n"><span class="cv" data-count="0">0</span><span class="u"> cloud creds</span></div><div class="l">Local encrypted vault</div></div>
+      <div class="stat-item"><div class="n"><span class="cv" data-count="7">0</span><span class="u"> day trial</span></div><div class="l">Cancel anytime</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- THE FLOW / WHAT IT DOES -->
+<section id="features" class="pipeline">
+  <div class="wrap">
+    <div class="section-head center reveal">
       <div class="eyebrow">What it does</div>
-      <h2>You decide what to accept. <em>We handle the rest.</em></h2>
-      <p>PandaRoc watches your ROC accounts around the clock. When new orders come in, you choose which ones to process, and the agents take over from there.</p>
+      <h2>You decide what to accept.<br/><em>We handle the rest.</em></h2>
+      <p>PandaRoc watches your ROC accounts around the clock. When new orders come in, you choose which ones to process, and the agents take over from there. Scroll to follow one order down the line.</p>
     </div>
 
-    <div class="features">
-      <article class="feature reveal">
-        <div class="icon-box">
-          <i data-lucide="radar"></i>
-        </div>
-        <h3>Finder</h3>
-        <p>Opens a browser for each of your ROC accounts and stays on standby. When a new order appears it lands in your queue. Accept it and the Downloader takes over.</p>
-        <div class="tag-row">
-          <span class="tag">Always watching</span>
-          <span class="tag">Multi-account</span>
-          <span class="tag">Runs in background</span>
-        </div>
-      </article>
+    <div class="pipe" id="pipe">
+      <div class="rail" id="rail">
+        <div class="rail-fill" id="railFill"></div>
+        <div class="rail-comet" id="comet"></div>
+      </div>
 
-      <article class="feature reveal">
-        <div class="icon-box">
-          <i data-lucide="arrow-down-to-line"></i>
+      <!-- Node 1 — Finder -->
+      <div class="node" data-node="0">
+        <div class="node-dot"><i data-lucide="radar"></i><span class="ord">01</span></div>
+        <div class="node-card">
+          <div class="node-kicker"><i data-lucide="radar"></i>Step one</div>
+          <h3>Finder</h3>
+          <p class="lead">Opens a browser for each of your ROC accounts and stays on standby. When a new order appears it lands in your queue. Accept it, and the Downloader takes over.</p>
+          <div class="node-tags"><span class="tag">Always watching</span><span class="tag">Multi-account</span><span class="tag">Runs in background</span></div>
         </div>
-        <h3>Downloader</h3>
-        <p>Checks whether your documents are ready to download, saves certificates into the right folder and renames them. It also tracks whether a name has been approved or rejected and flags any returned orders.</p>
-        <div class="tag-row">
-          <span class="tag">Auto-resume</span>
-          <span class="tag">Smart filing</span>
-          <span class="tag">Status tracking</span>
-        </div>
-      </article>
+      </div>
 
-      <article class="feature reveal">
-        <div class="icon-box">
-          <i data-lucide="kanban"></i>
+      <!-- Node 2 — Downloader -->
+      <div class="node" data-node="1">
+        <div class="node-dot"><i data-lucide="arrow-down-to-line"></i><span class="ord">02</span></div>
+        <div class="node-card">
+          <div class="node-kicker"><i data-lucide="arrow-down-to-line"></i>Step two</div>
+          <h3>Downloader</h3>
+          <p class="lead">Checks whether your documents are ready to download and saves certificates into the right folder. It also tracks whether a name has been approved or rejected, and flags any returned orders.</p>
+          <div class="node-tags"><span class="tag">Auto-resume</span><span class="tag">Smart filing</span><span class="tag">Status tracking</span></div>
         </div>
-        <h3>Trello sync</h3>
-        <p>Every accepted order becomes a Trello card. Labels, custom fields and client names sync both ways, every five minutes and instantly when you make a decision.</p>
-        <div class="tag-row">
-          <span class="tag">Two-way sync</span>
-          <span class="tag">Auto-labels</span>
-          <span class="tag">Alerts</span>
+      </div>
+
+      <!-- Node 3 — Filed & tracked -->
+      <div class="node" data-node="2">
+        <div class="node-dot"><i data-lucide="folder-check"></i><span class="ord">03</span></div>
+        <div class="node-card">
+          <div class="node-kicker"><i data-lucide="folder-check"></i>Step three</div>
+          <h3>Your queue stays clear</h3>
+          <p class="lead">Each order moves through the Orders pipeline from accepted to completed, filed and tracked, with returned orders flagged for you. It quietly keeps your Trello board in step too, so nobody updates anything by hand.</p>
+          <div class="node-tags"><span class="tag">Orders pipeline</span><span class="tag">Returned alerts</span><span class="tag">Hands-off</span></div>
         </div>
-      </article>
+      </div>
     </div>
-
-    <!-- Name Check spotlight -->
-    <article class="spotlight reveal">
-      <div class="spot-visual">
-        <div class="ring" style="--p:92;"><span class="score">92<small>%</small></span></div>
-        <div class="ring-label">Approval score</div>
-      </div>
-      <div class="spot-body">
-        <span class="spot-badge">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-          New &middot; Included free in every plan
-        </span>
-        <h3>Check a name before you file.</h3>
-        <p>Type a proposed company name and PandaRoc scores how likely it is to be approved. It checks the live Cyprus registry and the official naming rules, catching clashes, restricted words and look-alikes before you submit, not after a rejection.</p>
-        <div class="tag-row">
-          <span class="tag">Live registry check</span>
-          <span class="tag">Approval score</span>
-          <span class="tag">Naming-rule checks</span>
-        </div>
-      </div>
-    </article>
   </div>
 </section>
 
-<!-- VIDEO -->
-<section id="video" class="section-pad" style="padding-top:0;">
+<!-- NAME CHECK -->
+<section class="namecheck">
   <div class="wrap">
-    <div class="section-head reveal">
+    <div class="nc-card reveal">
+      <div class="nc-copy">
+        <div class="nc-badge"><span class="new">New</span> · Included free in every plan</div>
+        <h2>Check a name before you file.</h2>
+        <p>Type a proposed company name and PandaRoc scores how likely it is to be approved. It checks the live Cyprus registry and the official naming rules, catching clashes, restricted words and look-alikes before you submit, not after a rejection.</p>
+        <div class="nc-tags">
+          <span class="tag"><i data-lucide="search"></i>Live registry check</span>
+          <span class="tag"><i data-lucide="gauge"></i>Approval score</span>
+          <span class="tag"><i data-lucide="book-text"></i>Naming-rule checks</span>
+        </div>
+      </div>
+      <div class="shot">
+        <img src="assets/shots/namecheck.png" alt="PandaRoc Name Check, live approval estimate" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEE IT WORK -->
+<section id="video" class="demo-band">
+  <div class="wrap">
+    <div class="section-head center reveal">
       <div class="eyebrow">See it work</div>
-      <h2>Watch a full ROC queue <em>clear itself.</em></h2>
+      <h2>Watch a full ROC queue<br/><em>clear itself.</em></h2>
       <p>See PandaRoc accept a day's orders, download the certificates and file them while you step away.</p>
     </div>
-
-    <div class="video reveal" role="button" aria-label="Play product demo">
-      <div class="video-inner">
-        <div class="play-btn">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        </div>
-        <div class="video-label">Demo &middot; coming soon</div>
+    <div class="demo-frame reveal">
+      <div class="grain-ph" aria-hidden="true"></div>
+      <div class="demo-inner">
+        <div class="demo-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
+        <div class="demo-tag">Demo · coming soon</div>
+        <div class="demo-cap">Recorded on a real Cyprus firm's workstation, no edits.</div>
       </div>
-    </div>
-    <div class="video-caption">
-      <span>Recorded on a real Cyprus firm's workstation, no edits.</span>
-      <span class="dur">~ 03 : 12</span>
+      <div class="demo-time">~ 03 : 12</div>
     </div>
   </div>
 </section>
 
-<!-- WHO -->
-<section id="who" class="section-pad" style="padding-top:0;">
+<!-- WHO WE ARE -->
+<section id="who" class="who">
   <div class="wrap">
-    <div class="who">
-      <div class="who-side reveal">
-        <div class="who-mark">
-          <img src="assets/logo.png" alt="PandaServe LTD" />
-        </div>
-        <div class="eyebrow">Who we are</div>
-        <h2 style="font-size:clamp(34px,3.8vw,48px); line-height:1.05; letter-spacing:-0.03em; font-weight:700; margin-top:18px; text-wrap:balance;">Built where the <em style="font-style:normal; background:linear-gradient(180deg,var(--tc11),var(--tc9)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">paperwork is.</em></h2>
+    <div class="who-grid">
+      <div class="who-copy reveal">
+        <div class="eyebrow" style="margin-bottom:16px;">Who we are</div>
+        <h2>Built where the <em>paperwork is.</em></h2>
+        <p><strong>PandaRoc was built inside a working corporate services firm, not a software startup.</strong> PandaServe LTD has handled company formations, annual filings and compliance in Cyprus since 2010, which means the ROC portal is part of our daily routine.</p>
+        <p>PandaRoc began in 2025 as an in-house fix. Andreas built it so his father's team could stop logging into ROC accounts one by one each morning, hunting for pending orders and downloading certificates by hand. Other firms had the same problem, so we turned it into a product. It runs on your own machine, keeps your credentials encrypted and local, and works through your queue with the kind of patience that never runs out.</p>
       </div>
-
-      <div class="who-content reveal">
-        <p>
-          <strong>PandaRoc was built inside a working corporate services firm</strong>, not a software startup. PandaServe LTD has handled company formations, annual filings and compliance in Cyprus since 2010, which means the ROC portal is part of our daily routine.
-        </p>
-        <p>
-          PandaRoc began in 2025 as an in-house fix. Andreas built it so his father's team could stop logging into ROC accounts one by one each morning, hunting for pending orders and downloading certificates by hand. Other firms had the same problem, so we turned it into a product. It runs on your own machine, keeps your credentials encrypted and local, and works through your queue with the kind of patience that never runs out.
-        </p>
-
-        <div class="who-meta">
-          <div class="who-meta-item">
-            <div class="k">Company</div>
-            <div class="v">PandaServe LTD</div>
-          </div>
-          <div class="who-meta-item">
-            <div class="k">Industry</div>
-            <div class="v">Corporate services</div>
-          </div>
-          <div class="who-meta-item">
-            <div class="k">Since</div>
-            <div class="v">2010</div>
-          </div>
-          <div class="who-meta-item">
-            <div class="k">Contact</div>
-            <div class="v">hello@pandaserve.eu</div>
-          </div>
+      <div class="reveal">
+        <div class="who-facts">
+          <div class="who-fact"><span class="k">Company</span><span class="v">PandaServe LTD</span></div>
+          <div class="who-fact"><span class="k">Industry</span><span class="v">Corporate services</span></div>
+          <div class="who-fact"><span class="k">Since</span><span class="v">2010</span></div>
+          <div class="who-fact"><span class="k">Contact</span><span class="v accent">hello@pandaserve.eu</span></div>
+        </div>
+        <div class="who-badge">
+          <img src="assets/logo.png" alt="" />
+          <div><div class="wb-t">Made in Cyprus</div><div class="wb-s">For Cyprus corporate-services firms.</div></div>
         </div>
       </div>
     </div>
@@ -1188,142 +549,122 @@ footer {
 </section>
 
 <!-- PRICING -->
-<section id="pricing" class="section-pad" style="padding-top:0;">
+<section id="pricing" class="pricing">
   <div class="wrap">
-    <div class="section-head reveal">
+    <div class="section-head center reveal">
       <div class="eyebrow">Pricing</div>
       <h2>Simple, <em>per-account.</em></h2>
-      <p>Pay for the ROC account slots you use. Every plan includes both agents, name checks, Trello sync, auto-updates and a 7-day free trial, cancel anytime.</p>
+      <p>Pay for the ROC account slots you use. Every plan includes both agents, free name checks, auto-updates and a 7-day free trial, cancel anytime.</p>
     </div>
-    <div class="pricing-strip reveal">
+
+    <div class="price-grid reveal stagger">
       <div class="price-card">
-        <div class="slots">Starter</div>
-        <div class="amount"><span class="cur">&euro;</span>29</div>
-        <div class="period">1 ROC account &middot; per month</div>
-        <button class="price-btn" onclick="startCheckout(1, false)">Buy now</button>
+        <div class="price-name">Starter</div>
+        <div class="price-amt"><span class="cur">€</span>29</div>
+        <div class="price-unit">1 ROC account · per month</div>
+        <button class="btn btn-ghost" onclick="startCheckout(1, false)">Buy now</button>
       </div>
       <div class="price-card popular">
-        <div class="pop-tag">Popular</div>
-        <div class="slots">Small Firm</div>
-        <div class="amount"><span class="cur">&euro;</span>99</div>
-        <div class="period">5 ROC accounts &middot; per month</div>
-        <button class="price-btn" onclick="startCheckout(5, false)">Buy now</button>
+        <div class="price-tag">Popular</div>
+        <div class="price-name">Small Firm</div>
+        <div class="price-amt"><span class="cur">€</span>99</div>
+        <div class="price-unit">5 ROC accounts · per month</div>
+        <button class="btn btn-primary" onclick="startCheckout(5, false)">Buy now</button>
       </div>
       <div class="price-card">
-        <div class="slots">Professional</div>
-        <div class="amount"><span class="cur">&euro;</span>179</div>
-        <div class="period">10 ROC accounts &middot; per month</div>
-        <button class="price-btn" onclick="startCheckout(10, false)">Buy now</button>
+        <div class="price-name">Professional</div>
+        <div class="price-amt"><span class="cur">€</span>179</div>
+        <div class="price-unit">10 ROC accounts · per month</div>
+        <button class="btn btn-ghost" onclick="startCheckout(10, false)">Buy now</button>
       </div>
       <div class="price-card">
-        <div class="slots">Firm</div>
-        <div class="amount"><span class="cur">&euro;</span>299</div>
-        <div class="period">20 ROC accounts &middot; per month</div>
-        <button class="price-btn" onclick="startCheckout(20, false)">Buy now</button>
+        <div class="price-name">Firm</div>
+        <div class="price-amt"><span class="cur">€</span>299</div>
+        <div class="price-unit">20 ROC accounts · per month</div>
+        <button class="btn btn-ghost" onclick="startCheckout(20, false)">Buy now</button>
       </div>
     </div>
-    <div class="reveal" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;margin-top:28px;">
+
+    <div class="includes reveal">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>Both agents</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>Free name checks</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>Auto-updates</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>7-day free trial</span>
+    </div>
+
+    <div class="reveal" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;margin-top:30px;">
       <label for="customQty" style="font-size:14px;color:var(--muted);">Need a different number?</label>
-      <input id="customQty" type="number" min="1" max="20" value="3" style="width:64px;padding:8px 10px;border-radius:8px;border:1px solid var(--border,rgba(255,255,255,0.18));background:transparent;color:inherit;font:inherit;text-align:center;">
+      <input id="customQty" type="number" min="1" max="20" value="3" style="width:66px;padding:9px 10px;border-radius:var(--r-md);border:1px solid var(--border-strong);background:rgba(255,255,255,0.03);color:inherit;font:inherit;font-family:'JetBrains Mono',monospace;text-align:center;" />
       <span style="font-size:14px;color:var(--muted);">ROC accounts</span>
-      <button class="price-btn" style="width:auto;padding:10px 20px;margin:0;" onclick="startCheckout(parseInt(document.getElementById('customQty').value, 10), false)">Buy now</button>
+      <button class="btn btn-ghost" style="padding:11px 20px;" onclick="startCheckout(parseInt(document.getElementById('customQty').value, 10), false)">Buy now</button>
     </div>
-    <p style="text-align:center;margin-top:20px;font-size:14px;color:var(--muted);">
-      20+ accounts? <a href="mailto:hello@pandaserve.eu?subject=PandaRoc%20Enterprise" style="color:var(--accent);text-decoration:underline;">Contact us</a> for Enterprise &middot; or <a href="#" onclick="startCheckout(1, true); return false;" style="color:var(--accent);text-decoration:underline;">start a 7-day free trial</a>. Cancel anytime.
-    </p>
+
+    <p class="price-note">More than 20 accounts? <a href="mailto:hello@pandaserve.eu?subject=PandaRoc%20Enterprise">Contact us for Enterprise</a>, or <a href="#" onclick="startCheckout(1, true); return false;">start a 7-day free trial</a>. Cancel anytime.</p>
   </div>
 </section>
 
 <!-- DOWNLOAD -->
-<section id="download" class="section-pad" style="padding-top:0;">
+<section id="download" class="download">
   <div class="wrap">
-    <div class="download reveal">
-      <div class="download-grid">
-        <div>
-          <div class="eyebrow" style="margin-bottom:16px;">Ready when you are</div>
-          <h2>Install PandaRoc on your <em>workstation.</em></h2>
-          <p>Runs alongside your existing workflow. Comes with a 7-day free trial. Cancel anytime.</p>
+    <div class="section-head center reveal">
+      <div class="eyebrow">Ready when you are</div>
+      <h2>Install PandaRoc on your <em>workstation.</em></h2>
+      <p>Runs alongside your existing workflow. Comes with a 7-day free trial. Cancel anytime.</p>
+    </div>
 
-          <!-- Platform tabs -->
-          <div class="platform-tabs" role="tablist">
-            <button class="platform-tab active" role="tab" data-platform="windows" onclick="switchPlatform('windows')">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 12V6.75l7-1.25V12H3zm8-6.5L21 4v8H11V5.5zM3 13h7v6.5l-7-1.25V13zm8 0h10v8l-10-1.5V13z"/></svg>
-              Windows
-            </button>
-            <button class="platform-tab" role="tab" data-platform="macos" onclick="switchPlatform('macos')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/></svg>
-              macOS
-            </button>
-          </div>
-
-          <!-- Windows download -->
-          <div class="dl-platform active" id="dl-windows">
-            <a href="PandaRoc_v8.1_Setup.exe" class="btn btn-primary" download>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-              Download PandaRoc_v8.1_Setup.exe
-            </a>
-            <div class="download-meta">
-              <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                ~ 351 MB
-              </span>
-              <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-                Windows 10 &middot; 11 (x64)
-              </span>
-              <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                Inno Setup installer
-              </span>
-            </div>
-          </div>
-
-          <!-- macOS download -->
-          <div class="dl-platform" id="dl-macos">
-            <a href="PandaRoc_v8.1_macOS.zip" class="btn btn-primary" download>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-              Download PandaRoc for macOS
-            </a>
-            <div class="download-meta">
-              <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                ~ 380 MB
-              </span>
-              <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-                macOS 12+ (Apple Silicon &amp; Intel)
-              </span>
-              <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                Shell installer
-              </span>
-            </div>
-          </div>
+    <div class="dl-grid reveal stagger">
+      <div class="dl-card">
+        <div class="dl-os">
+          <div class="oi"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10 4.5v7H3zM11 4.3 21 3v8.5H11zM3 12.5h7v7l-7-1zM11 12.5h10V21l-10-1.3z"/></svg></div>
+          <div><div class="ot">Windows</div><div class="os">10 · 11 (x64)</div></div>
         </div>
-
-        <!-- Release spec sidebar -->
-        <div>
-          <div class="dl-spec" id="spec-windows">
-            <h4>Release &middot; v8.1</h4>
-            <dl>
-              <dt>Build</dt><dd>8.1.0&nbsp;&middot;&nbsp;2026-05-14</dd>
-              <dt>Size</dt><dd>351.2 MB</dd>
-              <dt>Platform</dt><dd>Windows 10/11 x64</dd>
-              <dt>Engine</dt><dd>Patchright + Chromium</dd>
-              <dt>SHA-256</dt><dd class="hash">Provided with release</dd>
-            </dl>
-          </div>
-          <div class="dl-spec" id="spec-macos" style="display:none;">
-            <h4>Release &middot; v8.1</h4>
-            <dl>
-              <dt>Build</dt><dd>8.1.0&nbsp;&middot;&nbsp;2026-05-21</dd>
-              <dt>Size</dt><dd>~380 MB</dd>
-              <dt>Platform</dt><dd>macOS 12+ (universal)</dd>
-              <dt>Engine</dt><dd>Patchright + Chromium</dd>
-              <dt>SHA-256</dt><dd class="hash">Provided with release</dd>
-            </dl>
-          </div>
+        <a href="PandaRoc_v8.1_Setup.exe" class="btn btn-primary" download style="width:100%;justify-content:center;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          Download for Windows
+        </a>
+        <div class="dl-specs">
+          <div class="dl-spec"><div class="sk">Build</div><div class="sv">8.1.0 · 2026-05-14</div></div>
+          <div class="dl-spec"><div class="sk">Size</div><div class="sv">351.2 MB</div></div>
+          <div class="dl-spec"><div class="sk">Installer</div><div class="sv">Inno Setup</div></div>
+          <div class="dl-spec"><div class="sk">Engine</div><div class="sv">Patchright + Chromium</div></div>
         </div>
+        <div class="os" style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--subtle);">PandaRoc_v8.1_Setup.exe · SHA-256 provided with release</div>
+      </div>
+
+      <div class="dl-card">
+        <div class="dl-os">
+          <div class="oi"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.9c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.5-.1-2.8.8-3.5.8s-1.9-.8-3.1-.8c-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 3 2.3 1.2-.05 1.6-.8 3.1-.8s1.8.8 3.1.75c1.3-.02 2.1-1.1 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.03-.01-2.5-.96-2.5-3.8zM14.2 5.9c.65-.8 1.1-1.9 1-3-.95.04-2.1.63-2.8 1.4-.6.7-1.1 1.8-1 2.9 1.05.08 2.1-.53 2.8-1.3z"/></svg></div>
+          <div><div class="ot">macOS</div><div class="os">12+ · Apple Silicon &amp; Intel</div></div>
+        </div>
+        <a href="PandaRoc_v8.1_macOS.zip" class="btn btn-primary" download style="width:100%;justify-content:center;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          Download for macOS
+        </a>
+        <div class="dl-specs">
+          <div class="dl-spec"><div class="sk">Build</div><div class="sv">8.1.0 · 2026-05-21</div></div>
+          <div class="dl-spec"><div class="sk">Size</div><div class="sv">~ 380 MB</div></div>
+          <div class="dl-spec"><div class="sk">Format</div><div class="sv">Shell installer</div></div>
+          <div class="dl-spec"><div class="sk">Engine</div><div class="sv">Patchright + Chromium</div></div>
+        </div>
+        <div class="os" style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--subtle);">PandaRoc_v8.1_macOS.zip · SHA-256 provided with release</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-band">
+  <div class="wrap">
+    <div class="cta-card reveal">
+      <div class="eyebrow" style="justify-content:center; margin-bottom:18px;">Ready when you are</div>
+      <h2>Give every order<br/><em>a track to run on.</em></h2>
+      <p>Install on your workstation in minutes. 7-day free trial, cancel anytime.</p>
+      <div class="cta-ctas">
+        <a href="#download" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          Download PandaRoc
+        </a>
+        <a href="#pricing" class="btn btn-ghost">See pricing</a>
       </div>
     </div>
   </div>
@@ -1334,121 +675,145 @@ footer {
   <div class="wrap">
     <div class="foot-grid">
       <div>
-        <div class="foot-brand">
-          <img src="assets/logo.png" alt="" />
-          <span><span class="accent">Panda</span>Roc</span>
-        </div>
+        <div class="foot-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></div>
         <p class="foot-tag">ROC certificate automation by PandaServe LTD. Built in Cyprus, for Cyprus firms.</p>
       </div>
-      <div class="foot-col">
-        <h5>Product</h5>
-        <a href="#features">What it does</a>
-        <a href="#video">See it work</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#download">Download</a>
-      </div>
-      <div class="foot-col">
-        <h5>Company</h5>
-        <a href="#who">Who we are</a>
-        <a href="login.html" class="js-account-link">Log in</a>
-        <a href="mailto:hello@pandaserve.eu">Contact</a>
-        <a href="faq.html">Help &amp; FAQ</a>
-      </div>
-      <div class="foot-col">
-        <h5>Legal</h5>
-        <a href="terms.html">Terms</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="eula.html">EULA</a>
-        <a href="refund.html">Refunds</a>
-      </div>
+      <div class="foot-col"><h5>Product</h5><a href="#features">What it does</a><a href="#video">See it work</a><a href="#pricing">Pricing</a><a href="#download">Download</a></div>
+      <div class="foot-col"><h5>Company</h5><a href="#who">Who we are</a><a href="account.html">My account</a><a href="mailto:hello@pandaserve.eu">Contact</a><a href="faq.html">Help &amp; FAQ</a></div>
+      <div class="foot-col"><h5>Legal</h5><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="eula.html">EULA</a><a href="refund.html">Refunds</a></div>
     </div>
-    <div class="foot-bottom">
-      <span>&copy; 2024&ndash;2026 PandaServe LTD &middot; All rights reserved</span>
-    </div>
+    <div class="foot-bottom"><span>© 2010–2026 PandaServe LTD · All rights reserved</span><span>hello@pandaserve.eu</span></div>
   </div>
 </footer>
 
 <script src="auth.js"></script>
 <script>
-// Platform detection — highlight the user's OS download tab
-(function() {
-  const ua = navigator.userAgent.toLowerCase();
-  let os = 'windows';
-  if (ua.includes('mac os') || ua.includes('macintosh')) os = 'macos';
+document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const tab = document.querySelector(`.platform-tab[data-platform="${os}"]`);
-  if (tab) tab.classList.add('detected');
+// Reveal
+const io = new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target);} }); }, { threshold:0.14, rootMargin:'0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 
-  if (os === 'macos') switchPlatform('macos');
-})();
+// Node reveal (card + viz slide in)
+const nodes = [...document.querySelectorAll('.node')];
+const nio = new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); } }); }, { threshold:0.3 });
+nodes.forEach(n=>nio.observe(n));
 
-function switchPlatform(platform) {
-  document.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`.platform-tab[data-platform="${platform}"]`).classList.add('active');
-
-  document.querySelectorAll('.dl-platform').forEach(p => p.classList.remove('active'));
-  document.getElementById(`dl-${platform}`).classList.add('active');
-
-  document.getElementById('spec-windows').style.display = platform === 'windows' ? 'block' : 'none';
-  document.getElementById('spec-macos').style.display = platform === 'macos' ? 'block' : 'none';
-}
-
-// Scroll reveal
-const reveals = document.querySelectorAll('.reveal');
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-      observer.unobserve(entry.target);
+// Name-check ring count-up
+const ring = document.getElementById('ncRing');
+const scoreEl = document.getElementById('ncScore');
+let ringDone = false;
+const rio = new IntersectionObserver((es)=>{
+  es.forEach(e=>{
+    if(e.isIntersecting && !ringDone){
+      ringDone = true;
+      const target = 92;
+      if (reduce){ ring.style.setProperty('--p', target); scoreEl.textContent = target; return; }
+      ring.style.setProperty('--p', target);
+      let n = 0;
+      const step = ()=>{ n += 2; if(n>=target){ n=target; } scoreEl.textContent = n; if(n<target) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
     }
   });
-}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-reveals.forEach(el => observer.observe(el));
+}, { threshold:0.5 });
+if (ring) rio.observe(ring);
 
-// Close mobile menu on nav link click
-document.querySelectorAll('.nav-links .nav-link, .nav-links .nav-cta').forEach(link => {
-  link.addEventListener('click', () => {
-    document.querySelector('.nav-links').classList.remove('open');
+// Scroll-fill rail + comet + light nodes
+const rail = document.getElementById('rail');
+const railFill = document.getElementById('railFill');
+const comet = document.getElementById('comet');
+let ticking=false;
+function pipeScroll(){
+  if (ticking) return; ticking=true;
+  requestAnimationFrame(()=>{
+    if (rail){
+      const r = rail.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const start = vh * 0.55;
+      const prog = Math.min(Math.max((start - r.top) / r.height, 0), 1);
+      const h = prog * r.height;
+      railFill.style.height = h + 'px';
+      if (prog > 0 && prog < 1){ comet.style.opacity = '1'; comet.style.top = h + 'px'; }
+      else { comet.style.opacity='0'; }
+      nodes.forEach(n=>{
+        const d = n.querySelector('.node-dot').getBoundingClientRect();
+        const lit = (d.top + d.height/2) <= start + 4;
+        n.classList.toggle('lit', lit);
+      });
+    }
+    ticking=false;
   });
-});
+}
+window.addEventListener('scroll', pipeScroll, { passive:true });
+window.addEventListener('resize', pipeScroll);
+pipeScroll();
 
-// Swap "Log in" for "My account" when a session token is present
-(function() {
-  if (localStorage.getItem('pandaroc_token')) {
-    document.querySelectorAll('.js-account-link').forEach(a => {
-      a.textContent = 'My account';
-      a.setAttribute('href', 'account.html');
-    });
-  }
-})();
+// Staggered child reveal
+const sio = new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ const kids=[...e.target.children]; kids.forEach((k,i)=>{ k.style.transitionDelay=(i*80)+'ms'; }); e.target.classList.add('visible'); sio.unobserve(e.target);} }); }, { threshold:0.2 });
+document.querySelectorAll('.stagger').forEach(el=>sio.observe(el));
 
-// ═══ PandaRoc API config ═══
-// PANDAROC_API + auth helpers (saveTokens / authFetch) come from auth.js
+// Count-up stats
+const cio = new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ const t=+e.target.dataset.count; if(reduce||t===0){ e.target.textContent=t; cio.unobserve(e.target); return; } let n=0; const inc=Math.max(1,Math.ceil(t/14)); const step=()=>{ n+=inc; if(n>=t)n=t; e.target.textContent=n; if(n<t) requestAnimationFrame(step); }; requestAnimationFrame(step); cio.unobserve(e.target);} }); }, { threshold:0.6 });
+document.querySelectorAll('.cv[data-count]').forEach(el=>cio.observe(el));
 
-// Checkout is by ROC-account quantity; the license server holds the per-account price ID.
+// ── Unified scroll-motion loop (progress, parallax, hero depth, curve drift) ──
+const progress = document.getElementById('scrollProgress');
+const heroFrame = document.querySelector('.hero-frame');
+const heroGlow = document.querySelector('.hero-glow');
+const flowField = document.getElementById('flowField');
+const parallaxEls = [...document.querySelectorAll('[data-parallax]')];
+let sticking=false;
+function motionLoop(){
+  if (sticking) return; sticking=true;
+  requestAnimationFrame(()=>{
+    const y = window.scrollY, vh = window.innerHeight;
+    const docH = document.documentElement.scrollHeight - vh;
+    if (progress) progress.style.width = Math.min(100, (y/Math.max(docH,1))*100) + '%';
+    if (!reduce){
+      // hero: lift + recede in 3D as it scrolls away
+      if (y < vh){
+        const p = y / vh;
+        if (heroFrame) heroFrame.style.transform = `translateY(${y*0.05}px) rotateX(${p*6}deg) scale(${1 - p*0.04})`;
+        if (heroGlow) heroGlow.style.transform = `translateX(-50%) translateY(${y*0.16}px)`;
+      }
+      // generic vertical parallax for in-view decorative layers
+      parallaxEls.forEach(el=>{
+        const sp = parseFloat(el.dataset.parallax)||0;
+        const r = el.getBoundingClientRect();
+        if (r.bottom < -200 || r.top > vh+200) return;
+        const center = r.top + r.height/2 - vh/2;
+        el.style.transform = `translateY(${-center*sp}px)`;
+      });
+    }
+    sticking=false;
+  });
+}
+window.addEventListener('scroll', motionLoop, { passive:true });
+window.addEventListener('resize', motionLoop);
+motionLoop();
 
-async function startCheckout(quantity, trial) {
+document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.nav-links').classList.remove('open')));
+
+// ── Stripe checkout (quantity = ROC account slots; trial optional) ──
+// PANDAROC_API + authFetch come from auth.js. The license server holds the per-account price.
+async function startCheckout(quantity, trial){
   const qty = Math.max(1, Math.min(20, parseInt(quantity, 10) || 1));
   trial = !!trial;
-  const btn = event.target;
-  const original = btn.textContent;
-  btn.disabled = true; btn.textContent = 'Redirecting...';
+  const btn = (typeof event !== 'undefined' && event) ? (event.currentTarget || event.target) : null;
+  const original = btn ? btn.textContent : '';
+  if (btn){ btn.style.pointerEvents = 'none'; btn.textContent = 'Redirecting…'; }
   try {
     const successUrl = window.location.origin + '/success.html' + (trial ? '?trial=1' : '');
     const res = await authFetch('/stripe/create-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        quantity: qty,
-        trial: trial,
-        success_url: successUrl,
-        cancel_url: window.location.origin + '/cancel.html',
-      }),
+      body: JSON.stringify({ quantity: qty, trial: trial, success_url: successUrl, cancel_url: window.location.origin + '/cancel.html' }),
     });
-    if (!res.ok) {
+    if (!res.ok){
       const err = await res.json().catch(() => ({}));
-      if (res.status === 401) {
-        // Not logged in — remember the intent and create the account first
+      if (res.status === 401){
+        // Not logged in — remember the intent and create the account first.
         localStorage.setItem('pandaroc_pending_qty', String(qty));
         localStorage.setItem('pandaroc_pending_trial', trial ? '1' : '0');
         window.location.href = 'register.html';
@@ -1458,13 +823,11 @@ async function startCheckout(quantity, trial) {
     }
     const data = await res.json();
     window.location.href = data.checkout_url;
-  } catch (e) {
+  } catch (e){
     alert(e.message || 'Could not start checkout. Please try again.');
-    btn.disabled = false; btn.textContent = original;
+    if (btn){ btn.style.pointerEvents = ''; btn.textContent = original; }
   }
 }
 </script>
-<script>document.addEventListener('DOMContentLoaded', function() { lucide.createIcons(); });</script>
-
 </body>
 </html>

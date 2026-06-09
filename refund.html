@@ -1,43 +1,124 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-palette="ember">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark" />
 <title>Refund &amp; Cancellation Policy · PandaRoc</title>
+<meta name="description" content="How cancellations and refunds work at PandaRoc, including our 14-day money-back guarantee." />
 <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="legal.css" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="shared/tokens.css" />
+<link rel="stylesheet" href="pages.css" />
 </head>
 <body>
-<div class="grain"></div>
-<div class="wrap">
-  <div class="brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></div>
-  <h1>Refund &amp; Cancellation Policy</h1>
-  <p class="updated">Last updated: 8 June 2026</p>
+<div class="grain-body" aria-hidden="true"></div>
+<div class="grain-coarse" aria-hidden="true"></div>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
-  <div class="intro">We want you to be happy with PandaRoc. This policy explains how cancellations and refunds work. It is offered by <strong>PandaServe LTD</strong> (reg. no. HE 317541).</div>
+<nav class="nav">
+  <a href="index.html#top" class="nav-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></a>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="nav-links">
+    <a href="index.html#features" class="nav-link">What it does</a>
+    <a href="index.html#video" class="nav-link">See it work</a>
+    <a href="index.html#who" class="nav-link">Who we are</a>
+    <a href="index.html#pricing" class="nav-link">Pricing</a>
+    <a href="account.html" class="nav-link">My account</a>
+    <a href="index.html#download" class="nav-cta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      Download
+    </a>
+  </div>
+</nav>
 
-  <h2>1. 14-day money-back guarantee</h2>
-  <p>If you are not satisfied with PandaRoc, email us within <strong>14 days</strong> of a charge and we will refund that payment in full — no questions asked.</p>
+<header class="page-hero">
+  <div class="page-glow" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="crumbs"><a href="index.html#top">Home</a><span class="sep">/</span><span class="here">Refund Policy</span></div>
+    <div class="eyebrow">Legal</div>
+    <h1><em>Refund</em> &amp; Cancellation</h1>
+    <p class="lead">How cancellations and refunds work, including our 14-day money-back guarantee.</p>
+    <div class="page-updated">Last updated: 8 June 2026</div>
+  </div>
+</header>
 
-  <h2>2. How to request a refund</h2>
-  <p>Email <a href="mailto:hello@pandaserve.eu?subject=PandaRoc%20refund%20request">hello@pandaserve.eu</a> from the email address on your account, mentioning the charge date and amount. We aim to process eligible refunds within a few business days.</p>
+<section class="page-section last">
+  <div class="wrap">
+    <div class="legal-layout">
+      <aside class="toc">
+        <h4>On this page</h4>
+        <a href="#r1">1. 14-day guarantee</a>
+        <a href="#r2">2. How to request</a>
+        <a href="#r3">3. Cancelling</a>
+        <a href="#r4">4. Free trial</a>
+        <a href="#r5">5. How refunds are issued</a>
+        <a href="#r6">6. Contact</a>
+      </aside>
+      <div class="prose reveal">
+        <div class="legal-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 14 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>14-day money-back guarantee</div>
+        <p>We want you to be happy with PandaRoc. This policy explains how cancellations and refunds work. It is offered by <strong>PandaServe LTD</strong> (reg. no. HE 317541).</p>
 
-  <h2>3. Cancelling your subscription</h2>
-  <p>You can cancel any time from <strong>Manage Billing</strong> on your <a href="account.html">account page</a>. When you cancel, your subscription will not renew, and you keep access until the end of the period you have already paid for.</p>
+        <h2 id="r1"><span class="num">01</span>14-day money-back guarantee</h2>
+        <p>If you are not satisfied with PandaRoc, email us within <strong>14 days</strong> of a charge and we will refund that payment in full, no questions asked.</p>
 
-  <h2>4. Free trial</h2>
-  <p>You are not charged during the 7-day free trial. If you cancel before the trial ends, you will not be billed at all.</p>
+        <h2 id="r2"><span class="num">02</span>How to request a refund</h2>
+        <p>Email <a href="mailto:hello@pandaserve.eu?subject=PandaRoc%20refund%20request">hello@pandaserve.eu</a> from the email address on your account, mentioning the charge date and amount. We aim to process eligible refunds within a few business days.</p>
 
-  <h2>5. How refunds are issued</h2>
-  <p>Refunds are returned to your original payment method through our payment provider, Stripe. Depending on your bank, it may take a few additional days to appear on your statement.</p>
+        <h2 id="r3"><span class="num">03</span>Cancelling your subscription</h2>
+        <p>You can cancel any time from <strong>Manage billing</strong> on your <a href="account.html">account page</a>. When you cancel, your subscription will not renew, and you keep access until the end of the period you have already paid for.</p>
 
-  <h2>6. Contact</h2>
-  <p>Questions about billing or refunds? Email <a href="mailto:hello@pandaserve.eu">hello@pandaserve.eu</a>.</p>
+        <h2 id="r4"><span class="num">04</span>Free trial</h2>
+        <p>You are not charged during the 7-day free trial. If you cancel before the trial ends, you will not be billed at all.</p>
 
-  <p class="note">This document is provided for general information and is not legal advice.</p>
-  <p class="back"><a href="index.html">&larr; Back to PandaRoc</a></p>
-</div>
+        <h2 id="r5"><span class="num">05</span>How refunds are issued</h2>
+        <p>Refunds are returned to your original payment method through our payment provider, Stripe. Depending on your bank, it may take a few additional days to appear on your statement.</p>
+
+        <h2 id="r6"><span class="num">06</span>Contact</h2>
+        <p>Questions about billing or refunds? Email <a href="mailto:hello@pandaserve.eu">hello@pandaserve.eu</a>.</p>
+
+        <div class="note">This document is provided for general information and is not legal advice.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></div>
+        <p class="foot-tag">ROC certificate automation by PandaServe LTD. Built in Cyprus, for Cyprus firms.</p>
+      </div>
+      <div class="foot-col"><h5>Product</h5><a href="index.html#features">What it does</a><a href="index.html#video">See it work</a><a href="index.html#pricing">Pricing</a><a href="index.html#download">Download</a></div>
+      <div class="foot-col"><h5>Company</h5><a href="index.html#who">Who we are</a><a href="account.html">My account</a><a href="mailto:hello@pandaserve.eu">Contact</a><a href="faq.html">Help &amp; FAQ</a></div>
+      <div class="foot-col"><h5>Legal</h5><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="eula.html">EULA</a><a href="refund.html">Refunds</a></div>
+    </div>
+    <div class="foot-bottom"><span>&copy; 2010&ndash;2026 PandaServe LTD &middot; All rights reserved</span><span>hello@pandaserve.eu</span></div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
+const io = new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target);} }); }, { threshold:0.1 });
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const progress = document.getElementById('scrollProgress');
+const tocLinks = [...document.querySelectorAll('.toc a')];
+const heads = tocLinks.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function onScroll(){
+  const y=window.scrollY, h=document.documentElement.scrollHeight-window.innerHeight;
+  if(progress) progress.style.width=Math.min(100,(y/Math.max(h,1))*100)+'%';
+  let active=heads[0];
+  heads.forEach(hd=>{ if(hd.getBoundingClientRect().top <= 130) active=hd; });
+  tocLinks.forEach(a=>a.classList.toggle('active', active && a.getAttribute('href')==='#'+active.id));
+}
+window.addEventListener('scroll', onScroll, { passive:true }); onScroll();
+document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.nav-links').classList.remove('open')));
+</script>
 </body>
 </html>

@@ -1,217 +1,329 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-palette="ember">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="color-scheme" content="dark" />
-<title>My Account · PandaRoc</title>
+<meta name="robots" content="noindex" />
+<title>My account · PandaRoc</title>
 <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="shared/tokens.css" />
+<link rel="stylesheet" href="pages.css" />
 <style>
-:root {
-  --e1:#16140f; --e2:#1f1d18; --e3:#2a2823; --e4:#33312b;
-  --e8:#6b6863; --e9:#a09c98; --e11:#c4bfba; --e12:#f0ece7;
-  --tc9:#d07859; --green9:#7bb449;
-  --bg-base:var(--e1); --bg-card:var(--e2); --text:var(--e12);
-  --muted:var(--e9); --border:var(--e4); --accent:var(--tc9);
-  --r-sm:8px; --r-lg:14px;
-}
-*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-base); color:var(--text); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
-.grain { position:fixed; inset:0; pointer-events:none; z-index:0; background-image:url('assets/grain-body.svg'); background-size:200px; opacity:0.08; mix-blend-mode:soft-light; }
-.card { position:relative; z-index:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-lg); padding:40px 36px; max-width:500px; width:100%; }
-.brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:24px; }
-.brand img { height:32px; width:auto; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
-.brand span { font-size:24px; font-weight:700; letter-spacing:-0.5px; }
-.brand .accent { color:var(--accent); }
-.section { margin-bottom:24px; padding-bottom:20px; border-bottom:1px solid var(--border); }
-.section:last-of-type { border-bottom:none; margin-bottom:16px; }
-.label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:6px; }
-.value { font-size:15px; color:var(--e11); }
-.key-value { font-family:'JetBrains Mono',monospace; font-size:17px; color:var(--accent); letter-spacing:1.5px; cursor:pointer; user-select:all; transition:color 0.2s; }
-.key-value:hover { color:var(--e12); }
-.key-hint { font-size:10px; color:var(--e8); margin-top:4px; }
-.badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; }
-.badge::before { content:''; width:6px; height:6px; border-radius:50%; }
-.badge.active { background:rgba(123,180,73,0.15); color:var(--green9); }
-.badge.active::before { background:var(--green9); }
-.badge.trial { background:rgba(208,120,89,0.15); color:var(--accent); }
-.badge.trial::before { background:var(--accent); }
-.badge.expired { background:rgba(239,68,68,0.12); color:#ef4444; }
-.badge.expired::before { background:#ef4444; }
-.badge.none { background:rgba(160,156,152,0.1); color:var(--muted); }
-.badge.none::before { background:var(--muted); }
-.btn { display:inline-flex; align-items:center; gap:6px; padding:9px 18px; background:var(--accent); color:#fff; border:none; border-radius:var(--r-sm); font-size:13px; font-weight:600; cursor:pointer; text-decoration:none; font-family:inherit; transition:opacity 0.2s; }
-.btn:hover { opacity:0.88; }
-.btn:disabled { opacity:0.5; cursor:wait; }
-.btn-ghost { background:transparent; border:1px solid var(--border); color:var(--e11); }
-.btn-ghost:hover { border-color:var(--e9); }
-.actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
-.how-to { background:var(--e3); border-radius:var(--r-sm); padding:14px 16px; margin-top:12px; }
-.how-to p { font-size:12px; color:var(--muted); line-height:1.6; }
-.how-to strong { color:var(--e11); }
-.footer-link { text-align:center; margin-top:20px; font-size:13px; color:var(--muted); }
-.footer-link a { color:var(--accent); text-decoration:none; }
-.footer-link a:hover { text-decoration:underline; }
-#loading { text-align:center; color:var(--muted); font-size:14px; padding:40px 0; }
-#account-content { display:none; }
-#login-prompt { display:none; text-align:center; }
-#login-prompt p { color:var(--muted); font-size:14px; margin-bottom:16px; }
+/* Account-specific: subscription badge states + small states */
+.badge-live.trial { color:var(--tc11); background:color-mix(in oklch, var(--accent) 13%, transparent); border-color:color-mix(in oklch, var(--accent) 30%, transparent); }
+.badge-live.trial .dot { background:var(--accent); box-shadow:0 0 7px var(--accent); }
+.badge-live.pastdue { color:var(--amber9); background:color-mix(in oklch, var(--amber9) 13%, transparent); border-color:color-mix(in oklch, var(--amber9) 30%, transparent); }
+.badge-live.pastdue .dot { background:var(--amber9); box-shadow:0 0 7px var(--amber9); }
+.badge-live.expired { color:#ef6a5e; background:rgba(239,106,94,0.12); border-color:rgba(239,106,94,0.30); }
+.badge-live.expired .dot { background:#ef6a5e; box-shadow:0 0 7px #ef6a5e; }
+.badge-live.none { color:var(--muted); background:rgba(255,255,255,0.05); border-color:var(--border-strong); }
+.badge-live.none .dot { background:var(--muted); box-shadow:none; }
+#loading, #error-state { text-align:center; color:var(--muted); font-size:14px; padding:64px 0; }
+#login-prompt { max-width:460px; margin:8px auto 0; }
+.btn.btn-disabled { opacity:0.55; pointer-events:none; }
 </style>
 </head>
 <body>
-<div class="grain"></div>
-<div class="card">
-  <div class="brand">
-    <img src="assets/logo.png" alt="" />
-    <span><span class="accent">Panda</span>Roc</span>
+<div class="grain-body" aria-hidden="true"></div>
+<div class="grain-coarse" aria-hidden="true"></div>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="index.html" class="nav-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></a>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="nav-links">
+    <a href="index.html#features" class="nav-link">What it does</a>
+    <a href="index.html#video" class="nav-link">See it work</a>
+    <a href="index.html#who" class="nav-link">Who we are</a>
+    <a href="index.html#pricing" class="nav-link">Pricing</a>
+    <a href="account.html" class="nav-link" style="color:var(--text);background:rgba(255,255,255,0.05);">My account</a>
+    <a href="index.html#download" class="nav-cta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      Download
+    </a>
   </div>
+</nav>
 
-  <div id="loading">Loading account...</div>
-
-  <div id="login-prompt">
-    <p>Log in to view your license key and subscription.</p>
-    <a href="login.html" class="btn">Log In</a>
-    <p style="margin-top:12px;font-size:13px;color:var(--muted);">or <a href="register.html" style="color:var(--accent);">start a free trial</a></p>
-  </div>
-
-  <div id="account-content">
-    <div class="section">
-      <div class="label">License Key</div>
-      <div class="key-value" id="acc-key" onclick="copyKey()" title="Click to copy"></div>
-      <div class="key-hint">Click to copy. Use this key in Settings &gt; License inside the PandaRoc app.</div>
+<!-- HERO -->
+<header class="page-hero">
+  <div class="page-glow" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="crumbs" style="display:flex;align-items:center;justify-content:space-between;">
+      <span style="display:inline-flex;align-items:center;gap:9px;"><a href="index.html">Home</a><span class="sep">/</span><span class="here">My account</span></span>
+      <a href="#" class="acct-signout" id="signOutBtn" onclick="logout(); return false;" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>Sign out</a>
     </div>
+    <div>
+      <div class="eyebrow">Account</div>
+      <h1 id="acctHeading">Your account</h1>
+      <p class="lead" id="acctLead">Your subscription, license key and downloads, all in one place.</p>
+    </div>
+  </div>
+</header>
 
-    <div class="section">
-      <div class="label">Subscription</div>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
-        <span class="badge none" id="acc-badge"></span>
-        <span class="value" id="acc-plan"></span>
+<!-- BODY -->
+<section class="page-section last">
+  <div class="wrap">
+
+    <div id="loading">Loading your account&hellip;</div>
+
+    <div id="error-state" style="display:none;">We could not reach the server. Please refresh and try again.</div>
+
+    <!-- Logged out -->
+    <div id="login-prompt" style="display:none;">
+      <div class="card-pr">
+        <div class="card-head"><div class="ct"><i data-lucide="lock"></i>Sign in</div></div>
+        <p style="font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:20px;">Log in to view your license key, subscription and downloads.</p>
+        <div class="btns-stack" style="margin-top:0;">
+          <a href="login.html" class="btn btn-primary">Log in</a>
+          <a href="register.html" class="btn btn-ghost">Start a free trial</a>
+        </div>
       </div>
-      <div id="acc-slots" style="font-size:12px;color:var(--muted);margin-top:6px;"></div>
-      <div id="acc-period" style="font-size:12px;color:var(--muted);margin-top:4px;"></div>
     </div>
 
-    <div class="section">
-      <div class="label">Account</div>
-      <div class="value" id="acc-email"></div>
-      <div class="value" style="font-size:12px;color:var(--muted);margin-top:4px;" id="acc-name"></div>
-    </div>
+    <!-- Logged in -->
+    <div id="account-content" style="display:none;">
+      <div class="acct-grid">
 
-    <div id="how-to-activate" class="how-to" style="display:none;">
-      <p>To activate PandaRoc: open the app, click the <strong>gear icon</strong> (top-right), select <strong>License</strong>, paste your key above, and click <strong>Activate</strong>.</p>
-    </div>
+        <!-- LEFT column -->
+        <div style="display:flex;flex-direction:column;gap:22px;">
 
-    <div class="actions">
-      <button class="btn" id="billing-btn" onclick="openBillingPortal()" style="display:none;">Manage Billing</button>
-      <a href="index.html#pricing" class="btn btn-ghost" id="subscribe-btn" style="display:none;">Subscribe</a>
-      <button class="btn btn-ghost" onclick="logout()" style="color:var(--muted);">Log Out</button>
+          <!-- Subscription -->
+          <div class="card-pr feature reveal">
+            <div class="card-head">
+              <div class="ct"><i data-lucide="sparkles"></i>Subscription</div>
+              <span class="badge-live none" id="subBadge"><span class="dot"></span>None</span>
+            </div>
+            <div class="plan-row">
+              <div>
+                <div class="plan-name" id="planName">No active plan</div>
+                <div class="plan-price" id="planMeta"></div>
+              </div>
+              <button class="btn btn-primary js-portal" id="managePlanBtn" onclick="openBillingPortal()" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>Manage plan</button>
+              <a class="btn btn-primary" id="subscribeBtn" href="index.html#pricing" style="display:none;">Choose a plan</a>
+            </div>
+            <div class="kv" id="trialKvRow" style="display:none;"><span class="k" id="trialK">Trial ends</span><span class="v" id="trialV"></span></div>
+            <div class="kv" id="nameCheckKv" style="display:none;"><span class="k">Name checks</span><span class="v accent">Unlimited, free</span></div>
+          </div>
+
+          <!-- License -->
+          <div class="card-pr reveal">
+            <div class="card-head">
+              <div class="ct"><i data-lucide="key-round"></i>License key</div>
+              <span class="plan-price" style="font-size:11px;">Activates Windows &amp; macOS</span>
+            </div>
+            <div class="keyline">
+              <code id="licenseKey"></code>
+              <button class="btn-copy" id="copyKey" onclick="copyKey()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+            </div>
+            <p style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.55;">Paste this key into PandaRoc on first launch to activate. It works on every machine in your plan, with no separate seats to manage.</p>
+          </div>
+
+          <!-- Billing -->
+          <div class="card-pr reveal" id="billingCard" style="display:none;">
+            <div class="card-head"><div class="ct"><i data-lucide="receipt"></i>Billing</div></div>
+            <p style="font-size:13.5px;color:var(--text-2);line-height:1.6;margin-bottom:18px;">View your invoices, update your payment method or change plan in the secure billing portal.</p>
+            <button class="btn btn-ghost js-portal" onclick="openBillingPortal()" style="width:100%;justify-content:center;"><i data-lucide="credit-card"></i>Manage billing &amp; invoices</button>
+          </div>
+        </div>
+
+        <!-- RIGHT column -->
+        <div style="display:flex;flex-direction:column;gap:22px;">
+
+          <!-- Account details -->
+          <div class="card-pr reveal">
+            <div class="card-head"><div class="ct"><i data-lucide="user-round"></i>Account details</div></div>
+            <div class="kv" id="holderRow"><span class="k">Account holder</span><span class="v" id="accHolder"></span></div>
+            <div class="kv"><span class="k">Email</span><span class="v" id="accEmail"></span></div>
+          </div>
+
+          <!-- Downloads -->
+          <div class="card-pr reveal">
+            <div class="card-head"><div class="ct"><i data-lucide="download"></i>Downloads</div></div>
+            <div class="btns-stack" style="margin-top:0;">
+              <a href="index.html#download" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10 4.5v7H3zM11 4.3 21 3v8.5H11zM3 12.5h7v7l-7-1zM11 12.5h10V21l-10-1.3z"/></svg>Windows</a>
+              <a href="index.html#download" class="btn btn-ghost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.9c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.5-.1-2.8.8-3.5.8s-1.9-.8-3.1-.8c-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 3 2.3 1.2-.05 1.6-.8 3.1-.8s1.8.8 3.1.75c1.3-.02 2.1-1.1 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7z"/></svg>macOS</a>
+            </div>
+          </div>
+
+          <!-- Support -->
+          <div class="card-pr reveal">
+            <div class="card-head"><div class="ct"><i data-lucide="life-buoy"></i>Need a hand?</div></div>
+            <p style="font-size:13.5px;color:var(--text-2);line-height:1.6;margin-bottom:18px;">Questions about billing, accounts or the app? We answer fast.</p>
+            <div class="btns-stack" style="margin-top:0;">
+              <a href="faq.html" class="btn btn-ghost"><i data-lucide="help-circle"></i>Help &amp; FAQ</a>
+              <a href="mailto:hello@pandaserve.eu" class="btn btn-ghost"><i data-lucide="mail"></i>hello@pandaserve.eu</a>
+            </div>
+          </div>
+
+          <!-- Danger zone -->
+          <div class="card-pr reveal" id="dangerCard" style="display:none;border-color:color-mix(in oklch, var(--amber9) 22%, var(--border));">
+            <div class="card-head"><div class="ct" style="color:var(--amber9);"><i data-lucide="alert-triangle"></i>Danger zone</div></div>
+            <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Cancelling stops billing at the end of the current period. Your installs keep working until then.</p>
+            <button class="btn btn-ghost js-portal" onclick="openBillingPortal()" style="color:var(--tc11);border-color:color-mix(in oklch,var(--accent) 30%,transparent);">Cancel subscription</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+</section>
 
-  <p class="footer-link"><a href="index.html">&larr; Back to PandaRoc</a></p>
-</div>
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></div>
+        <p class="foot-tag">ROC certificate automation by PandaServe LTD. Built in Cyprus, for Cyprus firms.</p>
+      </div>
+      <div class="foot-col"><h5>Product</h5><a href="index.html#features">What it does</a><a href="index.html#video">See it work</a><a href="index.html#pricing">Pricing</a><a href="index.html#download">Download</a></div>
+      <div class="foot-col"><h5>Company</h5><a href="index.html#who">Who we are</a><a href="account.html">My account</a><a href="mailto:hello@pandaserve.eu">Contact</a><a href="faq.html">Help &amp; FAQ</a></div>
+      <div class="foot-col"><h5>Legal</h5><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="eula.html">EULA</a><a href="refund.html">Refunds</a></div>
+    </div>
+    <div class="foot-bottom"><span>&copy; 2010&ndash;2026 PandaServe LTD &middot; All rights reserved</span><span>hello@pandaserve.eu</span></div>
+  </div>
+</footer>
 
 <script src="auth.js"></script>
 <script>
-const API = 'https://api.pandaroc.com';
+// Slot-count to published tier (mirrors the pricing tiers on index.html).
+const TIERS = { 1:'Starter', 5:'Small Firm', 10:'Professional', 20:'Firm' };
 
-async function init() {
+function $(id){ return document.getElementById(id); }
+function show(id){ const el=$(id); if(el) el.style.display=''; }
+function hide(id){ const el=$(id); if(el) el.style.display='none'; }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function statusLabel(s){
+  return { active:'Active', trial:'Trial', trialing:'Trial', past_due:'Past due', expired:'Expired', canceled:'Cancelled', none:'None' }[s] || 'None';
+}
+function fmtDate(v){ try { return new Date(v).toLocaleDateString(undefined, { day:'numeric', month:'long', year:'numeric' }); } catch(e){ return ''; } }
+
+async function init(){
   const token = localStorage.getItem('pandaroc_token') || localStorage.getItem('pandaroc_refresh');
-  if (!token) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('login-prompt').style.display = 'block';
-    return;
-  }
-
+  if (!token){ showLoggedOut(); return; }
   try {
     const res = await authFetch('/auth/me');
-    if (!res.ok) {
-      clearTokens();
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('login-prompt').style.display = 'block';
-      return;
-    }
-    const data = await res.json();
-    renderAccount(data);
-  } catch (e) {
-    document.getElementById('loading').textContent = 'Could not reach server. Please try again later.';
+    if (!res.ok){ clearTokens(); showLoggedOut(); return; }
+    renderAccount(await res.json());
+  } catch (e){
+    hide('loading'); show('error-state');
   }
 }
 
-function renderAccount(data) {
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('account-content').style.display = 'block';
+function showLoggedOut(){
+  hide('loading'); hide('account-content'); hide('signOutBtn');
+  show('login-prompt');
+  if (window.lucide) lucide.createIcons();
+}
 
-  document.getElementById('acc-key').textContent = data.license_key || '-';
-  localStorage.setItem('pandaroc_license_key', data.license_key || '');
+function renderAccount(data){
+  hide('loading'); hide('login-prompt'); hide('error-state');
+  show('account-content'); show('signOutBtn');
 
-  document.getElementById('acc-email').textContent = data.email || '-';
-  document.getElementById('acc-name').textContent = data.name || '';
+  // Greeting
+  const first = (data.name || '').trim().split(/\s+/)[0];
+  if (first) $('acctHeading').innerHTML = 'Welcome back, <em>' + escapeHtml(first) + '.</em>';
+  $('acctLead').textContent = 'Your subscription, license key and downloads, all in one place.';
 
-  const badge = document.getElementById('acc-badge');
+  // License key
+  const keyEl = $('licenseKey');
+  if (data.license_key){ keyEl.textContent = data.license_key; localStorage.setItem('pandaroc_license_key', data.license_key); }
+  else { keyEl.textContent = 'Not issued yet'; }
+
+  // Account details
+  if (first){ $('accHolder').textContent = data.name; show('holderRow'); } else { hide('holderRow'); }
+  $('accEmail').textContent = data.email || 'Not set';
+
+  // Subscription status
   const status = data.subscription_status || 'none';
-  badge.textContent = status === 'trialing' ? 'Trial' : status.charAt(0).toUpperCase() + status.slice(1);
-  const isTrialStatus = status === 'trial' || status === 'trialing';
-  badge.className = 'badge ' + (status === 'active' ? 'active' : isTrialStatus ? 'trial' : status === 'expired' ? 'expired' : 'none');
+  const isTrial = status === 'trial' || status === 'trialing';
+  const hasSub  = status === 'active' || status === 'past_due' || isTrial;
+  const slots   = data.slot_count | 0;
 
-  document.getElementById('acc-plan').textContent = status === 'none' ? 'No active subscription' : '';
-  document.getElementById('acc-slots').textContent = data.slot_count > 0 ? data.slot_count + ' account slot' + (data.slot_count !== 1 ? 's' : '') : '';
+  const variant = status === 'active' ? '' : isTrial ? 'trial' : status === 'past_due' ? 'pastdue' : status === 'expired' ? 'expired' : 'none';
+  const badge = $('subBadge');
+  badge.className = 'badge-live ' + variant;
+  badge.innerHTML = '<span class="dot"></span>' + statusLabel(status);
 
-  if (data.trial_ends_at && status === 'trial') {
-    const ends = new Date(data.trial_ends_at);
-    document.getElementById('acc-period').textContent = 'Trial ends: ' + ends.toLocaleDateString();
+  if (hasSub){
+    $('planName').textContent = TIERS[slots] || (slots > 0 ? slots + '-account plan' : 'Active plan');
+    $('planMeta').innerHTML = slots > 0 ? '<b>' + slots + '</b> ROC account' + (slots !== 1 ? 's' : '') : '';
+    show('managePlanBtn'); hide('subscribeBtn');
+    show('billingCard'); show('dangerCard'); show('nameCheckKv');
+  } else {
+    $('planName').textContent = status === 'expired' ? 'Subscription expired' : 'No active plan';
+    $('planMeta').textContent = 'Start with a 7-day free trial';
+    hide('managePlanBtn'); show('subscribeBtn');
+    hide('billingCard'); hide('dangerCard'); hide('nameCheckKv');
   }
 
-  if (status === 'active' || status === 'past_due' || status === 'trialing') {
-    document.getElementById('billing-btn').style.display = '';
-  }
-  if (status === 'none' || status === 'expired' || status === 'trial') {
-    document.getElementById('subscribe-btn').style.display = '';
+  // Trial / renewal date
+  if (isTrial && data.trial_ends_at){
+    $('trialK').textContent = 'Trial ends';
+    $('trialV').textContent = fmtDate(data.trial_ends_at);
+    show('trialKvRow');
+  } else {
+    hide('trialKvRow');
   }
 
-  if (data.license_key) {
-    document.getElementById('how-to-activate').style.display = '';
-  }
+  if (window.lucide) lucide.createIcons();
+  revealCards();
 }
 
-async function openBillingPortal() {
-  const btn = document.getElementById('billing-btn');
-  btn.disabled = true; btn.textContent = 'Opening...';
+// Reveal-on-scroll, set up after content is shown (cards start in display:none)
+function revealCards(){
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const cards = document.querySelectorAll('#account-content .reveal');
+  if (reduce){ cards.forEach(c => c.classList.add('visible')); return; }
+  const io = new IntersectionObserver((es) => {
+    es.forEach(e => { if (e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  cards.forEach(c => io.observe(c));
+}
+
+async function openBillingPortal(){
+  const btns = [...document.querySelectorAll('.js-portal')];
+  btns.forEach(b => b.disabled = true);
   try {
     const res = await authFetch('/stripe/portal', { method: 'POST' });
-    if (res.ok) {
-      const data = await res.json();
-      window.location.href = data.portal_url;
-    } else {
-      const err = await res.json().catch(() => ({}));
-      alert(err.detail || 'Could not open billing portal.');
-      btn.disabled = false; btn.textContent = 'Manage Billing';
-    }
-  } catch (e) {
-    alert('Could not reach server.');
-    btn.disabled = false; btn.textContent = 'Manage Billing';
+    if (res.ok){ const d = await res.json(); window.location.href = d.portal_url; return; }
+    const err = await res.json().catch(() => ({}));
+    alert(err.detail || 'Could not open the billing portal.');
+  } catch (e){
+    alert('Could not reach the server.');
   }
+  btns.forEach(b => b.disabled = false);
 }
 
-function copyKey() {
-  const key = document.getElementById('acc-key').textContent;
-  if (key && key !== '-') {
-    navigator.clipboard.writeText(key).then(() => {
-      const el = document.getElementById('acc-key');
-      const orig = el.textContent;
-      el.textContent = 'Copied!';
-      el.style.color = '#7bb449';
-      setTimeout(() => { el.textContent = orig; el.style.color = ''; }, 1500);
-    });
-  }
+function copyKey(){
+  const key = $('licenseKey').textContent.trim();
+  if (!key || key === 'Not issued yet') return;
+  const btn = $('copyKey');
+  navigator.clipboard?.writeText(key).then(() => {
+    btn.classList.add('done');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>Copied';
+    setTimeout(() => { btn.classList.remove('done'); btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy'; }, 1800);
+  });
 }
 
-function logout() {
-  clearTokens();
-  window.location.href = 'index.html';
-}
+function logout(){ clearTokens(); window.location.href = 'index.html'; }
 
+// Scroll progress bar
+const progress = $('scrollProgress');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY, h = document.documentElement.scrollHeight - window.innerHeight;
+  if (progress) progress.style.width = Math.min(100, (y / Math.max(h, 1)) * 100) + '%';
+}, { passive: true });
+
+document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', () => document.querySelector('.nav-links').classList.remove('open')));
+document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
 init();
 </script>
 </body>
