@@ -26,6 +26,25 @@
 #loading, #error-state { text-align:center; color:var(--muted); font-size:14px; padding:64px 0; }
 #login-prompt { max-width:460px; margin:8px auto 0; }
 .btn.btn-disabled { opacity:0.55; pointer-events:none; }
+
+/* Plan picker — mirrors the homepage pricing, opens straight into checkout */
+.plan-overlay { position:fixed; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; padding:22px; background:rgba(8,6,5,0.6); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+.plan-modal { position:relative; width:100%; max-width:480px; max-height:90vh; overflow:auto; }
+.plan-close { position:absolute; top:14px; right:14px; display:grid; place-items:center; width:32px; height:32px; background:transparent; border:0; border-radius:9px; color:var(--muted); cursor:pointer; transition:color .15s, background .15s; }
+.plan-close:hover { color:var(--text); background:rgba(255,255,255,0.06); }
+.plan-close svg { width:16px; height:16px; }
+.plan-sub { font-size:13.5px; color:var(--text-2); line-height:1.6; margin:8px 0 0; }
+.plan-rows { display:flex; flex-direction:column; gap:10px; margin:20px 0 0; }
+.plan-row { display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:13px 16px; background:rgba(255,255,255,0.03); border:1px solid var(--border-strong); border-radius:var(--r-md); color:var(--text); cursor:pointer; font:inherit; transition:border-color .15s, background .15s; }
+.plan-row:hover { border-color:color-mix(in oklch, var(--accent) 55%, var(--border-strong)); background:color-mix(in oklch, var(--accent) 7%, transparent); }
+.plan-row .pn { font-weight:600; white-space:nowrap; }
+.plan-row .pn em { font-style:normal; font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--accent); margin-left:8px; }
+.plan-row .pq { color:var(--muted); font-size:12.5px; flex:1; }
+.plan-row .pp { font-weight:700; font-size:15px; }
+.plan-row .pp small { color:var(--muted); font-weight:400; font-size:11px; }
+.plan-extra { display:flex; align-items:center; flex-wrap:wrap; gap:10px; border-top:1px solid var(--border); margin-top:18px; padding-top:16px; font-size:13px; color:var(--muted); }
+.plan-extra input { width:58px; padding:8px 6px; border-radius:var(--r-md); border:1px solid var(--border-strong); background:rgba(255,255,255,0.03); color:var(--text); font:inherit; font-family:'JetBrains Mono',monospace; text-align:center; }
+.plan-trial-note { font-size:11.5px; color:var(--muted); line-height:1.55; }
 </style>
 </head>
 <body>
@@ -119,8 +138,8 @@
                 <div class="plan-name" id="planName">No active plan</div>
                 <div class="plan-price" id="planMeta"></div>
               </div>
-              <button class="btn btn-primary js-portal" id="managePlanBtn" onclick="openBillingPortal()" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>Manage plan</button>
-              <a class="btn btn-primary" id="subscribeBtn" href="index.html#pricing" style="display:none;">Choose a plan</a>
+              <button class="btn btn-primary js-portal" id="managePlanBtn" onclick="openBillingPortal('update')" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>Manage plan</button>
+              <button class="btn btn-primary" id="subscribeBtn" onclick="openPlanModal()" style="display:none;">Choose a plan</button>
             </div>
             <div class="kv" id="trialKvRow" style="display:none;"><span class="k" id="trialK">Trial ends</span><span class="v" id="trialV"></span></div>
             <div class="kv" id="nameCheckKv" style="display:none;"><span class="k">Name checks</span><span class="v accent">Unlimited, free</span></div>
@@ -158,7 +177,7 @@
             <div class="card-head"><div class="ct"><i data-lucide="download"></i>Downloads</div></div>
             <div class="btns-stack" style="margin-top:0;">
               <a href="index.html#download" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10 4.5v7H3zM11 4.3 21 3v8.5H11zM3 12.5h7v7l-7-1zM11 12.5h10V21l-10-1.3z"/></svg>Windows</a>
-              <a href="index.html#download" class="btn btn-ghost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.9c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.5-.1-2.8.8-3.5.8s-1.9-.8-3.1-.8c-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 3 2.3 1.2-.05 1.6-.8 3.1-.8s1.8.8 3.1.75c1.3-.02 2.1-1.1 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7z"/></svg>macOS</a>
+              <a href="index.html#download" class="btn btn-ghost"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.9c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.5-.1-2.8.8-3.5.8s-1.9-.8-3.1-.8c-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 3 2.3 1.2-.05 1.6-.8 3.1-.8s1.8.8 3.1.75c1.3-.02 2.1-1.1 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.03-.01-2.5-.96-2.5-3.8zM14.2 5.9c.65-.8 1.1-1.9 1-3-.95.04-2.1.63-2.8 1.4-.6.7-1.1 1.8-1 2.9 1.05.08 2.1-.53 2.8-1.3z"/></svg>macOS</a>
             </div>
           </div>
 
@@ -188,6 +207,34 @@
     </div>
   </div>
 </section>
+
+<!-- Plan picker (no active plan: choose tier or quantity, straight to checkout) -->
+<div class="plan-overlay" id="planOverlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="planTitle">
+  <div class="plan-modal card-pr">
+    <button class="plan-close" onclick="closePlanModal()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div class="card-head" style="margin-bottom:0;"><div class="ct"><i data-lucide="sparkles"></i>Choose your plan</div></div>
+    <p class="plan-sub" id="planTitle">Pay for the ROC account slots you use. Every plan includes both agents, free name checks and auto-updates. Cancel anytime.</p>
+    <div class="plan-rows">
+      <button class="plan-row" onclick="choosePlan(1, false)"><span class="pn">Starter</span><span class="pq">1 ROC account</span><span class="pp">&euro;29<small>/mo</small></span></button>
+      <button class="plan-row" onclick="choosePlan(5, false)"><span class="pn">Small Firm<em>Popular</em></span><span class="pq">5 ROC accounts</span><span class="pp">&euro;99<small>/mo</small></span></button>
+      <button class="plan-row" onclick="choosePlan(10, false)"><span class="pn">Professional</span><span class="pq">10 ROC accounts</span><span class="pp">&euro;179<small>/mo</small></span></button>
+      <button class="plan-row" onclick="choosePlan(20, false)"><span class="pn">Firm</span><span class="pq">20 ROC accounts</span><span class="pp">&euro;299<small>/mo</small></span></button>
+    </div>
+    <div class="plan-extra">
+      <label for="planQty">Different number?</label>
+      <input id="planQty" type="number" min="1" max="20" value="3" />
+      <span>accounts</span>
+      <button class="btn btn-ghost" style="margin-left:auto;" onclick="choosePlan(document.getElementById('planQty').value, false)">Buy now</button>
+    </div>
+    <div class="plan-extra">
+      <div style="flex:1;min-width:200px;">
+        <div style="color:var(--text);font-weight:600;font-size:13.5px;margin-bottom:3px;">Not sure yet?</div>
+        <div class="plan-trial-note">7 days of full access. Card required, no charge until the trial ends.</div>
+      </div>
+      <button class="btn btn-primary" onclick="choosePlan(3, true)">Start free trial</button>
+    </div>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer>
@@ -279,12 +326,20 @@ function renderAccount(data){
     $('planMeta').textContent = 'Start with a 7-day free trial';
     hide('managePlanBtn'); show('subscribeBtn');
     hide('billingCard'); hide('cancelBlock'); hide('nameCheckKv');
+    // No plan yet (e.g. fresh sign-up): drop the user straight into the picker.
+    maybeAutoOpenPlanModal();
   }
 
-  // Trial / renewal date
+  // Trial: end date + time left. Renewal date for paid plans.
   if (isTrial && data.trial_ends_at){
+    const daysLeft = Math.max(0, Math.ceil((new Date(data.trial_ends_at) - Date.now()) / 86400000));
     $('trialK').textContent = 'Trial ends';
-    $('trialV').textContent = fmtDate(data.trial_ends_at);
+    $('trialV').textContent = fmtDate(data.trial_ends_at)
+      + ' · ' + (daysLeft === 0 ? 'today' : daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' left');
+    show('trialKvRow');
+  } else if (hasSub && data.current_period_end){
+    $('trialK').textContent = 'Renews';
+    $('trialV').textContent = fmtDate(data.current_period_end);
     show('trialKvRow');
   } else {
     hide('trialKvRow');
@@ -293,6 +348,52 @@ function renderAccount(data){
   if (window.lucide) lucide.createIcons();
   revealCards();
 }
+
+// ── Plan picker ──
+let _planModalAutoShown = false;
+
+function openPlanModal(){
+  show('planOverlay');
+  if (window.lucide) lucide.createIcons();
+}
+function closePlanModal(){ hide('planOverlay'); }
+
+function maybeAutoOpenPlanModal(){
+  if (_planModalAutoShown) return;
+  _planModalAutoShown = true;
+  openPlanModal();
+}
+
+async function choosePlan(quantity, trial){
+  const qty = Math.max(1, Math.min(20, parseInt(quantity, 10) || 1));
+  trial = !!trial;
+  try {
+    const res = await authFetch('/stripe/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        quantity: qty,
+        trial: trial,
+        success_url: window.location.origin + '/success.html' + (trial ? '?trial=1' : ''),
+        cancel_url: window.location.origin + '/cancel.html',
+      }),
+    });
+    if (!res.ok){
+      const err = await res.json().catch(() => ({}));
+      alert(err.detail || 'Could not start checkout. Please try again.');
+      return;
+    }
+    const d = await res.json();
+    window.location.href = d.checkout_url;
+  } catch (e){
+    alert('Could not reach the server.');
+  }
+}
+
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePlanModal(); });
+document.getElementById('planOverlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closePlanModal();
+});
 
 // Reveal-on-scroll, set up after content is shown (cards start in display:none)
 function revealCards(){
