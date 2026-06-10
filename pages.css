@@ -174,14 +174,6 @@
 .kv .v { font-size:14px; font-weight:600; text-align:right; }
 .kv .v.accent { color:var(--accent); }
 
-/* license key */
-.keyline { display:flex; align-items:center; gap:10px; background:var(--bg-elev); border:1px solid var(--border-strong); border-radius:var(--r-md); padding:12px 14px; }
-.keyline code { font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:0.04em; color:var(--text); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.btn-copy { display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-2); background:rgba(255,255,255,0.04); border:1px solid var(--border-strong); border-radius:8px; padding:7px 11px; transition:all var(--dur) var(--ease); flex:none; }
-.btn-copy:hover { color:var(--text); border-color:var(--e7); background:rgba(255,255,255,0.07); }
-.btn-copy svg { width:13px; height:13px; }
-.btn-copy.done { color:var(--green10); border-color:color-mix(in oklch, var(--green10) 40%, transparent); }
-
 /* devices */
 .device { display:flex; align-items:center; gap:13px; padding:14px 0; border-bottom:1px solid var(--border); }
 .device:last-child { border-bottom:none; }

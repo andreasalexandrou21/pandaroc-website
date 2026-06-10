@@ -8,7 +8,6 @@
 <title>Create your account · PandaRoc</title>
 <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -123,11 +122,6 @@
         </div>
 
         <button type="submit" class="btn btn-primary" id="registerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>Create account &amp; start trial</button>
-
-        <div id="googleAuth" style="display:none;">
-          <div class="auth-divider">or</div>
-          <div id="googleBtn"></div>
-        </div>
       </form>
 
       <p class="auth-fineprint">Your ROC credentials are never collected here. They stay encrypted on your machine.</p>
@@ -138,9 +132,6 @@
 <script src="auth.js"></script>
 <script>
 const API = 'https://api.pandaroc.com';
-// To enable Google sign-up: set this to your Google OAuth Web client ID
-// (xxxx.apps.googleusercontent.com) and add GOOGLE_CLIENT_ID to the license-server .env.
-const GOOGLE_CLIENT_ID = '';
 
 document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
 
@@ -257,40 +248,6 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     resetRegBtn();
   }
 });
-
-// ── Google sign-up (Google Identity Services) ──
-async function onGoogleCredential(resp){
-  document.getElementById('registerError').style.display = 'none';
-  try {
-    const res = await fetch(API + '/auth/google', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ credential: resp.credential }),
-    });
-    const data = await res.json();
-    if (!res.ok) { showError(data.detail || 'Google sign-up failed.'); return; }
-    saveTokens(data);
-    if (localStorage.getItem('pandaroc_pending_qty')) {
-      await continueAfterAuth(data.access_token);
-    } else {
-      window.location.href = 'account.html';
-    }
-  } catch (e) {
-    showError('Could not reach the server. Please try again.');
-  }
-}
-
-function initGoogle(){
-  if (!GOOGLE_CLIENT_ID || !(window.google && google.accounts && google.accounts.id)) return;
-  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onGoogleCredential });
-  const wrap = document.getElementById('googleAuth');
-  wrap.style.display = '';
-  const slot = document.getElementById('googleBtn');
-  const w = Math.max(220, Math.min(400, slot.offsetWidth || 360));
-  google.accounts.id.renderButton(slot, { theme: 'filled_black', size: 'large', shape: 'pill', text: 'signup_with', logo_alignment: 'center', width: w });
-}
-window.onGoogleLibraryLoad = initGoogle;
-if (window.google && google.accounts && google.accounts.id) initGoogle();
 </script>
 </body>
 </html>

@@ -63,7 +63,7 @@
     <div>
       <div class="eyebrow">Account</div>
       <h1 id="acctHeading">Your account</h1>
-      <p class="lead" id="acctLead">Your subscription, license key and downloads, all in one place.</p>
+      <p class="lead" id="acctLead">Your subscription, plan and downloads, all in one place.</p>
     </div>
   </div>
 </header>
@@ -80,7 +80,7 @@
     <div id="login-prompt" style="display:none;">
       <div class="card-pr">
         <div class="card-head"><div class="ct"><i data-lucide="lock"></i>Sign in</div></div>
-        <p style="font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:20px;">Log in to view your license key, subscription and downloads.</p>
+        <p style="font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:20px;">Log in to manage your subscription, plan and downloads.</p>
         <div class="btns-stack" style="margin-top:0;">
           <a href="login.html" class="btn btn-primary">Log in</a>
           <a href="register.html" class="btn btn-ghost">Start a free trial</a>
@@ -126,17 +126,13 @@
             <div class="kv" id="nameCheckKv" style="display:none;"><span class="k">Name checks</span><span class="v accent">Unlimited, free</span></div>
           </div>
 
-          <!-- License -->
+          <!-- App sign-in -->
           <div class="card-pr reveal">
             <div class="card-head">
-              <div class="ct"><i data-lucide="key-round"></i>License key</div>
-              <span class="plan-price" style="font-size:11px;">Activates Windows &amp; macOS</span>
+              <div class="ct"><i data-lucide="monitor"></i>Use the app</div>
+              <span class="plan-price" style="font-size:11px;">Windows &amp; macOS</span>
             </div>
-            <div class="keyline">
-              <code id="licenseKey"></code>
-              <button class="btn-copy" id="copyKey" onclick="copyKey()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
-            </div>
-            <p style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.55;">Paste this key into PandaRoc on first launch to activate. It works on every machine in your plan, with no separate seats to manage.</p>
+            <p style="font-size:13px;color:var(--muted);line-height:1.55;">Log in to the PandaRoc app with this same email and password. It works on every machine in your plan, with no license keys or separate seats to manage.</p>
           </div>
 
           <!-- Billing -->
@@ -184,7 +180,7 @@
               <button class="btn btn-ghost js-portal" onclick="openBillingPortal('cancel')" style="color:var(--tc11);border-color:color-mix(in oklch,var(--accent) 30%,transparent);">Cancel subscription</button>
               <div style="height:1px;background:var(--border);margin:22px 0;"></div>
             </div>
-            <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Deleting your account is permanent: it cancels your subscription and removes your license, devices and saved settings. This can't be undone.</p>
+            <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Deleting your account is permanent: it cancels your subscription and removes your devices and saved settings. This can't be undone.</p>
             <button class="btn btn-ghost" id="deleteAccountBtn" onclick="deleteAccount()" style="color:#ef6a5e;border-color:color-mix(in oklch, #ef6a5e 34%, transparent);"><i data-lucide="trash-2"></i>Delete account</button>
           </div>
         </div>
@@ -248,12 +244,7 @@ function renderAccount(data){
   // Greeting
   const first = (data.name || '').trim().split(/\s+/)[0];
   if (first) $('acctHeading').innerHTML = 'Welcome back, <em>' + escapeHtml(first) + '.</em>';
-  $('acctLead').textContent = 'Your subscription, license key and downloads, all in one place.';
-
-  // License key
-  const keyEl = $('licenseKey');
-  if (data.license_key){ keyEl.textContent = data.license_key; localStorage.setItem('pandaroc_license_key', data.license_key); }
-  else { keyEl.textContent = 'Not issued yet'; }
+  $('acctLead').textContent = 'Your subscription, plan and downloads, all in one place.';
 
   // Account details
   if (first){ $('accHolder').textContent = data.name; show('holderRow'); } else { hide('holderRow'); }
@@ -350,7 +341,7 @@ async function resendVerification(){
 }
 
 async function deleteAccount(){
-  if (!confirm('Delete your PandaRoc account permanently? This cancels your subscription and removes your license, devices and settings. This cannot be undone.')) return;
+  if (!confirm('Delete your PandaRoc account permanently? This cancels your subscription and removes your devices and settings. This cannot be undone.')) return;
   if (prompt('This is permanent. Type DELETE to confirm:') !== 'DELETE') return;
   const btn = $('deleteAccountBtn');
   btn.disabled = true;
@@ -369,17 +360,6 @@ async function deleteAccount(){
     btn.disabled = false;
     alert('Could not reach the server.');
   }
-}
-
-function copyKey(){
-  const key = $('licenseKey').textContent.trim();
-  if (!key || key === 'Not issued yet') return;
-  const btn = $('copyKey');
-  navigator.clipboard?.writeText(key).then(() => {
-    btn.classList.add('done');
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>Copied';
-    setTimeout(() => { btn.classList.remove('done'); btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy'; }, 1800);
-  });
 }
 
 function logout(){ clearTokens(); window.location.href = 'index.html'; }

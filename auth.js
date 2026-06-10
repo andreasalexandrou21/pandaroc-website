@@ -7,12 +7,12 @@ function saveTokens(data) {
   if (!data) return;
   if (data.access_token) localStorage.setItem('pandaroc_token', data.access_token);
   if (data.refresh_token) localStorage.setItem('pandaroc_refresh', data.refresh_token);
-  if (data.license_key) localStorage.setItem('pandaroc_license_key', data.license_key);
 }
 
 function clearTokens() {
   localStorage.removeItem('pandaroc_token');
   localStorage.removeItem('pandaroc_refresh');
+  // Legacy cleanup: license keys were retired in favor of account login.
   localStorage.removeItem('pandaroc_license_key');
 }
 
