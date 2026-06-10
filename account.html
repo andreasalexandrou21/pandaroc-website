@@ -180,7 +180,7 @@
           <div class="card-pr reveal" id="dangerCard" style="display:none;border-color:color-mix(in oklch, var(--amber9) 22%, var(--border));">
             <div class="card-head"><div class="ct" style="color:var(--amber9);"><i data-lucide="alert-triangle"></i>Danger zone</div></div>
             <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Cancelling stops billing at the end of the current period. Your installs keep working until then.</p>
-            <button class="btn btn-ghost js-portal" onclick="openBillingPortal()" style="color:var(--tc11);border-color:color-mix(in oklch,var(--accent) 30%,transparent);">Cancel subscription</button>
+            <button class="btn btn-ghost js-portal" onclick="openBillingPortal('cancel')" style="color:var(--tc11);border-color:color-mix(in oklch,var(--accent) 30%,transparent);">Cancel subscription</button>
           </div>
         </div>
       </div>
@@ -309,11 +309,13 @@ function revealCards(){
   cards.forEach(c => io.observe(c));
 }
 
-async function openBillingPortal(){
+async function openBillingPortal(flow){
   const btns = [...document.querySelectorAll('.js-portal')];
   btns.forEach(b => b.disabled = true);
   try {
-    const res = await authFetch('/stripe/portal', { method: 'POST' });
+    const opts = { method: 'POST' };
+    if (flow){ opts.headers = { 'Content-Type': 'application/json' }; opts.body = JSON.stringify({ flow }); }
+    const res = await authFetch('/stripe/portal', opts);
     if (res.ok){ const d = await res.json(); window.location.href = d.portal_url; return; }
     const err = await res.json().catch(() => ({}));
     alert(err.detail || 'Could not open the billing portal.');
