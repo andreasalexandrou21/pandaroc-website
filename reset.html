@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="dark" />
+<meta name="robots" content="noindex" />
+<title>Reset password · PandaRoc</title>
+<link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="shared/tokens.css" />
+<link rel="stylesheet" href="pages.css" />
+<style>
+body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:28px; position:relative; }
+.result { width:100%; max-width:420px; }
+.result-brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:22px; font-weight:700; font-size:20px; letter-spacing:-0.3px; }
+.result-brand img { height:28px; }
+.result-brand .accent { color:var(--accent); }
+.result h1 { font-size:24px; font-weight:800; letter-spacing:-0.02em; text-align:center; margin-bottom:8px; }
+.result .sub { color:var(--text-2); font-size:14px; line-height:1.6; text-align:center; margin:0 auto 24px; }
+.done-check { width:56px; height:56px; border-radius:50%; display:grid; place-items:center; margin:0 auto 16px; color:#fff; background:linear-gradient(180deg, var(--green10), var(--green9)); box-shadow:0 10px 30px color-mix(in oklch, var(--green9) 32%, transparent); }
+.done-check svg { width:27px; height:27px; }
+.back-link { text-align:center; margin-top:18px; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="grain-body" aria-hidden="true"></div>
+<div class="grain-coarse" aria-hidden="true"></div>
+<div class="page-glow" aria-hidden="true"></div>
+
+<div class="result">
+  <div class="result-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></div>
+
+  <div class="card-pr">
+    <!-- Request a reset link -->
+    <div id="requestMode">
+      <h1>Reset your password</h1>
+      <p class="sub">Enter your account email and we'll send you a link to set a new password.</p>
+      <p class="auth-error" id="reqError"></p>
+      <form id="requestForm" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+            <input type="email" id="email" name="email" placeholder="you@yourfirm.com" autocomplete="email" required />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="reqBtn" style="width:100%;justify-content:center;">Send reset link</button>
+      </form>
+      <p class="back-link"><a href="login.html" class="link-accent">Back to log in</a></p>
+    </div>
+
+    <!-- Set a new password (token present) -->
+    <div id="resetMode" style="display:none;">
+      <h1>Set a new password</h1>
+      <p class="sub">Choose a new password for your account.</p>
+      <p class="auth-error" id="resError"></p>
+      <form id="resetForm" novalidate>
+        <div class="field">
+          <label for="password">New password</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="password" name="password" placeholder="At least 8 characters" autocomplete="new-password" required />
+            <button type="button" class="toggle-pw" aria-label="Show password" onclick="togglePw()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="resBtn" style="width:100%;justify-content:center;">Update password</button>
+      </form>
+    </div>
+
+    <!-- Done -->
+    <div id="doneMode" style="display:none;text-align:center;">
+      <div class="done-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></div>
+      <h1 id="doneTitle">Check your inbox</h1>
+      <p class="sub" id="doneMsg"></p>
+      <a href="login.html" class="btn btn-primary" style="width:100%;justify-content:center;">Go to log in</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://api.pandaroc.com';
+const token = new URLSearchParams(location.search).get('token');
+function $(id){ return document.getElementById(id); }
+function showError(id, msg){ const e = $(id); e.textContent = msg; e.style.display = 'block'; }
+function togglePw(){ const i = $('password'); i.type = i.type === 'password' ? 'text' : 'password'; }
+function showDone(title, msg){ $('requestMode').style.display = 'none'; $('resetMode').style.display = 'none'; $('doneTitle').textContent = title; $('doneMsg').textContent = msg; $('doneMode').style.display = ''; }
+
+if (token){ $('requestMode').style.display = 'none'; $('resetMode').style.display = ''; }
+
+$('requestForm').addEventListener('submit', async (e) => {
+  e.preventDefault(); $('reqError').style.display = 'none';
+  const btn = $('reqBtn'); btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Sending...';
+  try {
+    const res = await fetch(API + '/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: $('email').value.trim() }) });
+    const d = await res.json().catch(() => ({}));
+    // Always the same outcome — we never reveal whether the email is registered.
+    showDone('Check your inbox', (d.detail || 'If that email is registered, a reset link is on its way.') + ' The link expires in 1 hour.');
+  } catch (_){
+    btn.disabled = false; btn.textContent = orig;
+    showError('reqError', 'Could not reach the server. Please try again.');
+  }
+});
+
+$('resetForm').addEventListener('submit', async (e) => {
+  e.preventDefault(); $('resError').style.display = 'none';
+  const pw = $('password').value;
+  if (pw.length < 8){ showError('resError', 'Password must be at least 8 characters.'); return; }
+  const btn = $('resBtn'); btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Updating...';
+  try {
+    const res = await fetch(API + '/auth/reset-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, password: pw }) });
+    const d = await res.json().catch(() => ({}));
+    if (res.ok){ showDone('Password updated', 'You can now log in with your new password.'); }
+    else { btn.disabled = false; btn.textContent = orig; showError('resError', d.detail || 'Could not reset your password.'); }
+  } catch (_){
+    btn.disabled = false; btn.textContent = orig;
+    showError('resError', 'Could not reach the server. Please try again.');
+  }
+});
+</script>
+</body>
+</html>
