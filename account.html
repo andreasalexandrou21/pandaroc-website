@@ -90,6 +90,19 @@
 
     <!-- Logged in -->
     <div id="account-content" style="display:none;">
+
+      <!-- Email verification banner (shown until the user confirms their address) -->
+      <div class="card-pr" id="verifyBanner" style="display:none;margin-bottom:22px;border-color:color-mix(in oklch, var(--amber9) 30%, var(--border));background:color-mix(in oklch, var(--amber9) 6%, transparent);">
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="color:var(--amber9);flex-shrink:0;display:flex;"><i data-lucide="mail"></i></div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:600;color:var(--text);margin-bottom:5px;">Confirm your email address</div>
+            <p style="font-size:13.5px;color:var(--text-2);line-height:1.6;margin:0 0 14px;">We sent a verification link to <b id="verifyEmail"></b>. Confirm it to secure your account and receive important billing notices.</p>
+            <button class="btn btn-ghost" id="resendVerifyBtn" onclick="resendVerification()" style="border-color:color-mix(in oklch, var(--amber9) 32%, transparent);"><i data-lucide="send"></i>Resend verification email</button>
+          </div>
+        </div>
+      </div>
+
       <div class="acct-grid">
 
         <!-- LEFT column -->
@@ -241,6 +254,14 @@ function renderAccount(data){
   if (first){ $('accHolder').textContent = data.name; show('holderRow'); } else { hide('holderRow'); }
   $('accEmail').textContent = data.email || 'Not set';
 
+  // Email verification prompt (only while unverified)
+  if (data.email_verified === false){
+    $('verifyEmail').textContent = data.email || 'your address';
+    show('verifyBanner');
+  } else {
+    hide('verifyBanner');
+  }
+
   // Subscription status
   const status = data.subscription_status || 'none';
   const isTrial = status === 'trial' || status === 'trialing';
@@ -300,6 +321,25 @@ async function openBillingPortal(){
     alert('Could not reach the server.');
   }
   btns.forEach(b => b.disabled = false);
+}
+
+async function resendVerification(){
+  const btn = $('resendVerifyBtn');
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  try {
+    const res = await authFetch('/auth/resend-verification', { method: 'POST' });
+    const d = await res.json().catch(() => ({}));
+    if (res.ok){
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>' + escapeHtml(d.detail || 'Verification email sent');
+    } else {
+      btn.disabled = false; btn.innerHTML = orig;
+      alert(d.detail || 'Could not send the verification email.');
+    }
+  } catch (e){
+    btn.disabled = false; btn.innerHTML = orig;
+    alert('Could not reach the server.');
+  }
 }
 
 function copyKey(){

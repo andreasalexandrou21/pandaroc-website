@@ -242,9 +242,16 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
       return;
     }
     saveTokens(data);
-    const isTrial = localStorage.getItem('pandaroc_pending_trial') !== '0';
-    regBtn.lastChild.textContent = isTrial ? 'Starting your trial...' : 'Starting checkout...';
-    await continueAfterAuth(data.access_token);
+    // Only push to Stripe checkout if the user actually came from a Buy / trial CTA.
+    // A plain sign-up lands on the styled account page, not Stripe's hosted page.
+    if (localStorage.getItem('pandaroc_pending_qty')) {
+      const isTrial = localStorage.getItem('pandaroc_pending_trial') !== '0';
+      regBtn.lastChild.textContent = isTrial ? 'Starting your trial...' : 'Starting checkout...';
+      await continueAfterAuth(data.access_token);
+    } else {
+      regBtn.lastChild.textContent = 'Account created';
+      window.location.href = 'account.html';
+    }
   } catch (err) {
     showError('Could not reach the server. Please try again.');
     resetRegBtn();
@@ -263,7 +270,11 @@ async function onGoogleCredential(resp){
     const data = await res.json();
     if (!res.ok) { showError(data.detail || 'Google sign-up failed.'); return; }
     saveTokens(data);
-    await continueAfterAuth(data.access_token);
+    if (localStorage.getItem('pandaroc_pending_qty')) {
+      await continueAfterAuth(data.access_token);
+    } else {
+      window.location.href = 'account.html';
+    }
   } catch (e) {
     showError('Could not reach the server. Please try again.');
   }
