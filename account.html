@@ -179,8 +179,13 @@
           <!-- Danger zone -->
           <div class="card-pr reveal" id="dangerCard" style="display:none;border-color:color-mix(in oklch, var(--amber9) 22%, var(--border));">
             <div class="card-head"><div class="ct" style="color:var(--amber9);"><i data-lucide="alert-triangle"></i>Danger zone</div></div>
-            <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Cancelling stops billing at the end of the current period. Your installs keep working until then.</p>
-            <button class="btn btn-ghost js-portal" onclick="openBillingPortal('cancel')" style="color:var(--tc11);border-color:color-mix(in oklch,var(--accent) 30%,transparent);">Cancel subscription</button>
+            <div id="cancelBlock" style="display:none;">
+              <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Cancelling stops billing at the end of the current period. Your installs keep working until then.</p>
+              <button class="btn btn-ghost js-portal" onclick="openBillingPortal('cancel')" style="color:var(--tc11);border-color:color-mix(in oklch,var(--accent) 30%,transparent);">Cancel subscription</button>
+              <div style="height:1px;background:var(--border);margin:22px 0;"></div>
+            </div>
+            <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Deleting your account is permanent: it cancels your subscription and removes your license, devices and saved settings. This can't be undone.</p>
+            <button class="btn btn-ghost" id="deleteAccountBtn" onclick="deleteAccount()" style="color:#ef6a5e;border-color:color-mix(in oklch, #ef6a5e 34%, transparent);"><i data-lucide="trash-2"></i>Delete account</button>
           </div>
         </div>
       </div>
@@ -238,7 +243,7 @@ function showLoggedOut(){
 
 function renderAccount(data){
   hide('loading'); hide('login-prompt'); hide('error-state');
-  show('account-content'); show('signOutBtn');
+  show('account-content'); show('signOutBtn'); show('dangerCard');
 
   // Greeting
   const first = (data.name || '').trim().split(/\s+/)[0];
@@ -277,12 +282,12 @@ function renderAccount(data){
     $('planName').textContent = TIERS[slots] || (slots > 0 ? slots + '-account plan' : 'Active plan');
     $('planMeta').innerHTML = slots > 0 ? '<b>' + slots + '</b> ROC account' + (slots !== 1 ? 's' : '') : '';
     show('managePlanBtn'); hide('subscribeBtn');
-    show('billingCard'); show('dangerCard'); show('nameCheckKv');
+    show('billingCard'); show('cancelBlock'); show('nameCheckKv');
   } else {
     $('planName').textContent = status === 'expired' ? 'Subscription expired' : 'No active plan';
     $('planMeta').textContent = 'Start with a 7-day free trial';
     hide('managePlanBtn'); show('subscribeBtn');
-    hide('billingCard'); hide('dangerCard'); hide('nameCheckKv');
+    hide('billingCard'); hide('cancelBlock'); hide('nameCheckKv');
   }
 
   // Trial / renewal date
@@ -340,6 +345,28 @@ async function resendVerification(){
     }
   } catch (e){
     btn.disabled = false; btn.innerHTML = orig;
+    alert('Could not reach the server.');
+  }
+}
+
+async function deleteAccount(){
+  if (!confirm('Delete your PandaRoc account permanently? This cancels your subscription and removes your license, devices and settings. This cannot be undone.')) return;
+  if (prompt('This is permanent. Type DELETE to confirm:') !== 'DELETE') return;
+  const btn = $('deleteAccountBtn');
+  btn.disabled = true;
+  try {
+    const res = await authFetch('/auth/account', { method: 'DELETE' });
+    if (res.ok){
+      clearTokens();
+      alert('Your account has been deleted.');
+      window.location.href = 'index.html';
+      return;
+    }
+    const d = await res.json().catch(() => ({}));
+    btn.disabled = false;
+    alert(d.detail || 'Could not delete your account. Please contact support@pandaroc.com.');
+  } catch (e){
+    btn.disabled = false;
     alert('Could not reach the server.');
   }
 }
