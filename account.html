@@ -199,8 +199,9 @@
               <button class="btn btn-ghost js-portal" onclick="openBillingPortal('cancel')" style="color:var(--tc11);border-color:color-mix(in oklch,var(--accent) 30%,transparent);">Cancel subscription</button>
               <div style="height:1px;background:var(--border);margin:22px 0;"></div>
             </div>
-            <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Deleting your account is permanent: it cancels your subscription and removes your devices and saved settings. This can't be undone.</p>
+            <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Deleting your account is permanent: it cancels your subscription and removes your devices and saved settings. We'll email you a link to confirm — nothing is deleted until you approve it from your inbox.</p>
             <button class="btn btn-ghost" id="deleteAccountBtn" onclick="deleteAccount()" style="color:#ef6a5e;border-color:color-mix(in oklch, #ef6a5e 34%, transparent);"><i data-lucide="trash-2"></i>Delete account</button>
+            <p id="deleteRequested" style="display:none;font-size:13px;color:var(--tc11);line-height:1.6;margin-top:14px;"><b>Check your inbox.</b> We've sent a confirmation link — the deletion only happens once you click it. The link expires in 1 hour.</p>
           </div>
         </div>
       </div>
@@ -229,7 +230,7 @@
     <div class="plan-extra">
       <div style="flex:1;min-width:200px;">
         <div style="color:var(--text);font-weight:600;font-size:13.5px;margin-bottom:3px;">Not sure yet?</div>
-        <div class="plan-trial-note">7 days of full access. Card required, no charge until the trial ends.</div>
+        <div class="plan-trial-note">7 days of full access with 3 ROC accounts. Card required, no charge until the trial ends.</div>
       </div>
       <button class="btn btn-primary" onclick="choosePlan(3, true)">Start free trial</button>
     </div>
@@ -442,21 +443,18 @@ async function resendVerification(){
 }
 
 async function deleteAccount(){
-  if (!confirm('Delete your PandaRoc account permanently? This cancels your subscription and removes your devices and settings. This cannot be undone.')) return;
-  if (prompt('This is permanent. Type DELETE to confirm:') !== 'DELETE') return;
+  if (!confirm('Request account deletion? We will email you a confirmation link — nothing is deleted until you approve it from your inbox.')) return;
   const btn = $('deleteAccountBtn');
   btn.disabled = true;
   try {
-    const res = await authFetch('/auth/account', { method: 'DELETE' });
-    if (res.ok){
-      clearTokens();
-      alert('Your account has been deleted.');
-      window.location.href = 'index.html';
-      return;
-    }
+    const res = await authFetch('/auth/request-deletion', { method: 'POST' });
     const d = await res.json().catch(() => ({}));
-    btn.disabled = false;
-    alert(d.detail || 'Could not delete your account. Please contact support@pandaroc.com.');
+    if (res.ok){
+      show('deleteRequested');
+    } else {
+      btn.disabled = false;
+      alert(d.detail || 'Could not start the deletion. Please contact support@pandaroc.com.');
+    }
   } catch (e){
     btn.disabled = false;
     alert('Could not reach the server.');
