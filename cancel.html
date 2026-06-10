@@ -11,40 +11,38 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="shared/tokens.css" />
+<link rel="stylesheet" href="pages.css" />
 <style>
-body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:28px; }
-.auth-card { position:relative; z-index:2; width:100%; max-width:430px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-xl); padding:46px 38px; box-shadow:var(--shadow-lg); overflow:hidden; text-align:center; }
-.auth-card::before { content:''; position:absolute; inset:0; background-image:url('assets/grain-card.svg'); background-size:220px; opacity:0.05; mix-blend-mode:overlay; pointer-events:none; }
-.auth-card > * { position:relative; }
-.auth-glow { position:absolute; top:-150px; left:50%; transform:translateX(-50%); width:360px; height:280px; border-radius:50%; filter:blur(120px); background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 22%, transparent), transparent 70%); pointer-events:none; z-index:0; }
-.auth-brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:22px; }
-.auth-brand img { height:30px; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
-.auth-brand span { font-size:22px; font-weight:700; letter-spacing:-0.3px; }
-.auth-brand .accent { color:var(--accent); }
-.auth-icon { width:56px; height:56px; border-radius:50%; display:grid; place-items:center; margin:0 auto 18px; background:rgba(255,255,255,0.04); border:1px solid var(--border-strong); color:var(--muted); }
-.auth-icon svg { width:26px; height:26px; }
-.auth-title { font-size:23px; font-weight:800; letter-spacing:-0.02em; margin-bottom:10px; }
-.auth-sub { color:var(--muted); font-size:14px; line-height:1.6; margin-bottom:28px; }
-.auth-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:28px; position:relative; }
+.result { width:100%; max-width:430px; text-align:center; }
+.result-brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:22px; font-weight:700; font-size:20px; letter-spacing:-0.3px; }
+.result-brand img { height:28px; }
+.result-brand .accent { color:var(--accent); }
+.cancel-icon { width:54px; height:54px; border-radius:50%; display:grid; place-items:center; margin:0 auto 18px; background:rgba(255,255,255,0.04); border:1px solid var(--border-strong); color:var(--muted); }
+.cancel-icon svg { width:25px; height:25px; }
+.result h1 { font-size:23px; font-weight:800; letter-spacing:-0.02em; margin-bottom:10px; }
+.result .sub { color:var(--muted); font-size:14px; line-height:1.6; margin-bottom:26px; }
+.result-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 </style>
 </head>
 <body>
 <div class="grain-body" aria-hidden="true"></div>
 <div class="grain-coarse" aria-hidden="true"></div>
-<div class="auth-card">
-  <div class="auth-glow" aria-hidden="true"></div>
-  <div class="auth-brand">
-    <img src="assets/logo.png" alt="" />
-    <span><span class="accent">Panda</span>Roc</span>
-  </div>
-  <div class="auth-icon">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
-  </div>
-  <h1 class="auth-title">Checkout cancelled</h1>
-  <p class="auth-sub">No worries, you weren't charged. You can try again anytime from the pricing page, or start with a free 7-day trial instead.</p>
-  <div class="auth-actions">
-    <a href="index.html#pricing" class="btn btn-primary">View pricing</a>
-    <a href="register.html" class="btn btn-ghost">Start free trial</a>
+<div class="page-glow" aria-hidden="true"></div>
+
+<div class="result">
+  <div class="result-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></div>
+
+  <div class="card-pr">
+    <div class="cancel-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+    </div>
+    <h1>Checkout cancelled</h1>
+    <p class="sub">No worries, you weren't charged. You can try again anytime from the pricing page, or start a free 7-day trial with 3 ROC accounts.</p>
+    <div class="result-actions">
+      <a href="index.html#pricing" class="btn btn-primary">View pricing</a>
+      <a href="account.html" class="btn btn-ghost">My account</a>
+    </div>
   </div>
 </div>
 </body>

@@ -11,94 +11,64 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="shared/tokens.css" />
+<link rel="stylesheet" href="pages.css" />
 <style>
-body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:28px; }
-.auth-card { position:relative; z-index:2; width:100%; max-width:540px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-2xl); padding:48px 44px; box-shadow:var(--shadow-xl); overflow:hidden; }
-.auth-card::before { content:''; position:absolute; inset:0; background-image:url('assets/grain-card.svg'); background-size:220px; opacity:0.05; mix-blend-mode:overlay; pointer-events:none; }
-.auth-card > * { position:relative; }
-.auth-glow { position:absolute; top:-180px; left:50%; transform:translateX(-50%); width:440px; height:340px; border-radius:50%; filter:blur(130px); background:radial-gradient(circle, color-mix(in oklch, var(--tc9) 28%, transparent), transparent 70%); pointer-events:none; z-index:0; }
-.auth-brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:22px; }
-.auth-brand img { height:30px; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
-.auth-brand span { font-size:22px; font-weight:700; letter-spacing:-0.3px; }
-.auth-brand .accent { color:var(--accent); }
-.success-check { width:60px; height:60px; border-radius:50%; display:grid; place-items:center; margin:0 auto 16px; color:#fff; background:linear-gradient(180deg, var(--green10), var(--green9)); box-shadow:0 10px 30px color-mix(in oklch, var(--green9) 34%, transparent); }
-.success-check svg { width:30px; height:30px; }
-.hero { text-align:center; margin-bottom:26px; }
-.hero h1 { font-size:26px; font-weight:800; letter-spacing:-0.02em; margin-bottom:10px; }
-.hero p { color:var(--text-2); font-size:14px; line-height:1.62; max-width:430px; margin:0 auto; }
-.key-section { margin-bottom:28px; }
-.key-label { font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:500; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:9px; text-align:center; }
-.key-box { background:var(--bg-elev); border:1px solid var(--border-strong); border-radius:var(--r-md); padding:16px 20px; font-family:'JetBrains Mono',monospace; font-size:19px; letter-spacing:2px; color:var(--accent); text-align:center; cursor:pointer; user-select:all; transition:border-color var(--dur) var(--ease), background var(--dur) var(--ease); }
-.key-box:hover { border-color:var(--accent); background:color-mix(in oklch, var(--accent) 7%, var(--bg-elev)); }
-.key-hint { font-size:11px; color:var(--muted); margin-top:8px; text-align:center; }
-.steps { margin-bottom:30px; }
-.steps h3 { font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:18px; text-align:center; }
-.step { display:flex; gap:14px; margin-bottom:18px; }
+body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:28px; position:relative; }
+.result { width:100%; max-width:540px; }
+.result-brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:22px; font-weight:700; font-size:20px; letter-spacing:-0.3px; }
+.result-brand img { height:28px; }
+.result-brand .accent { color:var(--accent); }
+.success-check { width:58px; height:58px; border-radius:50%; display:grid; place-items:center; margin:0 auto 16px; color:#fff; background:linear-gradient(180deg, var(--green10), var(--green9)); box-shadow:0 10px 30px color-mix(in oklch, var(--green9) 32%, transparent); }
+.success-check svg { width:28px; height:28px; }
+.result h1 { font-size:26px; font-weight:800; letter-spacing:-0.02em; text-align:center; margin-bottom:10px; }
+.result .sub { color:var(--text-2); font-size:14px; line-height:1.62; text-align:center; max-width:430px; margin:0 auto 24px; }
+.key-label { font-family:'JetBrains Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:9px; text-align:center; }
+.key-hint { font-size:11px; color:var(--muted); margin-top:9px; text-align:center; }
+.steps { margin:26px 0 4px; }
+.step { display:flex; gap:14px; margin-bottom:16px; }
 .step:last-child { margin-bottom:0; }
-.step-num { flex-shrink:0; width:30px; height:30px; border-radius:50%; background:color-mix(in oklch, var(--accent) 16%, transparent); border:1px solid color-mix(in oklch, var(--accent) 32%, transparent); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center; }
-.step-title { font-size:14px; font-weight:600; margin-bottom:3px; }
+.step-num { flex:none; width:28px; height:28px; border-radius:50%; background:color-mix(in oklch, var(--accent) 16%, transparent); border:1px solid color-mix(in oklch, var(--accent) 32%, transparent); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; display:flex; align-items:center; justify-content:center; }
+.step-title { font-size:14px; font-weight:600; margin-bottom:2px; }
 .step-desc { font-size:12.5px; color:var(--muted); line-height:1.55; }
 .step-desc a { color:var(--accent); }
 .step-desc strong { color:var(--text-2); }
-.auth-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.result-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:26px; }
 </style>
 </head>
 <body>
 <div class="grain-body" aria-hidden="true"></div>
 <div class="grain-coarse" aria-hidden="true"></div>
-<div class="auth-card">
-  <div class="auth-glow" aria-hidden="true"></div>
-  <div class="auth-brand">
-    <img src="assets/logo.png" alt="" />
-    <span><span class="accent">Panda</span>Roc</span>
-  </div>
+<div class="page-glow" aria-hidden="true"></div>
 
-  <div class="success-check">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>
-  </div>
+<div class="result">
+  <div class="result-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></div>
 
-  <div class="hero">
+  <div class="card-pr">
+    <div class="success-check">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>
+    </div>
     <h1 id="success-title">Welcome!</h1>
-    <p id="success-msg"></p>
-  </div>
+    <p class="sub" id="success-msg"></p>
 
-  <div id="key-section" class="key-section" style="display:none;">
-    <div class="key-label">Your license key</div>
-    <div class="key-box" id="license-key" onclick="copyKey()" title="Click to copy"></div>
-    <p class="key-hint" id="key-hint">Click to copy. You'll need this in the app.</p>
-  </div>
+    <div id="key-section" style="display:none;">
+      <div class="key-label">Your license key</div>
+      <div class="keyline" onclick="copyKey()" style="cursor:pointer;" title="Click to copy">
+        <code id="license-key"></code>
+        <span class="btn-copy" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</span>
+      </div>
+      <p class="key-hint" id="key-hint">Click to copy. You'll need this in the app.</p>
+    </div>
 
-  <div class="steps" id="steps-section" style="display:none;">
-    <h3>Get started in 3 steps</h3>
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-body">
-        <div class="step-title">Download PandaRoc</div>
-        <div class="step-desc">Get the app for <a href="index.html#download">Windows or macOS</a>. It takes under a minute to install.</div>
-      </div>
+    <div class="steps" id="steps-section" style="display:none;">
+      <div class="step"><div class="step-num">1</div><div><div class="step-title">Download PandaRoc</div><div class="step-desc">Get the app for <a href="index.html#download">Windows or macOS</a>. Under a minute to install.</div></div></div>
+      <div class="step"><div class="step-num">2</div><div><div class="step-title">Open Settings &rarr; License</div><div class="step-desc">Click the gear icon top-right, then choose <strong>License</strong>.</div></div></div>
+      <div class="step"><div class="step-num">3</div><div><div class="step-title">Paste your key and activate</div><div class="step-desc">Paste the key above and click <strong>Activate</strong>. You're set.</div></div></div>
     </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-body">
-        <div class="step-title">Open the app and go to Settings</div>
-        <div class="step-desc">Click the gear icon in the top-right corner, then select <strong>License</strong> from the sidebar.</div>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-body">
-        <div class="step-title">Paste your license key</div>
-        <div class="step-desc">Copy the key above, paste it into the license field, and click <strong>Activate</strong>. You're all set.</div>
-      </div>
-    </div>
-  </div>
 
-  <div class="auth-actions">
-    <a href="index.html#download" class="btn btn-primary">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Download app
-    </a>
-    <a href="account.html" class="btn btn-ghost">My account</a>
+    <div class="result-actions">
+      <a href="index.html#download" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download app</a>
+      <a href="account.html" class="btn btn-ghost">My account</a>
+    </div>
   </div>
 </div>
 
@@ -107,54 +77,43 @@ body { display:flex; align-items:center; justify-content:center; min-height:100v
 const API = 'https://api.pandaroc.com';
 const params = new URLSearchParams(window.location.search);
 const isTrial = params.get('trial') === '1';
+function $(id){ return document.getElementById(id); }
 
-async function init() {
-  const title = document.getElementById('success-title');
-  const msg = document.getElementById('success-msg');
-  const keySection = document.getElementById('key-section');
-  const stepsSection = document.getElementById('steps-section');
-
-  if (isTrial) {
-    title.textContent = 'Your trial is live!';
-    msg.textContent = "You have 7 days of full access and won't be charged until your trial ends. Cancel anytime from your account. Download the app and activate it with the license key below.";
+async function init(){
+  if (isTrial){
+    $('success-title').textContent = 'Your trial is live!';
+    $('success-msg').textContent = "You have 7 days of full access across up to 3 ROC accounts, with no charge until your trial ends. Cancel anytime from your account. Download the app and activate it with the key below.";
   } else {
-    title.textContent = 'Payment successful!';
-    msg.textContent = 'Your subscription is active. Use the license key below to unlock PandaRoc on your computer.';
+    $('success-title').textContent = 'Payment successful!';
+    $('success-msg').textContent = 'Your subscription is active. Use the license key below to unlock PandaRoc on your computer.';
   }
 
-  const licenseKey = localStorage.getItem('pandaroc_license_key');
-  if (licenseKey) {
-    document.getElementById('license-key').textContent = licenseKey;
-    keySection.style.display = '';
-    stepsSection.style.display = '';
+  const lk = localStorage.getItem('pandaroc_license_key');
+  if (lk){
+    $('license-key').textContent = lk;
+    $('key-section').style.display = ''; $('steps-section').style.display = '';
     return;
   }
-
   const token = localStorage.getItem('pandaroc_token') || localStorage.getItem('pandaroc_refresh');
-  if (token) {
+  if (token){
     try {
       const res = await authFetch('/auth/me');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.license_key) {
-          document.getElementById('license-key').textContent = data.license_key;
-          localStorage.setItem('pandaroc_license_key', data.license_key);
-          keySection.style.display = '';
-        }
+      if (res.ok){
+        const d = await res.json();
+        if (d.license_key){ $('license-key').textContent = d.license_key; localStorage.setItem('pandaroc_license_key', d.license_key); $('key-section').style.display = ''; }
       }
-    } catch (e) {}
+    } catch (e){}
   }
-
-  stepsSection.style.display = '';
+  $('steps-section').style.display = '';
 }
 
-function copyKey() {
-  const key = document.getElementById('license-key').textContent;
-  navigator.clipboard.writeText(key).then(() => {
-    const hint = document.getElementById('key-hint');
-    hint.textContent = 'Copied to clipboard!';
-    hint.style.color = '#7bb449';
-    setTimeout(() => { hint.textContent = 'Click to copy. You\'ll need this in the app.'; hint.style.color = ''; }, 2500);
+function copyKey(){
+  const key = $('license-key').textContent;
+  if (!key) return;
+  navigator.clipboard?.writeText(key).then(() => {
+    const h = $('key-hint');
+    h.textContent = 'Copied to clipboard!'; h.style.color = 'var(--green10)';
+    setTimeout(() => { h.textContent = "Click to copy. You'll need this in the app."; h.style.color = ''; }, 2500);
   });
 }
 
