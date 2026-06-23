@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PandaRoc</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <script src="static/vendor/lucide.min.js"></script>
+    <link rel="stylesheet" href="static/styles.css?v=8.4">
+    <style id="demo-overrides">
+      /* Demo: suppress transient chrome that distracts from the walkthrough */
+      #toast-container, .toast-container, .nc-toast, .toast, #trial-banner,
+      #update-banner, .update-banner { display: none !important; }
+      /* Hide scrollbars (we drive scrolling programmatically) */
+      * { scrollbar-width: none !important; }
+      *::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
+    </style>
+    <script>
+        // ═══ EARLY THEME + PALETTE + GRAIN INIT (prevents flash of wrong style) ═══
+        (function() {
+            function getEffectiveTheme(pref) {
+                if (pref === 'light' || pref === 'dark') return pref;
+                return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            }
+            // Server injects the authoritative theme_mode when serving "/" so the
+            // splash never flashes the device theme (localStorage doesn't survive
+            // pywebview's private mode). Unreplaced placeholder → localStorage fallback.
+            var serverTheme = 'dark';
+            var stored = (serverTheme === 'light' || serverTheme === 'dark' || serverTheme === 'system')
+                ? serverTheme
+                : (localStorage.getItem('roc-theme') || 'system');
+            document.documentElement.setAttribute('data-theme', getEffectiveTheme(stored));
+            document.documentElement.setAttribute('data-palette', 'ember');
+            document.documentElement.setAttribute('data-grain', 'medium');
+        })();
+    </script>
+</head>
+<body>
+    <!-- Native edge/corner resize handles (Windows custom chrome; hidden elsewhere) -->
+    <div id="resize-handles" aria-hidden="true">
+        <div class="rsz rsz-n" data-dir="n"></div>
+        <div class="rsz rsz-s" data-dir="s"></div>
+        <div class="rsz rsz-w" data-dir="w"></div>
+        <div class="rsz rsz-e" data-dir="e"></div>
+        <div class="rsz rsz-nw" data-dir="nw"></div>
+        <div class="rsz rsz-ne" data-dir="ne"></div>
+        <div class="rsz rsz-sw" data-dir="sw"></div>
+        <div class="rsz rsz-se" data-dir="se"></div>
+    </div>
+    <!-- Grain texture overlay (global, always visible) -->
+    <div class="app-grain" aria-hidden="true"></div>
+    <div class="app-grain-coarse" aria-hidden="true"></div>
+
+    <!-- Splash overlay - shown until backend is ready -->
+    <div id="app-splash" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:var(--splash-bg);transition:opacity .5s ease;">
+        <div style="text-align:center;">
+            <img src="static/logo.png" alt="" style="height:48px;width:auto;margin-bottom:14px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.3));">
+            <div style="color:var(--splash-text);font-family:'Inter',sans-serif;font-size:24px;font-weight:700;letter-spacing:-0.4px;">
+                <span style="color:#d07959;">Panda</span>Roc
+            </div>
+            <div style="color:var(--splash-muted);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;margin-top:4px;margin-bottom:24px;">by PandaServe Ltd</div>
+            <div style="width:28px;height:28px;margin:0 auto;border:3px solid var(--splash-spinner-track);border-top-color:#d07959;border-radius:50%;animation:splash-spin 0.8s linear infinite;"></div>
+        </div>
+    </div>
+    <style>@keyframes splash-spin{to{transform:rotate(360deg)}}</style>
+
+    <!-- Trial Banner (normal flow: pushes nav + content down when shown) -->
+    <div class="trial-banner" id="trial-banner" style="display:none;">
+        <i data-lucide="clock" class="icon" style="width:14px;height:14px;"></i>
+        <span id="trial-banner-text">Trial</span>
+        <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:inherit;font-size:11px;padding:2px 10px;margin-left:auto;" onclick="openExternal('https://pandaroc.com/#pricing')">Subscribe</button>
+    </div>
+
+    <!-- Password re-entry banner: shown while any enabled ROC account is missing
+         its password (after a login, passwords never come back from the cloud) -->
+    <div class="pw-banner" id="password-banner" style="display:none;">
+        <i data-lucide="key-round" class="icon" style="width:14px;height:14px;"></i>
+        <span id="password-banner-text">Please re-enter your ROC account passwords.</span>
+        <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:inherit;font-size:11px;padding:2px 10px;margin-left:auto;" onclick="issueAction('#accounts-table')">Enter passwords</button>
+    </div>
+
+    <!-- Top Navigation Strip -->
+    <nav class="top-nav" role="tablist" aria-label="Main navigation">
+        <div class="top-nav-left">
+            <img src="static/logo.png" alt="PandaRoc" class="nav-logo">
+            <span class="top-nav-brand"><span class="brand-accent">Panda</span>Roc</span>
+        </div>
+        <div class="top-nav-pills">
+            <button class="top-nav-pill active" role="tab" aria-selected="true" aria-controls="section-dashboard" data-section="dashboard" tabindex="0">
+                <i data-lucide="layout-dashboard" class="icon"></i>
+                Dashboard
+            </button>
+            <button class="top-nav-pill" role="tab" aria-selected="false" aria-controls="section-orders" data-section="orders" tabindex="-1">
+                <i data-lucide="clipboard-list" class="icon"></i>
+                Orders
+                <span class="pill-badge" id="nav-orders-count" style="display:none;">0</span>
+            </button>
+            <button class="top-nav-pill" role="tab" aria-selected="false" aria-controls="section-approvals" data-section="approvals" tabindex="-1">
+                <i data-lucide="badge-check" class="icon"></i>
+                Name Check
+                <span class="pill-badge" id="nav-approvals-count" style="display:none;">0</span>
+            </button>
+            <div class="pill-indicator" aria-hidden="true"></div>
+        </div>
+        <div class="top-nav-right">
+            <button class="top-nav-cog" id="nav-cog-btn" onclick="toggleSettings()" title="Settings (Ctrl+,)">
+                <i data-lucide="settings" class="icon"></i>
+            </button>
+            <div class="window-controls">
+                <button class="win-ctrl win-minimize" onclick="winMinimize()" title="Minimize">
+                    <i data-lucide="minus" class="icon"></i>
+                </button>
+                <button class="win-ctrl win-maximize" id="win-max-btn" onclick="winToggleMaximize()" title="Maximize">
+                    <i data-lucide="square" class="icon" id="win-max-icon"></i>
+                </button>
+                <button class="win-ctrl win-close" onclick="winClose()" title="Close">
+                    <i data-lucide="x" class="icon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Needs-Attention banner stack (UX5) - rendered by refreshIssues() -->
+        <div id="issues-stack" class="issues-stack" role="region" aria-label="System notifications"></div>
+        <!-- Settings back button is now the nav cog (toggles between cog ↔ arrow-left) -->
+        
+        <div class="content">
+            <!-- Dashboard Section -->
+            <section class="section active" id="section-dashboard" role="tabpanel">
+                <div class="page-head">
+                    <div class="page-eyebrow">Workspace</div>
+                    <div class="page-title" id="dashboard-greeting">Good afternoon</div>
+                    <div class="page-subtitle" id="dashboard-subtitle"></div>
+                </div>
+                <!-- Setup nudge - shown when critical config is missing -->
+                <div id="setup-nudge" class="setup-nudge" style="display:none;" role="status" aria-label="Setup checklist"></div>
+
+                <div id="order-attention-banner" role="region" aria-label="Order notifications"></div>
+                <!-- Stats - v8 hero strip: 1 featured (Pending) + 3 secondary -->
+                <div class="stats-hero">
+                    <div class="stat-card stat-card--featured warning" onclick="goToOrders('ekkremis')" role="button" tabindex="0">
+                        <div class="stat-card__glow" aria-hidden="true"></div>
+                        <div class="stat-card__head">
+                            <div class="stat-card__icon"><i data-lucide="hourglass" class="icon-lg"></i></div>
+                            <div class="stat-card__label">Pending Queue</div>
+                        </div>
+                        <div class="stat-card__value-row">
+                            <div class="stat-value" id="stat-ekkremis">0</div>
+                            <div class="stat-card__sub">orders awaiting decision</div>
+                        </div>
+                    </div>
+                    <div class="stats-secondary">
+                        <div class="stat-card info" onclick="goToOrders('ready')" role="button" tabindex="0">
+                            <div class="stat-card__head">
+                                <div class="stat-card__icon"><i data-lucide="circle-check" class="icon"></i></div>
+                                <div class="stat-card__label">Accepted</div>
+                            </div>
+                            <div class="stat-value" id="stat-ready">0</div>
+                        </div>
+                        <div class="stat-card success" onclick="goToOrders('completed')" role="button" tabindex="0">
+                            <div class="stat-card__head">
+                                <div class="stat-card__icon"><i data-lucide="package-check" class="icon"></i></div>
+                                <div class="stat-card__label">Completed</div>
+                            </div>
+                            <div class="stat-value" id="stat-completed">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card__head">
+                                <div class="stat-card__icon"><i data-lucide="users" class="icon"></i></div>
+                                <div class="stat-card__label">Accounts</div>
+                            </div>
+                            <div class="stat-value" id="stat-accounts">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Agents - v8 redesigned cards with glyph badge + bordered stats panel -->
+                <div class="agents-grid">
+                    <!-- Finder -->
+                    <div class="agent-card" id="agent-b-card">
+                        <div class="agent-card__head">
+                            <div class="agent-card__id">
+                                <div class="agent-card__glyph agent-card__glyph--finder"><i data-lucide="radar" class="icon-lg"></i></div>
+                                <div>
+                                    <div class="agent-card__name">Finder</div>
+                                    <div class="agent-card__role">Scans pending services</div>
+                                </div>
+                            </div>
+                            <div class="agent-status status-tag" id="agent-b-status">
+                                <span class="dot"></span>
+                                <span>Stopped</span>
+                            </div>
+                        </div>
+                        <div class="agent-card__stats">
+                            <div class="agent-stat">
+                                <div class="agent-stat-label">Accounts</div>
+                                <div class="agent-stat-value" id="agent-b-accounts">0</div>
+                            </div>
+                            <div class="agent-stat">
+                                <div class="agent-stat-label">Scans</div>
+                                <div class="agent-stat-value" id="agent-b-scans">0</div>
+                            </div>
+                        </div>
+                        <div class="agent-card__actions">
+                            <button class="btn btn-success" onclick="startAgentB()"><i data-lucide="play" class="icon"></i>Start</button>
+                            <button class="btn btn-danger" onclick="stopAgentB()"><i data-lucide="square" class="icon"></i>Stop</button>
+                        </div>
+                    </div>
+
+                    <!-- Downloader -->
+                    <div class="agent-card" id="agent-a-card">
+                        <div class="agent-card__head">
+                            <div class="agent-card__id">
+                                <div class="agent-card__glyph agent-card__glyph--downloader"><i data-lucide="arrow-down-to-line" class="icon-lg"></i></div>
+                                <div>
+                                    <div class="agent-card__name">Downloader</div>
+                                    <div class="agent-card__role">Retrieves accepted orders</div>
+                                </div>
+                            </div>
+                            <div class="agent-status status-tag" id="agent-a-status">
+                                <span class="dot"></span>
+                                <span>Ready</span>
+                            </div>
+                        </div>
+                        <div class="agent-card__stats agent-card__stats--3">
+                            <div class="agent-stat">
+                                <div class="agent-stat-label">Status</div>
+                                <div class="agent-stat-value" id="agent-a-state">Ready</div>
+                            </div>
+                            <div class="agent-stat">
+                                <div class="agent-stat-label">Next check</div>
+                                <div class="agent-stat-value" id="agent-a-next">-</div>
+                            </div>
+                            <div class="agent-stat">
+                                <div class="agent-stat-label">Auto-Run</div>
+                                <div class="agent-stat-value" id="agent-a-auto">OFF</div>
+                            </div>
+                        </div>
+                        <div class="agent-card__interval">
+                            <label>Interval</label>
+                            <input type="number" id="downloader-interval" min="1" max="1440" value="120">
+                            <select id="downloader-interval-unit" class="custom-select-source cs-compact">
+                                <option value="minutes">min</option>
+                                <option value="hours">hours</option>
+                            </select>
+                            <button class="btn btn-sm btn-ghost btn-icon" onclick="saveDownloaderInterval()" title="Save interval"><i data-lucide="save" class="icon"></i></button>
+                        </div>
+                        <div class="agent-card__actions">
+                            <button class="btn btn-primary" onclick="runAgentANow()"><i data-lucide="play" class="icon"></i>Run Now</button>
+                            <button class="btn btn-danger" onclick="stopDownloader()"><i data-lucide="square" class="icon"></i>Stop</button>
+                            <button class="btn btn-ghost" onclick="toggleAgentAScheduler()" id="btn-auto-toggle">Auto: OFF</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="btn btn-success" onclick="startAll()">
+                        <i data-lucide="rocket" class="icon"></i>Start All
+                    </button>
+                    <button class="btn btn-danger" onclick="stopAll()">
+                        <i data-lucide="square" class="icon"></i>Stop All
+                    </button>
+                </div>
+                
+                <!-- Activity Log -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i data-lucide="scroll-text" class="icon"></i>Recent Activity</div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span id="log-entry-count" style="font-size:11px;color:var(--text-muted);"></span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="log-toolbar">
+                            <button class="log-filter-btn active" data-agent="all" onclick="filterLog('all')">All</button>
+                            <button class="log-filter-btn" data-agent="finder" onclick="filterLog('finder')">Finder</button>
+                            <button class="log-filter-btn" data-agent="downloader" onclick="filterLog('downloader')">Downloader</button>
+                            <div class="log-search-wrap">
+                                <i data-lucide="search" class="search-icon"></i>
+                                <input type="text" class="log-search" id="log-search" placeholder="Filter logs..." oninput="filterLog()">
+                            </div>
+                        </div>
+                        <div class="activity-log" id="activity-log">
+                            <div class="log-entry INFO" data-agent="system">
+                                <div class="log-timeline"><div class="log-dot"></div></div>
+                                <div class="log-body">
+                                    <div class="log-body-top">
+                                        <span class="log-agent-tag system">system</span>
+                                        <span class="log-time">--:--:--</span>
+                                    </div>
+                                    <div class="log-message">Waiting for activity...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Orders Section (wraps Pending + Accepted + Completed) -->
+            <section class="section" id="section-orders" role="tabpanel">
+                <div class="page-head">
+                    <div class="page-eyebrow">Pipeline</div>
+                    <div class="page-title">Orders</div>
+                    <div class="page-subtitle">Pending services flow into Accepted, then Completed once downloaded.</div>
+                </div>
+                <!-- Segmented state switcher -->
+                <div class="segment-switcher" role="radiogroup" aria-label="Order status filter">
+                    <button class="segment-btn active" role="radio" aria-checked="true" data-segment="ekkremis" tabindex="0">
+                        Pending <span class="segment-count" id="seg-ekkremis-count">0</span>
+                    </button>
+                    <button class="segment-btn" role="radio" aria-checked="false" data-segment="ready" tabindex="-1">
+                        Accepted <span class="segment-count" id="seg-ready-count">0</span>
+                    </button>
+                    <button class="segment-btn" role="radio" aria-checked="false" data-segment="completed" tabindex="-1">
+                        Completed <span class="segment-count" id="seg-completed-count">0</span>
+                    </button>
+                    <div class="segment-indicator" aria-hidden="true"></div>
+                </div>
+
+            <!-- Pending Services Sub-Section -->
+            <div class="orders-subsection active" id="subsection-ekkremis">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i data-lucide="hourglass" class="icon"></i>Pending Services</div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-sm btn-success" onclick="bulkAcceptEkkremis()"><i data-lucide="check-check" class="icon"></i>Accept All</button>
+                            <button class="btn btn-sm btn-danger" onclick="clearRejectedOrders()"><i data-lucide="trash-2" class="icon"></i>Clear Rejected</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 13px;">
+                            Orders currently being processed by ROC. Accept orders here and they will be downloaded automatically once ready.
+                        </p>
+                        
+                        <!-- Blocklist Controls -->
+                        <div class="inset-panel">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-weight: 500; font-size: 13px;">Block Order Numbers</span>
+                                <button class="btn btn-sm btn-ghost" onclick="toggleBlocklistView()">Show Blocked (<span id="blocked-count">0</span>)</button>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" class="form-input" id="block-order-input" placeholder="Enter order number to block" style="flex: 1;">
+                                <button class="btn btn-sm btn-warning" onclick="addBlockedOrder()">Block</button>
+                            </div>
+                            <div id="blocklist-container" style="display: none; margin-top: 12px;">
+                                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Blocked orders will not appear in this list:</div>
+                                <div id="blocklist-items" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>HE #</th>
+                                        <th>Company</th>
+                                        <th>Type</th>
+                                        <th>Label</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th style="width: 100px; text-align: right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ekkremis-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="empty-state" id="ekkremis-empty" style="display: none;">
+                            <div class="empty-illustration"><i data-lucide="sparkles" class="icon"></i></div>
+                            <div class="empty-title">No Pending Services</div>
+                            <div class="empty-subtitle">No orders are pending at the moment. The Finder agent is monitoring ROC and will detect new orders automatically.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accepted Sub-Section -->
+            <div class="orders-subsection" id="subsection-ready">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i data-lucide="circle-check" class="icon"></i>Accepted</div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+<span id="trello-sync-indicator" style="display:none; font-size:11px; color:var(--text-muted); white-space:nowrap;"><i data-lucide="refresh-cw" class="icon" style="width:12px;height:12px;"></i> <span id="trello-sync-time"></span></span>
+<button class="btn btn-sm btn-ghost" onclick="showReorderAccountsModal()" title="Reorder accounts"><i data-lucide="arrow-up-down" class="icon"></i>Reorder</button>
+<button class="btn btn-sm btn-primary" onclick="toggleManualAddForm()">+ Add Order</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="search-row">
+                            <div class="search-box">
+                                <i data-lucide="search" class="icon search-icon"></i>
+                                <input id="ready-search" class="form-input search-input" type="text"
+                                    placeholder="Search Accepted (order, company, HE, account)…"
+                                    oninput="setReadySearch(this.value)">
+                            </div>
+                            <button class="btn btn-sm btn-ghost btn-icon" onclick="clearReadySearch()" title="Clear search">
+                                <i data-lucide="x" class="icon"></i>
+                            </button>
+                        </div>
+
+                        <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 13px;">
+                            Orders waiting to be downloaded. The Downloader checks periodically and retrieves files as they become available.
+                        </p>
+                        
+                        <!-- Add Order is now the #dlg-add popup (top-level, near the other dialogs) -->
+
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>HE #</th>
+                                        <th>Company</th>
+                                        <th>Type</th>
+                                        <th>Label</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th style="width: 100px; text-align: right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ready-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="empty-state" id="ready-empty" style="display: none;">
+                            <div class="empty-illustration"><i data-lucide="clipboard-list" class="icon"></i></div>
+                            <div class="empty-title">No Accepted Orders</div>
+                            <div class="empty-subtitle">Accept orders from Pending Services and they will appear here for download.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed Sub-Section -->
+            <div class="orders-subsection" id="subsection-completed">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i data-lucide="check-circle-2" class="icon"></i>Completed</div>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <button class="btn btn-sm btn-ghost" onclick="printTodaysOrders()"><i data-lucide="printer" class="icon"></i>Print Today</button>
+                            <button class="btn btn-sm btn-ghost" onclick="clearCompleted()"><i data-lucide="trash-2" class="icon"></i>Clear All</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="search-row">
+                            <div class="search-box">
+                                <i data-lucide="search" class="icon search-icon"></i>
+                                <input id="completed-search" class="form-input search-input" type="text"
+                                    placeholder="Search Completed (order, company, HE, account)…"
+                                    oninput="setCompletedSearch(this.value)">
+                            </div>
+                            <button class="btn btn-sm btn-ghost btn-icon" onclick="clearCompletedSearch()" title="Clear search">
+                                <i data-lucide="x" class="icon"></i>
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>HE #</th>
+                                        <th>Company</th>
+                                        <th>Type</th>
+                                        <th>Label</th>
+                                        <th>Account</th>
+                                        <th>Completed</th>
+                                        <th>Files</th>
+                                        <th style="text-align: right;">Info</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="completed-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="empty-state" id="completed-empty" style="display: none;">
+                            <div class="empty-illustration"><i data-lucide="package" class="icon"></i></div>
+                            <div class="empty-title">No Completed Downloads</div>
+                            <div class="empty-subtitle">Completed orders will appear here once the Downloader has successfully retrieved them.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </section>
+
+            <!-- Name Approvals Section -->
+            <section class="section" id="section-approvals" role="tabpanel">
+              <div class="nc">
+                <!-- Page head -->
+                <div class="page-head">
+                    <div class="page-eyebrow">Approvals</div>
+                    <div class="page-title">Name Check</div>
+                    <div class="page-subtitle">Gauge how likely the Registrar is to approve a company name - scored on distinctiveness, restricted words, and a live check against the Cyprus registry. A guidance estimate, not a guarantee.</div>
+                </div>
+
+                <!-- Composer -->
+                <div class="nc-composer">
+                    <div class="nc-inputline">
+                        <i data-lucide="search" class="nc-inputline__icon"></i>
+                        <input type="text" id="nc-input" class="nc-input" placeholder="Type a company name - e.g. Olympus Software Ltd" autocomplete="off" spellcheck="false">
+                    </div>
+                    <div class="nc-composer__foot">
+                        <div class="nc-core" id="nc-core"><span class="nc-core__label">distinctive core appears here</span></div>
+                        <label class="nc-consent">
+                            <input type="checkbox" id="nc-consent-input">
+                            <span class="nc-switch"></span>
+                            <span>I hold consent for restricted words (bank, insurance…)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Result -->
+                <div class="nc-result" id="nc-result" data-state="idle">
+                    <!-- Hero (verdict treatments) -->
+                    <div class="nc-hero" id="nc-hero">
+                        <div class="nc-hero__glow"></div>
+                        <div class="nc-confetti" id="nc-confetti"></div>
+
+                        <!-- idle -->
+                        <div class="nc-idle">
+                            <div class="nc-idle__mark"><i data-lucide="badge-check" class="icon"></i></div>
+                            <div style="font-size:13px;color:var(--text-secondary);max-width:240px;">Type a proposed company name to see the approval estimate.</div>
+                        </div>
+
+                        <!-- RING -->
+                        <div class="nc-treat nc-treat--ring">
+                            <div class="nc-ring">
+                                <svg class="nc-ring__svg" viewBox="0 0 200 200">
+                                    <circle class="nc-ring__track" cx="100" cy="100" r="84" fill="none" stroke-width="16"></circle>
+                                    <circle class="nc-ring__fill" id="nc-ring-fill" cx="100" cy="100" r="84" fill="none" stroke-width="16" stroke-linecap="round"></circle>
+                                </svg>
+                                <div class="nc-ring__center">
+                                    <div class="nc-ring__score" id="nc-ring-score">-</div>
+                                    <div class="nc-ring__cap" id="nc-ring-cap">% likely</div>
+                                </div>
+                            </div>
+                            <div class="nc-ring__verdict" id="nc-ring-verdict">-</div>
+                        </div>
+
+                        <!-- shared verdict caption -->
+                        <div class="nc-hero__foot">
+                            <div class="nc-verdict-sub" id="nc-verdict-sub"></div>
+                            <div class="nc-registry-note" id="nc-registry-note"></div>
+                            <button class="btn btn-ghost btn-sm nc-hero__cta" id="nc-hero-cta" style="display:none;"><i data-lucide="bookmark-plus" class="icon"></i> Save to shortlist</button>
+                        </div>
+                    </div>
+
+                    <!-- Breakdown -->
+                    <div class="nc-breakdown">
+                        <div>
+                            <div class="nc-section-title" style="margin-bottom:14px;">Assessment</div>
+                            <div class="nc-factors" id="nc-factors"></div>
+                        </div>
+                        <div class="nc-flags" id="nc-flags"></div>
+                        <div class="nc-closest" id="nc-closest"></div>
+                    </div>
+                </div>
+
+                <!-- Shortlist -->
+                <div class="nc-saved">
+                    <div class="nc-saved__head">
+                        <div>
+                            <div class="page-eyebrow">Shortlist</div>
+                            <div class="nc-saved__title">Saved names <span style="color:var(--text-muted);font-weight:500;">· <span id="nc-count">0</span></span></div>
+                        </div>
+                    </div>
+                    <div class="nc-cards" id="nc-cards"></div>
+                </div>
+              </div>
+
+              <div class="nc-toast" id="nc-toast"><i data-lucide="check-circle-2" class="icon"></i><span id="nc-toast-msg"></span></div>
+
+                <!-- Promote to tracked ROC order -->
+                <div class="modal-overlay" id="promote-modal">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <div class="modal-title">Track as ROC order</div>
+                            <button class="modal-close" onclick="closePromote()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="promote-name" id="promote-name"></p>
+                            <div class="form-group">
+                                <label class="form-label">ROC order number *</label>
+                                <input type="text" class="form-input" id="promote-order-id" placeholder="e.g., 1234567">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">ROC account</label>
+                                <select class="form-input" id="promote-roc-account"></select>
+                            </div>
+                            <div class="promote-hint">Adds a name-approval order the Downloader will track for approval or rejection.</div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-ghost" onclick="closePromote()">Cancel</button>
+                            <button class="btn btn-primary" onclick="submitPromote()">Add order</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section - v8 side-nav layout -->
+            <section class="section" id="section-settings" role="tabpanel">
+                <div class="page-head">
+                    <div class="page-eyebrow">System</div>
+                    <div class="page-title">Settings</div>
+                </div>
+                <div class="settings-grid">
+                    <nav class="settings-nav">
+                        <button class="settings-nav-link" data-panel="account" onclick="switchSettingsPanel('account')"><i data-lucide="user" class="icon"></i> Account</button>
+                        <button class="settings-nav-link" data-panel="license" onclick="switchSettingsPanel('license')"><i data-lucide="monitor" class="icon"></i> Device</button>
+                        <button class="settings-nav-link active" data-panel="appearance" onclick="switchSettingsPanel('appearance')"><i data-lucide="palette" class="icon"></i> Appearance</button>
+                        <button class="settings-nav-link" data-panel="accounts" onclick="switchSettingsPanel('accounts')"><i data-lucide="users" class="icon"></i> ROC Accounts</button>
+                        <button class="settings-nav-link" data-panel="download" onclick="switchSettingsPanel('download')"><i data-lucide="folder" class="icon"></i> Download folder</button>
+                        <button class="settings-nav-link" data-panel="labels" onclick="switchSettingsPanel('labels')"><i data-lucide="tags" class="icon"></i> Labels</button>
+                        <button class="settings-nav-link" data-panel="clients" onclick="switchSettingsPanel('clients')"><i data-lucide="building-2" class="icon"></i> Clients</button>
+                        <button class="settings-nav-link" data-panel="trello" onclick="switchSettingsPanel('trello')"><i data-lucide="kanban" class="icon"></i> Trello</button>
+                        <button class="settings-nav-link" data-panel="updates" onclick="switchSettingsPanel('updates')"><i data-lucide="refresh-cw" class="icon"></i> Updates</button>
+                        <button class="settings-nav-link" data-panel="browser" onclick="switchSettingsPanel('browser')"><i data-lucide="sliders-horizontal" class="icon"></i> Advanced</button>
+                        <button class="settings-nav-link" data-panel="help" onclick="switchSettingsPanel('help')"><i data-lucide="life-buoy" class="icon"></i> Help &amp; support</button>
+                    </nav>
+                    <div class="settings-content">
+
+                <!-- Account -->
+                <div class="settings-panel" id="settings-account">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i data-lucide="user" class="icon"></i>Account</div>
+                            <button class="btn btn-sm btn-ghost" onclick="forceVerifyLicense()"><i data-lucide="refresh-cw" class="icon"></i> Refresh</button>
+                        </div>
+                        <div class="card-body">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                                <div id="account-status-badge" class="chip">Unknown</div>
+                                <span id="account-name" style="color:var(--text-primary);font-size:14px;font-weight:600;"></span>
+                            </div>
+
+                            <div id="account-details" style="display:none;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--border-light);">
+                                    <span style="color:var(--text-muted);font-size:12px;">Plan</span>
+                                    <span id="account-plan" style="color:var(--text-secondary);font-size:13px;font-weight:500;"></span>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--border-light);">
+                                    <span style="color:var(--text-muted);font-size:12px;">Accounts in use</span>
+                                    <span id="account-slots" style="color:var(--text-secondary);font-size:13px;font-weight:500;"></span>
+                                </div>
+                                <div id="account-renewal-row" style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--border-light);">
+                                    <span id="account-renewal-label" style="color:var(--text-muted);font-size:12px;">Renews</span>
+                                    <span id="account-renewal" style="color:var(--text-secondary);font-size:13px;font-weight:500;"></span>
+                                </div>
+                            </div>
+
+                            <p id="account-unlicensed-hint" style="color:var(--text-muted);font-size:12px;display:none;">Not signed in on this device. Sign in from the <a href="#" onclick="switchSettingsPanel('license');return false;" style="color:var(--accent);">Device</a> tab.</p>
+
+                            <div style="border-top:1px solid var(--border-light);padding-top:16px;margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+                                <button class="btn btn-sm btn-ghost" onclick="openExternal('https://pandaroc.com/account.html')"><i data-lucide="external-link" class="icon"></i> Manage Subscription</button>
+                                <button class="btn btn-sm btn-ghost" style="color:var(--danger);" onclick="deactivateLicense()"><i data-lucide="log-out" class="icon"></i> Log out</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Device (sign-in + license state) -->
+                <div class="settings-panel" id="settings-license">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i data-lucide="monitor" class="icon"></i>Device</div>
+                            <button class="btn btn-sm btn-ghost" onclick="forceVerifyLicense()"><i data-lucide="refresh-cw" class="icon"></i> Verify</button>
+                        </div>
+                        <div class="card-body">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                                <div id="license-status-badge" class="chip">Unknown</div>
+                                <span id="license-days-remaining" style="color:var(--text-secondary);font-size:13px;"></span>
+                            </div>
+
+                            <div id="license-slot-section" style="margin-bottom:16px;display:none;">
+                                <div class="form-label" style="margin-bottom:6px;">Account Slots</div>
+                                <div class="slot-meter">
+                                    <div class="slot-meter-fill" id="slot-meter-fill"></div>
+                                </div>
+                                <p id="slot-meter-label" style="color:var(--text-muted);font-size:11px;margin-top:4px;"></p>
+                            </div>
+
+                            <div id="device-login-section" style="border-top:1px solid var(--border-light);padding-top:16px;margin-bottom:16px;">
+                                <div class="form-label" style="margin-bottom:8px;">Sign in on this device</div>
+                                <p style="color:var(--text-muted);font-size:11px;margin-bottom:10px;">Use your PandaRoc account email and password.</p>
+                                <div style="display:flex;flex-direction:column;gap:8px;max-width:400px;">
+                                    <input type="email" class="form-input" id="device-email-input" placeholder="you@yourfirm.com" autocomplete="username">
+                                    <input type="password" class="form-input" id="device-password-input" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')settingsLogin()">
+                                    <button class="btn btn-sm btn-primary" id="device-login-btn" onclick="settingsLogin()" style="align-self:flex-start;">Sign In</button>
+                                </div>
+                                <p id="device-login-error" style="color:var(--danger);font-size:11px;margin-top:6px;display:none;"></p>
+                            </div>
+
+                            <div id="device-signed-in" style="border-top:1px solid var(--border-light);padding-top:16px;margin-bottom:16px;display:none;">
+                                <div class="form-label" style="margin-bottom:6px;">Signed in as</div>
+                                <p id="device-account-email" style="color:var(--text-secondary);font-size:13px;font-weight:500;"></p>
+                            </div>
+
+                            <div id="license-active-actions" style="border-top:1px solid var(--border-light);padding-top:16px;display:none;">
+                                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                    <button class="btn btn-sm btn-ghost" onclick="openExternal('https://pandaroc.com/account.html')"><i data-lucide="external-link" class="icon"></i> Manage Subscription</button>
+                                    <button class="btn btn-sm btn-ghost" style="color:var(--danger);" onclick="deactivateLicense()"><i data-lucide="log-out" class="icon"></i> Log out this device</button>
+                                </div>
+                            </div>
+
+                            <div style="border-top:1px solid var(--border-light);padding-top:12px;margin-top:16px;">
+                                <p id="license-tier-info" style="color:var(--text-muted);font-size:11px;"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:16px;">
+                        <div class="card-header">
+                            <div class="card-title"><i data-lucide="refresh-cw" class="icon"></i>Cross-Device Sync</div>
+                            <button class="btn btn-sm btn-ghost" id="sync-now-btn" onclick="syncNow()"><i data-lucide="upload-cloud" class="icon"></i> Sync Now</button>
+                        </div>
+                        <div class="card-body">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                                <div id="sync-status-badge" class="chip">Not synced</div>
+                                <span id="sync-last-time" style="color:var(--text-muted);font-size:12px;"></span>
+                            </div>
+                            <p style="color:var(--text-muted);font-size:11px;margin-bottom:0;">Settings and queue sync automatically every 5 minutes when licensed. ROC passwords are never synced - enter them on each device.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appearance -->
+                <div class="settings-panel active" id="settings-appearance">
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i data-lucide="palette" class="icon"></i>Appearance</div></div>
+                        <div class="card-body">
+                            <div class="form-label" style="margin-bottom:10px;">Theme</div>
+                            <div class="theme-tiles">
+                                <button class="theme-tile" id="theme-light-btn" onclick="setTheme('light')">
+                                    <div class="theme-tile-preview light"></div>
+                                    <div class="theme-tile-name">Light</div>
+                                    <div class="theme-tile-desc">Warm cream parchment</div>
+                                </button>
+                                <button class="theme-tile" id="theme-dark-btn" onclick="setTheme('dark')">
+                                    <div class="theme-tile-preview dark"></div>
+                                    <div class="theme-tile-name">Dark</div>
+                                    <div class="theme-tile-desc">Warm charcoal</div>
+                                </button>
+                                <button class="theme-tile" id="theme-system-btn" onclick="setTheme('system')">
+                                    <div class="theme-tile-preview system"></div>
+                                    <div class="theme-tile-name">System</div>
+                                    <div class="theme-tile-desc">Match device</div>
+                                </button>
+                            </div>
+                            <div class="form-label" style="margin-top:24px;margin-bottom:10px;">Your name</div>
+                            <input type="text" class="form-input" id="display-name-input" placeholder="Shown in your dashboard greeting" maxlength="40" onchange="saveDisplayName(this.value.trim())">
+
+                            <div class="form-label" style="margin-top:24px;margin-bottom:10px;">Notifications</div>
+                            <label class="settings-toggle-row">
+                                <input type="checkbox" id="notifications-enabled-chk" onchange="toggleNotifications(this.checked)">
+                                <span>Show Windows toast notifications for downloads, errors, and system events</span>
+                            </label>
+
+                            <div class="form-label" style="margin-top:24px;margin-bottom:10px;">Zoom</div>
+                            <div class="zoom-control">
+                                <button class="zoom-btn" onclick="_setZoom(_zoomLevel - 0.1)" title="Zoom out (Ctrl+−)">
+                                    <i data-lucide="minus" class="icon"></i>
+                                </button>
+                                <span class="zoom-pct" id="zoom-pct">100%</span>
+                                <button class="zoom-btn" onclick="_setZoom(_zoomLevel + 0.1)" title="Zoom in (Ctrl++)">
+                                    <i data-lucide="plus" class="icon"></i>
+                                </button>
+                                <button class="zoom-reset" onclick="_setZoom(1)">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROC Accounts -->
+                <div class="settings-panel" id="settings-accounts">
+                    <div class="card" id="accounts-table">
+                        <div class="card-header">
+                            <div class="card-title"><i data-lucide="users" class="icon"></i>ROC Accounts</div>
+                            <button class="btn btn-primary btn-sm" onclick="showAddAccountModal()"><i data-lucide="plus" class="icon"></i> Add Account</button>
+                        </div>
+                        <div class="card-body">
+                            <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 13px;">
+                                Drag to set processing order. Accounts higher in the list are checked first by both agents.
+                            </p>
+                            <div id="accounts-list" class="accounts-drag-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Browser -->
+                <div class="settings-panel" id="settings-browser">
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i data-lucide="monitor" class="icon"></i>Browser visibility</div></div>
+                        <div class="card-body">
+                            <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 13px;">Headless runs silently in the background. Visible mode opens the browser window so you can watch.</p>
+                            <div style="display:flex;gap:24px;flex-wrap:wrap;">
+                                <div style="flex:1;min-width:200px;">
+                                    <label class="form-label">Downloader</label>
+                                    <div style="display:flex;gap:8px;margin-top:8px;">
+                                        <button class="btn btn-sm" id="agent-a-visible-btn" onclick="setAgentAHeadless(false)"><i data-lucide="eye" class="icon"></i>Visible</button>
+                                        <button class="btn btn-sm" id="agent-a-headless-btn" onclick="setAgentAHeadless(true)"><i data-lucide="eye-off" class="icon"></i>Headless</button>
+                                    </div>
+                                </div>
+                                <div style="flex:1;min-width:200px;">
+                                    <label class="form-label">Finder</label>
+                                    <div style="display:flex;gap:8px;margin-top:8px;">
+                                        <button class="btn btn-sm" id="agent-b-visible-btn" onclick="setAgentBHeadless(false)"><i data-lucide="eye" class="icon"></i>Visible</button>
+                                        <button class="btn btn-sm" id="agent-b-headless-btn" onclick="setAgentBHeadless(true)"><i data-lucide="eye-off" class="icon"></i>Headless</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card" id="finder-schedule">
+                        <div class="card-header"><div class="card-title"><i data-lucide="clock" class="icon"></i>Finder schedule</div></div>
+                        <div class="card-body">
+                            <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 13px;">How often the Finder checks ROC for new pending orders, and during which hours. Checking too frequently or around the clock can get your IP blocked by ROC - longer intervals and business-hours-only are much safer.</p>
+                            <div class="form-group">
+                                <label class="form-label">Check every</label>
+                                <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+                                    <input type="number" class="form-input" id="finder-interval" min="5" max="720" value="7" style="width:90px;">
+                                    <span style="color:var(--text-muted);font-size:13px;">minutes (minimum 5)</span>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top:16px;">
+                                <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                    <input type="checkbox" id="finder-active-hours-chk" onchange="_updateFinderHoursVisibility()"> Only run during business hours
+                                </label>
+                                <p class="form-hint" style="color:var(--text-muted);font-size:12px;margin:6px 0 0;">A bot quietly checking at 3am is a red flag to ROC. Limiting to working hours looks human and cuts traffic.</p>
+                            </div>
+                            <div id="finder-hours-row" class="form-group" style="margin-top:12px;">
+                                <label class="form-label">Active hours</label>
+                                <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+                                    <input type="number" class="form-input" id="finder-start-hour" min="0" max="23" value="8" style="width:70px;">
+                                    <span style="color:var(--text-muted);">:00&nbsp; to</span>
+                                    <input type="number" class="form-input" id="finder-end-hour" min="1" max="24" value="19" style="width:70px;">
+                                    <span style="color:var(--text-muted);">:00</span>
+                                </div>
+                                <label class="form-label" style="margin-top:14px;">Active days</label>
+                                <div class="pill-group" id="finder-days" style="margin-top:8px;flex-wrap:wrap;">
+                                    <button type="button" class="pill-btn" data-day="0" onclick="toggleFinderDay(0)">Mon</button>
+                                    <button type="button" class="pill-btn" data-day="1" onclick="toggleFinderDay(1)">Tue</button>
+                                    <button type="button" class="pill-btn" data-day="2" onclick="toggleFinderDay(2)">Wed</button>
+                                    <button type="button" class="pill-btn" data-day="3" onclick="toggleFinderDay(3)">Thu</button>
+                                    <button type="button" class="pill-btn" data-day="4" onclick="toggleFinderDay(4)">Fri</button>
+                                    <button type="button" class="pill-btn" data-day="5" onclick="toggleFinderDay(5)">Sat</button>
+                                    <button type="button" class="pill-btn" data-day="6" onclick="toggleFinderDay(6)">Sun</button>
+                                </div>
+                            </div>
+                            <div style="margin-top:16px;">
+                                <button class="btn btn-primary" onclick="saveFinderSchedule()"><i data-lucide="save" class="icon"></i>Save schedule</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Download directory -->
+                <div class="settings-panel" id="settings-download">
+                    <div class="card" id="download-directory">
+                        <div class="card-header"><div class="card-title"><i data-lucide="folder" class="icon"></i>Download directory</div></div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">Path</label>
+                                <div style="display:flex;gap:8px;align-items:stretch;">
+                                    <input type="text" class="form-input" id="download-dir" placeholder="C:\Downloads\ROC" style="flex:1;">
+                                    <button class="btn btn-secondary" onclick="browseFolder()" title="Browse for folder"><i data-lucide="folder-open" class="icon"></i>Browse</button>
+                                    <button class="btn btn-primary" onclick="saveDownloadDir()"><i data-lucide="save" class="icon"></i>Save</button>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top:16px;">
+                                <label class="form-label">Organisation</label>
+                                <p class="form-hint" style="color:var(--text-muted);font-size:12px;margin-bottom:8px;">Choose how downloaded certificates are organised on disk.</p>
+                                <div class="pill-group" role="radiogroup" aria-label="File organization">
+                                    <button class="pill-btn" id="folder-mode-organized-btn" role="radio" aria-checked="false" onclick="setFolderMode('organized')"><i data-lucide="folder-tree" class="icon"></i>Organized (subfolders)</button>
+                                    <button class="pill-btn" id="folder-mode-flat-btn" role="radio" aria-checked="false" onclick="setFolderMode('flat')"><i data-lucide="file" class="icon"></i>Flat (all in one folder)</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Labels -->
+                <div class="settings-panel" id="settings-labels">
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i data-lucide="tags" class="icon"></i>Label presets</div></div>
+                        <div class="card-body">
+                            <p style="color:var(--text-muted);font-size:12px;margin-bottom:12px;">Reusable labels for categorising orders. Sync to Trello automatically.</p>
+                            <div id="label-presets-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;"></div>
+                            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                <input type="text" class="form-input" id="new-preset-name" placeholder="Label name" style="width:160px;">
+                                <div style="display:flex;gap:4px;" id="new-preset-colors">
+                                    <button type="button" class="preset-color-btn" data-color="#3B82F6" onclick="pickNewPresetColor('#3B82F6')" style="width:22px;height:22px;border-radius:5px;border:2px solid #E2E8F0;background:#3B82F6;cursor:pointer;"></button>
+                                    <button type="button" class="preset-color-btn" data-color="#10B981" onclick="pickNewPresetColor('#10B981')" style="width:22px;height:22px;border-radius:5px;border:2px solid transparent;background:#10B981;cursor:pointer;"></button>
+                                    <button type="button" class="preset-color-btn" data-color="#F59E0B" onclick="pickNewPresetColor('#F59E0B')" style="width:22px;height:22px;border-radius:5px;border:2px solid transparent;background:#F59E0B;cursor:pointer;"></button>
+                                    <button type="button" class="preset-color-btn" data-color="#EF4444" onclick="pickNewPresetColor('#EF4444')" style="width:22px;height:22px;border-radius:5px;border:2px solid transparent;background:#EF4444;cursor:pointer;"></button>
+                                    <button type="button" class="preset-color-btn" data-color="#8B5CF6" onclick="pickNewPresetColor('#8B5CF6')" style="width:22px;height:22px;border-radius:5px;border:2px solid transparent;background:#8B5CF6;cursor:pointer;"></button>
+                                    <button type="button" class="preset-color-btn" data-color="#EC4899" onclick="pickNewPresetColor('#EC4899')" style="width:22px;height:22px;border-radius:5px;border:2px solid transparent;background:#EC4899;cursor:pointer;"></button>
+                                    <button type="button" class="preset-color-btn" data-color="#06B6D4" onclick="pickNewPresetColor('#06B6D4')" style="width:22px;height:22px;border-radius:5px;border:2px solid transparent;background:#06B6D4;cursor:pointer;"></button>
+                                    <button type="button" class="preset-color-btn" data-color="#F97316" onclick="pickNewPresetColor('#F97316')" style="width:22px;height:22px;border-radius:5px;border:2px solid transparent;background:#F97316;cursor:pointer;"></button>
+                                </div>
+                                <input type="hidden" id="new-preset-color" value="#3B82F6">
+                                <button class="btn btn-sm btn-primary" onclick="addLabelPreset()"><i data-lucide="plus" class="icon"></i>Add</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clients -->
+                <div class="settings-panel" id="settings-clients">
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i data-lucide="building-2" class="icon"></i>Client presets</div></div>
+                        <div class="card-body">
+                            <p style="color:var(--text-muted);font-size:12px;margin-bottom:12px;">Create a list of clients so you can quickly assign orders.</p>
+                            <div id="client-presets-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;"></div>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <input type="text" class="form-input" id="new-client-name" placeholder="Client name" style="width:200px;">
+                                <button class="btn btn-sm btn-primary" onclick="addClientPreset()"><i data-lucide="plus" class="icon"></i>Add</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trello -->
+                <div class="settings-panel" id="settings-trello">
+                    <div class="card" id="trello-section">
+                        <div class="card-header">
+                            <div class="card-title"><i data-lucide="kanban" class="icon"></i>Trello integration</div>
+                            <button class="btn btn-sm btn-ghost" id="trello-toggle-btn" onclick="toggleTrello(this.dataset.enabled !== 'true')">
+                                <i data-lucide="power" class="icon"></i><span id="trello-toggle-label">Off</span>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="trello-status-badge" style="display:none;margin-bottom:12px;">
+                                <span class="chip success"><i data-lucide="check" class="icon" style="width:12px;height:12px;"></i> Synced with Trello</span>
+                                <span id="trello-last-sync" style="color:var(--text-muted);font-size:11px;margin-left:8px;"></span>
+                            </div>
+                            <div id="trello-error-badge" style="display:none;margin-bottom:12px;">
+                                <span class="chip warn"><i data-lucide="alert-triangle" class="icon" style="width:12px;height:12px;"></i> Sync Error</span>
+                                <span id="trello-error-msg" style="color:var(--danger);font-size:11px;margin-left:8px;"></span>
+                            </div>
+                            <div id="trello-fields" style="display:none;">
+                                <p style="color:var(--text-secondary);font-size:12px;margin-bottom:12px;">Connect a Trello board to sync accepted orders. Each ROC account maps to a Trello list, each order becomes a card.</p>
+                                <div style="background:var(--badge-warning-bg);border:1px solid var(--badge-warning-border);border-radius:var(--radius-md);padding:8px 10px;margin-bottom:12px;font-size:11px;color:var(--badge-warning-color);">
+                                    <strong>&#9888; Important:</strong> Enable the <strong>Custom Fields</strong> Power-Up on your Trello board first (open your board, Menu &gt; Power-Ups &gt; search "Custom Fields" &gt; Add).
+                                </div>
+                                <div style="display:flex;flex-direction:column;gap:10px;max-width:400px;">
+                                    <div class="trello-step">
+                                        <div class="trello-step-head"><span class="trello-step-num">1</span><label class="form-label">API Key</label></div>
+                                        <input type="text" class="form-input" id="trello-api-key" placeholder="Your Trello API key">
+                                        <p class="trello-hint">Open the <a href="#" onclick="openTrelloAdminPortal();return false;">Trello Power-Up admin page</a>, click <strong>New</strong> to create a Power-Up (any name works), open its <strong>API key</strong> tab and click <strong>Generate a new API key</strong>. Copy the key here.</p>
+                                    </div>
+                                    <div class="trello-step">
+                                        <div class="trello-step-head"><span class="trello-step-num">2</span><label class="form-label">API Token</label></div>
+                                        <input type="password" class="form-input" id="trello-api-token" placeholder="Your Trello API token">
+                                        <p class="trello-hint">Paste your key above first, then click <a href="#" id="trello-get-token-link" onclick="openTrelloTokenPage();return false;">Get Token</a>. Trello opens an authorization page, click <strong>Allow</strong> and copy the token shown.</p>
+                                    </div>
+                                    <div class="trello-step">
+                                        <div class="trello-step-head"><span class="trello-step-num">3</span><label class="form-label">Board ID</label></div>
+                                        <input type="text" class="form-input" id="trello-board-id" placeholder="Trello board ID (from URL)">
+                                        <p class="trello-hint">Open your board in a browser and copy the short code from the address bar: trello.com/b/<strong>abc123XY</strong>/board-name.</p>
+                                    </div>
+                                    <div><label class="form-label">Sync interval</label><div style="display:flex;align-items:center;gap:8px;"><input type="number" class="form-input" id="trello-sync-interval" min="1" max="60" step="1" value="5" style="width:80px;"><span style="font-size:12px;color:var(--text-muted);">minutes (1–60)</span></div></div>
+                                    <div style="display:flex;gap:8px;margin-top:4px;">
+                                        <button class="btn btn-sm btn-secondary" onclick="testTrelloConnection()"><i data-lucide="wifi" class="icon"></i> Test Connection</button>
+                                        <button class="btn btn-sm btn-primary" id="trello-sync-btn" onclick="saveTrelloAndSync()" style="display:none;"><i data-lucide="refresh-cw" class="icon"></i> Save & Sync</button>
+                                    </div>
+                                    <div id="trello-test-result" style="font-size:12px;margin-top:4px;display:none;"></div>
+                                    <div id="trello-match-info" style="display:none;"></div>
+                                </div>
+                            </div>
+                            <div id="trello-off-msg"><p style="color:var(--text-secondary);font-size:12px;">Enable to sync accepted orders with a Trello board.</p></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Updates -->
+                <div class="settings-panel" id="settings-updates">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i data-lucide="refresh-cw" class="icon"></i>Auto-Update</div>
+                            <button class="btn btn-sm btn-ghost" id="check-updates-btn" onclick="checkForUpdates()"><i data-lucide="refresh-cw" class="icon"></i> Check now</button>
+                        </div>
+                        <div class="card-body">
+                            <p style="color:var(--text-secondary);font-size:12px;margin-bottom:16px;">PandaRoc checks for updates on startup. When a new version is found, a banner appears on the dashboard.</p>
+
+                            <label class="settings-toggle-row" style="margin-bottom:16px;">
+                                <input type="checkbox" id="auto-update-chk" onchange="toggleAutoUpdate(this.checked)">
+                                <span>Check for updates automatically on startup</span>
+                            </label>
+
+                            <div style="border-top:1px solid var(--border-light);padding-top:16px;margin-bottom:16px;display:none;">
+                                <div class="form-label" style="margin-bottom:8px;">GitHub Token</div>
+                                <p style="color:var(--text-muted);font-size:11px;margin-bottom:10px;">Fine-grained personal access token with read-only access to releases. Required for update checks from the private repository.</p>
+                                <div id="github-token-status" class="chip warn" style="margin-bottom:10px;">
+                                    <i data-lucide="alert-triangle" class="icon" style="width:12px;height:12px;"></i> No token set
+                                </div>
+                                <div style="display:flex;gap:8px;max-width:400px;">
+                                    <input type="password" class="form-input" id="github-token-input" placeholder="github_pat_...">
+                                    <button class="btn btn-sm btn-primary" onclick="saveGithubToken()">Save</button>
+                                </div>
+                            </div>
+
+                            <div id="skipped-version-info" style="display:none;border-top:1px solid var(--border-light);padding-top:16px;">
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <span class="chip" style="font-size:11px;"></span>
+                                    <button class="btn btn-sm btn-ghost" onclick="unskipUpdate()">Show again</button>
+                                </div>
+                            </div>
+
+                            <div style="border-top:1px solid var(--border-light);padding-top:12px;margin-top:16px;">
+                                <p style="color:var(--text-muted);font-size:11px;">Current version: v<span id="current-version-label"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Help & support -->
+                <div class="settings-panel" id="settings-help">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i data-lucide="life-buoy" class="icon"></i>Support</div>
+                        </div>
+                        <div class="card-body">
+                            <p style="color:var(--text-secondary);font-size:13px;margin-bottom:14px;">Questions about the app, your ROC accounts or billing? We answer fast.</p>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                <button class="btn btn-sm btn-primary" onclick="openExternal('mailto:support@pandaroc.com')"><i data-lucide="mail" class="icon"></i> support@pandaroc.com</button>
+                                <button class="btn btn-sm btn-ghost" onclick="openExternal('https://pandaroc.com/faq.html')"><i data-lucide="help-circle" class="icon"></i> FAQ on pandaroc.com</button>
+                                <button class="btn btn-sm btn-ghost" onclick="openExternal('https://pandaroc.com/account.html')"><i data-lucide="user" class="icon"></i> Manage my account</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:16px;">
+                        <div class="card-header">
+                            <div class="card-title"><i data-lucide="map" class="icon"></i>Quick tour</div>
+                        </div>
+                        <div class="card-body">
+                            <p style="color:var(--text-secondary);font-size:13px;margin-bottom:14px;">A 60-second walkthrough of the Finder, the Downloader, your orders and Name Check.</p>
+                            <button class="btn btn-sm btn-ghost" onclick="startOnboardingTour(true)"><i data-lucide="play-circle" class="icon"></i> Show tour again</button>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:16px;">
+                        <div class="card-header">
+                            <div class="card-title"><i data-lucide="help-circle" class="icon"></i>Frequently asked questions</div>
+                        </div>
+                        <div class="card-body">
+                            <details class="faq-acc">
+                                <summary>How does PandaRoc work day to day?</summary>
+                                <p>The Finder scans your ROC accounts' pending list (&Epsilon;&kappa;&kappa;&rho;&epsilon;&mu;&epsilon;&#943;&sigmaf;) on a schedule and adds new orders to Pending. You decide which orders to accept, and the Downloader collects the certificates as soon as ROC generates them, filing them straight into your download folder.</p>
+                            </details>
+                            <details class="faq-acc">
+                                <summary>Why isn't the Finder doing anything right now?</summary>
+                                <p>It runs during business hours (Mon&ndash;Fri 08:00&ndash;19:00 by default &mdash; change the schedule in Settings &rarr; Advanced) and stays quiet outside them on purpose, so your accounts don't look like a machine to ROC. It also pauses while you're over your plan's account limit or while ROC is temporarily blocking access.</p>
+                            </details>
+                            <details class="faq-acc">
+                                <summary>What does "Waiting for ROC" mean?</summary>
+                                <p>The order is accepted but ROC hasn't generated its certificates yet. That's normal and needs nothing from you &mdash; the Downloader re-checks every cycle and downloads automatically once they're ready.</p>
+                            </details>
+                            <details class="faq-acc">
+                                <summary>What does "Needs attention" mean?</summary>
+                                <p>ROC reported something only a person can resolve: a name application was rejected, an order was returned for corrections, or an accepted order is no longer visible in the workspace. Open the order to see the exact reason.</p>
+                            </details>
+                            <details class="faq-acc">
+                                <summary>Where are my certificates saved?</summary>
+                                <p>In the folder you chose under Settings &rarr; Download folder &mdash; organised into a subfolder per order, or flat if you prefer. The files stay on your machine (or network drive); nothing is uploaded to us.</p>
+                            </details>
+                            <details class="faq-acc">
+                                <summary>What counts against my plan's accounts?</summary>
+                                <p>Enabled ROC accounts. Disabling an account frees its slot immediately; to add more slots, change your plan from your account page at pandaroc.com &mdash; the app picks the change up automatically within a few minutes.</p>
+                            </details>
+                            <details class="faq-acc">
+                                <summary>ROC blocked the connection &mdash; what now?</summary>
+                                <p>PandaRoc detects it, pauses both agents and waits a couple of hours before resuming on its own &mdash; pushing through a block only makes it longer. Avoid VPNs or proxies; they make blocking worse, not better.</p>
+                            </details>
+                            <details class="faq-acc">
+                                <summary>Are my ROC passwords safe?</summary>
+                                <p>They never leave this computer. They're stored encrypted on your machine and used only to log in to the ROC portal locally &mdash; our servers handle just your PandaRoc account and subscription.</p>
+                            </details>
+                            <details class="faq-acc">
+                                <summary>How accurate is Name Check?</summary>
+                                <p>It scores a proposed company name against the Registrar's naming rules and a live search of the registry. Treat it as a strong, honest estimate &mdash; the final decision always belongs to the Registrar.</p>
+                            </details>
+                            <details class="faq-acc">
+                                <summary>How do updates work?</summary>
+                                <p>The app checks for new versions on startup and shows a banner when one is available &mdash; one click installs it. You can also check manually under Settings &rarr; Updates.</p>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+
+                    </div><!-- /settings-content -->
+                </div><!-- /settings-grid -->
+            </section>
+        </div>
+    </main>
+    
+    <!-- Add Account Modal -->
+    <div class="modal-overlay" id="account-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="account-modal-title">Add Account</div>
+                <button class="modal-close" onclick="hideAccountModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">ROC Username</label>
+                    <input type="text" class="form-input" id="account-username" placeholder="e.g., COMPANY LTD">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" class="form-input" id="account-password">
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility()" title="Show password"><i data-lucide="eye" class="icon"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="hideAccountModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveAccount()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ═══════════════ NOTES & HISTORY — drawer ═══════════════ -->
+    <div class="dlg" data-kind="drawer" id="dlg-notes" aria-hidden="true">
+        <div class="dlg__scrim" data-dlg-close></div>
+        <div class="dlg__panel" role="dialog" aria-modal="true" aria-labelledby="notes-title">
+            <div class="dlg-head">
+                <div class="dlg-head__icon"><i data-lucide="message-square-text" class="icon"></i></div>
+                <div class="dlg-head__txt">
+                    <div class="dlg-eyebrow">Notes &amp; history</div>
+                    <div class="dlg-title" id="notes-title">Order <span class="dlg-ordchip" id="notes-ordchip">#-</span></div>
+                    <div class="dlg-sub">Your private comment plus the Downloader's processing log.</div>
+                </div>
+                <button class="dlg-close" data-dlg-close aria-label="Close"><i data-lucide="x" class="icon"></i></button>
+            </div>
+
+            <div class="dlg-preview" id="notes-preview">
+                <div class="dlg-preview__main">
+                    <div class="dlg-preview__title"><span data-prev="company">-</span></div>
+                    <div class="dlg-preview__meta">
+                        <span class="mono" data-prev="order">#-</span>
+                        <span class="sep">·</span><span data-prev="he">HE -</span>
+                        <span data-prev="type"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dlg-body">
+                <!-- Your comment -->
+                <div class="dlg-section">
+                    <div class="dlg-section__label"><i data-lucide="pen-line" class="step" style="border:none;background:none;color:var(--accent-primary);"></i>Your comment<span class="line"></span></div>
+                    <div class="note-composer" id="notes-composer">
+                        <textarea id="notes-comment" placeholder="Add a private note about this order..."></textarea>
+                        <div class="note-composer__bar">
+                            <span class="note-composer__hint"><i data-lucide="eye" class="icon"></i>Shows everywhere this order appears</span>
+                            <span class="note-composer__saved"><i data-lucide="check" class="icon"></i>Saved</span>
+                            <button class="btn btn-sm btn-primary" id="notes-save-btn" onclick="saveOrderComment()" disabled><i data-lucide="check" class="icon"></i>Save</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Processing history -->
+                <div class="dlg-section">
+                    <div class="tl-head">
+                        <div class="dlg-section__label" style="margin-bottom:0;"><i data-lucide="history" class="step" style="border:none;background:none;color:var(--accent-primary);"></i>Processing history</div>
+                        <span class="tl-head__count" id="notes-count">0 entries</span>
+                        <span class="line" style="flex:1;height:1px;background:var(--border-color);"></span>
+                    </div>
+                    <div id="notes-timeline"></div>
+                </div>
+            </div>
+
+            <div class="dlg-foot">
+                <span class="dlg-foot__hint"><i data-lucide="lock" class="icon"></i>Comment is private to your team</span>
+                <button class="btn btn-ghost" data-dlg-close>Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ ADD ORDER — popup ═══════════════ -->
+    <div class="dlg" data-kind="popup" id="dlg-add" aria-hidden="true">
+        <div class="dlg__scrim" data-dlg-close></div>
+        <div class="dlg__panel" role="dialog" aria-modal="true" aria-labelledby="add-title">
+            <div class="dlg-head">
+                <div class="dlg-head__icon"><i data-lucide="file-plus-2" class="icon"></i></div>
+                <div class="dlg-head__txt">
+                    <div class="dlg-eyebrow">Accepted queue</div>
+                    <div class="dlg-title" id="add-title">Add order manually</div>
+                    <div class="dlg-sub">Track an order the Finder didn't pick up. The Downloader will retrieve its files automatically.</div>
+                </div>
+                <button class="dlg-close" data-dlg-close aria-label="Close"><i data-lucide="x" class="icon"></i></button>
+            </div>
+
+            <div class="dlg-preview" id="add-preview">
+                <div class="dlg-preview__main">
+                    <div class="dlg-preview__title"><span data-prev="company" class="muted">New order</span></div>
+                    <div class="dlg-preview__meta">
+                        <span class="mono" data-prev="order">#-</span>
+                        <span class="sep">·</span><span data-prev="he">HE -</span>
+                        <span data-prev="type"></span>
+                    </div>
+                    <div class="dlg-preview__labels" data-prev="labels"></div>
+                </div>
+            </div>
+
+            <div class="dlg-body" data-form="add">
+                <!-- Order details -->
+                <div class="dlg-section">
+                    <div class="dlg-section__label"><span class="step">1</span>Order details<span class="line"></span></div>
+                    <div class="dlg-grid">
+                        <div class="dlg-field" data-field="manual-order-id">
+                            <label class="form-label" for="manual-order-id">Order number <span class="req">*</span></label>
+                            <input type="text" class="form-input" id="manual-order-id" inputmode="numeric" placeholder="e.g. 1234567">
+                            <div class="dlg-error"><i data-lucide="alert-circle" class="icon"></i>Order number is required</div>
+                        </div>
+                        <div class="dlg-field">
+                            <label class="form-label" for="manual-he-number">HE number <span class="opt">optional</span></label>
+                            <input type="text" class="form-input" id="manual-he-number" placeholder="e.g. 12345">
+                        </div>
+                        <div class="dlg-field dlg-field--full">
+                            <label class="form-label" for="manual-company-name">Company name <span class="opt">optional</span></label>
+                            <input type="text" class="form-input" id="manual-company-name" placeholder="e.g. ACME HOLDINGS LTD">
+                            <div class="dlg-help">Leave blank for name approvals — ROC doesn't expose the name until it's decided. Required for a new company.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Classification -->
+                <div class="dlg-section">
+                    <div class="dlg-section__label"><span class="step">2</span>Classification<span class="line"></span></div>
+                    <div class="dlg-grid">
+                        <div class="dlg-field">
+                            <label class="form-label" for="manual-service-type">Type</label>
+                            <select class="form-input custom-select-source" id="manual-service-type">
+                                <option value="certificate" selected>Certificates</option>
+                                <option value="he32">HE32</option>
+                                <option value="name_approval">Name Approval</option>
+                                <option value="new_company">New Company (match by name)</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="dlg-field">
+                            <label class="form-label" for="manual-expected-documents">Expected documents <span class="opt">optional</span></label>
+                            <input type="number" min="0" class="form-input" id="manual-expected-documents" placeholder="Auto-detect">
+                        </div>
+                        <div class="dlg-field dlg-field--full">
+                            <label class="form-label">Labels <span class="opt">click to toggle</span></label>
+                            <div id="manual-labels-chips" class="chip-tray"></div>
+                            <input type="hidden" id="manual-labels-json" value="[]">
+                            <div class="dlg-help">Create label presets in <strong>Settings</strong>.</div>
+                        </div>
+                        <div class="dlg-field dlg-field--full dlg-reveal" id="manual-doc-types-group">
+                            <label class="form-label">Document types <span class="opt">for certificates</span></label>
+                            <div id="manual-doc-type-chips" class="chip-tray"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Routing -->
+                <div class="dlg-section">
+                    <div class="dlg-section__label"><span class="step">3</span>Routing<span class="line"></span></div>
+                    <div class="dlg-grid">
+                        <div class="dlg-field" data-field="manual-roc-account">
+                            <label class="form-label" for="manual-roc-account">ROC account <span class="req">*</span></label>
+                            <select class="form-input custom-select-source" id="manual-roc-account" required>
+                                <option value="">Select account…</option>
+                            </select>
+                            <div class="dlg-error"><i data-lucide="alert-circle" class="icon"></i>Choose which ROC login owns this order</div>
+                        </div>
+                        <div class="dlg-field">
+                            <label class="form-label" for="manual-date">Date <span class="opt">optional</span></label>
+                            <input type="date" class="form-input" id="manual-date">
+                        </div>
+                        <div class="dlg-field dlg-field--full">
+                            <label class="form-label">For (client) <span class="opt">optional</span></label>
+                            <div class="client-row" id="manual-client-wrap" data-custom-mode="false">
+                                <select class="form-input custom-select-source" id="manual-client-select" onchange="onClientSelectChange('manual')">
+                                    <option value="">- None -</option>
+                                </select>
+                                <input type="text" class="form-input client-custom" id="manual-client-custom" placeholder="Type client name..." style="display:none;">
+                                <button type="button" class="btn btn-sm btn-ghost client-back" id="manual-client-back" style="display:none;" onclick="onClientBackToList('manual')" title="Back to list"><i data-lucide="corner-up-left" class="icon"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="dlg-section">
+                    <div class="dlg-section__label"><span class="step">4</span>Notes<span class="line"></span></div>
+                    <div class="dlg-note">
+                        <div class="dlg-note__head"><i data-lucide="message-square" class="icon"></i>Comment <span class="opt">shows everywhere this order appears</span></div>
+                        <textarea class="dlg-note__input" id="manual-comment" rows="2" placeholder="Add a note for this order…"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dlg-foot">
+                <span class="dlg-foot__hint"><span class="req">*</span>Required</span>
+                <button class="btn btn-ghost" data-dlg-close>Cancel</button>
+                <button class="btn btn-primary" onclick="submitManualOrder()"><i data-lucide="plus" class="icon"></i>Add to queue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ EDIT ORDER — drawer ═══════════════ -->
+    <div class="dlg" data-kind="drawer" id="dlg-edit" aria-hidden="true">
+        <div class="dlg__scrim" data-dlg-close></div>
+        <div class="dlg__panel" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+            <div class="dlg-head">
+                <div class="dlg-head__icon"><i data-lucide="file-pen-line" class="icon"></i></div>
+                <div class="dlg-head__txt">
+                    <div class="dlg-eyebrow">Edit order</div>
+                    <div class="dlg-title" id="edit-title">Edit order <span class="dlg-ordchip" id="edit-original-order-id">#-</span></div>
+                    <div class="dlg-sub">Changes apply immediately and re-sync with the Downloader.</div>
+                </div>
+                <button class="dlg-close" data-dlg-close aria-label="Close"><i data-lucide="x" class="icon"></i></button>
+            </div>
+
+            <div class="dlg-preview" id="edit-preview">
+                <div class="dlg-preview__main">
+                    <div class="dlg-preview__title"><span data-prev="company">-</span></div>
+                    <div class="dlg-preview__meta">
+                        <span class="mono" data-prev="order">#-</span>
+                        <span class="sep">·</span><span data-prev="he">HE -</span>
+                        <span data-prev="type"></span>
+                    </div>
+                    <div class="dlg-preview__labels" data-prev="labels"></div>
+                </div>
+            </div>
+
+            <div class="dlg-body" data-form="edit">
+                <!-- Order details -->
+                <div class="dlg-section">
+                    <div class="dlg-section__label"><span class="step">1</span>Order details<span class="line"></span></div>
+                    <div class="dlg-grid">
+                        <div class="dlg-field" data-field="edit-order-id">
+                            <label class="form-label" for="edit-order-id">Order number <span class="req">*</span></label>
+                            <input type="text" class="form-input" id="edit-order-id" placeholder="e.g. 1234567">
+                            <div class="dlg-error"><i data-lucide="alert-circle" class="icon"></i>Order number is required</div>
+                        </div>
+                        <div class="dlg-field">
+                            <label class="form-label" for="edit-he-number">HE number <span class="opt">optional</span></label>
+                            <input type="text" class="form-input" id="edit-he-number" placeholder="e.g. 12345">
+                        </div>
+                        <div class="dlg-field dlg-field--full">
+                            <label class="form-label" for="edit-company-name">Company name <span class="opt">optional</span></label>
+                            <input type="text" class="form-input" id="edit-company-name" placeholder="e.g. ACME HOLDINGS LTD">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Classification -->
+                <div class="dlg-section">
+                    <div class="dlg-section__label"><span class="step">2</span>Classification<span class="line"></span></div>
+                    <div class="dlg-grid">
+                        <div class="dlg-field">
+                            <label class="form-label" for="edit-service-type">Type</label>
+                            <select class="form-input custom-select-source" id="edit-service-type">
+                                <option value="certificate">Certificates</option>
+                                <option value="he32">HE32</option>
+                                <option value="name_approval">Name Approval</option>
+                                <option value="new_company">New Company (match by name)</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="dlg-field">
+                            <label class="form-label" for="edit-expected-documents">Expected documents <span class="opt">optional</span></label>
+                            <input type="number" min="0" class="form-input" id="edit-expected-documents" placeholder="Auto-detect">
+                        </div>
+                        <div class="dlg-field dlg-field--full">
+                            <label class="form-label">Labels <span class="opt">click to toggle</span></label>
+                            <div id="edit-labels-chips" class="chip-tray"></div>
+                            <input type="hidden" id="edit-labels-json" value="[]">
+                        </div>
+                        <div class="dlg-field dlg-field--full dlg-reveal" id="edit-doc-types-group">
+                            <label class="form-label">Document types <span class="opt">auto-detected · click to toggle</span></label>
+                            <div id="edit-doc-type-chips" class="chip-tray"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Routing -->
+                <div class="dlg-section">
+                    <div class="dlg-section__label"><span class="step">3</span>Routing<span class="line"></span></div>
+                    <div class="dlg-field dlg-field--full">
+                        <label class="form-label">For (client) <span class="opt">optional</span></label>
+                        <div class="client-row" id="edit-client-wrap" data-custom-mode="false">
+                            <select class="form-input custom-select-source" id="edit-client-select" onchange="onClientSelectChange('edit')">
+                                <option value="">- None -</option>
+                            </select>
+                            <input type="text" class="form-input client-custom" id="edit-client-custom" placeholder="Type client name..." style="display:none;">
+                            <button type="button" class="btn btn-sm btn-ghost client-back" id="edit-client-back" style="display:none;" onclick="onClientBackToList('edit')" title="Back to list"><i data-lucide="corner-up-left" class="icon"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="dlg-section">
+                    <div class="dlg-section__label"><span class="step">4</span>Notes<span class="line"></span></div>
+                    <div class="dlg-note">
+                        <div class="dlg-note__head"><i data-lucide="message-square" class="icon"></i>Comment <span class="opt">shows everywhere this order appears</span></div>
+                        <textarea class="dlg-note__input" id="edit-comment" rows="2" placeholder="Add a note for this order…"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dlg-foot">
+                <span class="dlg-foot__hint"><i data-lucide="git-commit-horizontal" class="icon"></i>Changes apply immediately</span>
+                <button class="btn btn-ghost" data-dlg-close>Cancel</button>
+                <button class="btn btn-primary" onclick="saveEditedOrder()"><i data-lucide="check" class="icon"></i>Save changes</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ═══════════════ REORDER ACCOUNTS — popup ═══════════════ -->
+    <div class="dlg" data-kind="popup" id="dlg-reorder" aria-hidden="true">
+        <div class="dlg__scrim" data-dlg-close></div>
+        <div class="dlg__panel" role="dialog" aria-modal="true" aria-labelledby="reorder-title" style="max-width:472px;">
+            <div class="dlg-head">
+                <div class="dlg-head__icon"><i data-lucide="list-ordered" class="icon"></i></div>
+                <div class="dlg-head__txt">
+                    <div class="dlg-eyebrow">Accepted queue</div>
+                    <div class="dlg-title" id="reorder-title">Reorder accounts</div>
+                    <div class="dlg-sub">Set the priority the Downloader works ROC accounts in. The top account is processed first.</div>
+                </div>
+                <button class="dlg-close" data-dlg-close aria-label="Close"><i data-lucide="x" class="icon"></i></button>
+            </div>
+
+            <div class="dlg-body" style="padding-top:18px;padding-bottom:18px;">
+                <div class="ro-intro"><i data-lucide="grip-vertical" class="icon"></i><span>Drag a row to rank it, or use the arrows. Only accounts with orders in the Accepted queue are shown.</span></div>
+                <div class="ro-list" id="reorder-list"></div>
+            </div>
+
+            <div class="dlg-foot">
+                <span class="dlg-foot__hint"><i data-lucide="info" class="icon"></i><span id="reorder-count">0 accounts</span></span>
+                <button class="btn btn-ghost" data-dlg-close>Cancel</button>
+                <button class="btn btn-primary" onclick="saveAccountOrder()"><i data-lucide="check" class="icon"></i>Save order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Print surface - populated on demand, hidden on screen, shown only in @media print -->
+    <div id="print-root" aria-hidden="true"></div>
+    
+
+    <!-- Lock Screen -->
+    <div class="lock-screen" id="lock-screen" style="display:none;">
+        <!-- Frameless-window chrome: the overlay covers the nav, so the lock screen
+             needs its own drag strip + window controls. -->
+        <div class="lock-screen-topbar" id="lock-screen-topbar">
+            <div class="window-controls">
+                <button class="win-ctrl win-minimize" onclick="winMinimize()" title="Minimize">
+                    <i data-lucide="minus" class="icon"></i>
+                </button>
+                <button class="win-ctrl win-maximize" onclick="winToggleMaximize()" title="Maximize">
+                    <i data-lucide="square" class="icon"></i>
+                </button>
+                <button class="win-ctrl win-close" onclick="winClose()" title="Close">
+                    <i data-lucide="x" class="icon"></i>
+                </button>
+            </div>
+        </div>
+        <div class="lock-screen-card">
+            <div class="lock-screen-header">
+                <img src="static/logo.png" alt="" class="lock-screen-logo">
+                <div class="lock-screen-brand"><span class="brand-accent">Panda</span>Roc</div>
+                <p class="lock-screen-tagline">ROC certificate automation for Cyprus firms</p>
+            </div>
+
+            <div class="lock-screen-divider"></div>
+
+            <h2 id="lock-screen-title" class="lock-screen-title">Log in to PandaRoc</h2>
+            <p id="lock-screen-message" class="lock-screen-msg">Use your PandaRoc account email and password.</p>
+
+            <div id="lock-login-form" class="lock-screen-form">
+                <input type="email" class="form-input lock-screen-input" id="lock-email" placeholder="you@yourfirm.com" autocomplete="username">
+                <input type="password" class="form-input lock-screen-input" id="lock-password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')lockScreenLogin()">
+                <button class="btn btn-primary lock-screen-btn" id="lock-login-btn" onclick="lockScreenLogin()">
+                    <i data-lucide="log-in" class="icon"></i> Log In
+                </button>
+                <p id="lock-login-error" class="lock-screen-error"></p>
+                <a href="https://pandaroc.com/reset.html" target="_blank" class="lock-screen-forgot" onclick="openExternal(this.href); return false;">Forgot password?</a>
+            </div>
+
+            <div id="lock-nosub-actions" class="lock-screen-form" style="display:none;">
+                <button class="btn btn-primary lock-screen-btn" onclick="openExternal('https://pandaroc.com/account.html')">
+                    <i data-lucide="external-link" class="icon"></i> Manage Plan
+                </button>
+                <button class="btn btn-ghost lock-screen-btn" id="lock-recheck-btn" onclick="lockScreenRecheck()">
+                    <i data-lucide="refresh-cw" class="icon"></i> Check Again
+                </button>
+                <button class="btn btn-ghost lock-screen-btn" onclick="lockScreenLogout()">
+                    <i data-lucide="log-out" class="icon"></i> Log Out
+                </button>
+            </div>
+
+            <div class="lock-screen-divider"></div>
+
+            <div class="lock-screen-footer">
+                <p class="lock-screen-footer-label">Don't have an account yet?</p>
+                <div class="lock-screen-footer-actions">
+                    <a href="https://pandaroc.com/register.html" target="_blank" class="btn btn-sm btn-primary" onclick="openExternal(this.href); return false;">
+                        <i data-lucide="user-plus" class="icon"></i> Start Free Trial
+                    </a>
+                </div>
+                <p class="lock-screen-footer-hint">Create your account and plan on pandaroc.com, then log in here with the same email and password.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="mock-backend.js"></script>
+    <script src="static/app.js?v=8.4"></script>
+    <script src="static/tour.js?v=8.4"></script>
+
+</body>
+</html>

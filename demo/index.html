@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PandaRoc — Interactive demo</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<style>
+@font-face { font-family:'Inter'; font-style:normal; font-weight:400; font-display:swap; src:url('assets/fonts/inter-400.woff2') format('woff2'); }
+@font-face { font-family:'Inter'; font-style:normal; font-weight:500; font-display:swap; src:url('assets/fonts/inter-500.woff2') format('woff2'); }
+@font-face { font-family:'Inter'; font-style:normal; font-weight:600; font-display:swap; src:url('assets/fonts/inter-600.woff2') format('woff2'); }
+@font-face { font-family:'Inter'; font-style:normal; font-weight:700; font-display:swap; src:url('assets/fonts/inter-700.woff2') format('woff2'); }
+@font-face { font-family:'JetBrains Mono'; font-style:normal; font-weight:400; font-display:swap; src:url('assets/fonts/jetbrains-mono-400.woff2') format('woff2'); }
+@font-face { font-family:'JetBrains Mono'; font-style:normal; font-weight:500; font-display:swap; src:url('assets/fonts/jetbrains-mono-500.woff2') format('woff2'); }
+html,body { margin:0; padding:0; background:#0a0a0a; overflow:hidden; height:100%; }
+*, *::before, *::after { box-sizing:border-box; }
+#root { position:fixed; inset:0; }
+@keyframes pr-spin { to { transform:rotate(360deg); } }
+@keyframes pr-blink { 0%,49%{opacity:1;} 50%,100%{opacity:0;} }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="vendor/react.production.min.js"></script>
+<script src="vendor/react-dom.production.min.js"></script>
+<script src="pandaroc-demo.js"></script>
+<script>
+  (function () {
+    var el = document.getElementById('root');
+    if (!window.React || !window.ReactDOM || !window.PandaRocDemo) {
+      el.textContent = 'Demo failed to load.';
+      return;
+    }
+    ReactDOM.createRoot(el).render(React.createElement(window.PandaRocDemo));
+  })();
+</script>
+</body>
+</html>
