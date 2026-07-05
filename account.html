@@ -323,6 +323,7 @@ function renderAccount(data){
     // (license server EMAIL_VERIFY_ENFORCE_FROM): nothing ever locks for them,
     // so no 24-hour claim, no hero takeover and no poll.
     const enforced = !data.created_at || new Date(data.created_at) >= new Date('2026-07-06T00:00:00Z');
+    _verifyEnforced = enforced;
     if (enforced){
       // Verify-first: the hero leads with the deadline; the banner carries the
       // consequence and the resend action (not the same sentence twice).
@@ -331,7 +332,8 @@ function renderAccount(data){
       $('verifyCopy').innerHTML = 'The desktop app locks 24 hours after sign-up until you confirm. Can\'t find the email? Check your spam folder, or resend it below.';
       startVerifyPoll();
     } else {
-      $('verifyCopy').innerHTML = 'Please confirm <b>' + escapeHtml(_accountEmail) + '</b> to unlock checkout. Use the link we sent, or resend it below.';
+      // Grandfathered accounts never lock and can still subscribe: plain nudge only.
+      $('verifyCopy').innerHTML = 'Please confirm <b>' + escapeHtml(_accountEmail) + '</b>. Use the link we sent, or resend it below.';
     }
   } else {
     hide('verifyBanner');
@@ -384,6 +386,9 @@ function renderAccount(data){
 
 // ── Email verification (verify-first) ──
 let _emailVerified = true;
+// Accounts created before the server's enforcement day (2026-07-06) are
+// grandfathered: the server never locks them or blocks their checkout.
+let _verifyEnforced = true;
 let _accountEmail = 'your address';
 let _verifyPoll = null;
 
@@ -409,7 +414,7 @@ function stopVerifyPoll(){ if (_verifyPoll){ clearInterval(_verifyPoll); _verify
 let _planModalAutoShown = false;
 
 function openPlanModal(){
-  if (!_emailVerified){ promptVerifyFirst(); return; }
+  if (!_emailVerified && _verifyEnforced){ promptVerifyFirst(); return; }
   show('planOverlay');
   if (window.lucide) lucide.createIcons();
 }
@@ -417,13 +422,13 @@ function closePlanModal(){ hide('planOverlay'); }
 
 function maybeAutoOpenPlanModal(){
   // Verify-first: no picker until the email is confirmed (the poll re-runs this after).
-  if (_planModalAutoShown || !_emailVerified) return;
+  if (_planModalAutoShown || (!_emailVerified && _verifyEnforced)) return;
   _planModalAutoShown = true;
   openPlanModal();
 }
 
 async function choosePlan(quantity, trial){
-  if (!_emailVerified){ promptVerifyFirst(); return; }
+  if (!_emailVerified && _verifyEnforced){ promptVerifyFirst(); return; }
   const qty = Math.max(1, Math.min(20, parseInt(quantity, 10) || 1));
   trial = !!trial;
   try {
