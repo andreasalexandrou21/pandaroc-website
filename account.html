@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex" />
 <title>My account · PandaRoc</title>
 <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<script src="https://unpkg.com/lucide@1.23.0/dist/umd/lucide.min.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -27,7 +27,7 @@
 #login-prompt { max-width:460px; margin:8px auto 0; }
 .btn.btn-disabled { opacity:0.55; pointer-events:none; }
 
-/* Plan picker — mirrors the homepage pricing, opens straight into checkout */
+/* Plan picker: mirrors the homepage pricing, opens straight into checkout */
 .plan-overlay { position:fixed; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; padding:22px; background:rgba(8,6,5,0.6); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
 .plan-modal { position:relative; width:100%; max-width:480px; max-height:90vh; overflow:auto; }
 .plan-close { position:absolute; top:14px; right:14px; display:grid; place-items:center; width:32px; height:32px; background:transparent; border:0; border-radius:9px; color:var(--muted); cursor:pointer; transition:color .15s, background .15s; }
@@ -77,7 +77,7 @@
   <div class="wrap">
     <div class="crumbs" style="display:flex;align-items:center;justify-content:space-between;">
       <span style="display:inline-flex;align-items:center;gap:9px;"><a href="index.html">Home</a><span class="sep">/</span><span class="here">My account</span></span>
-      <a href="#" class="acct-signout" id="signOutBtn" onclick="logout(); return false;" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>Sign out</a>
+      <a href="index.html" class="acct-signout" id="signOutBtn" onclick="logout(); return false;" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>Sign out</a>
     </div>
     <div>
       <div class="eyebrow">Account</div>
@@ -116,7 +116,7 @@
           <div style="color:var(--amber9);flex-shrink:0;display:flex;"><i data-lucide="mail"></i></div>
           <div style="flex:1;min-width:0;">
             <div style="font-weight:600;color:var(--text);margin-bottom:5px;">Confirm your email address</div>
-            <p style="font-size:13.5px;color:var(--text-2);line-height:1.6;margin:0 0 14px;">We sent a verification link to <b id="verifyEmail"></b>. Confirm it to secure your account and receive important billing notices.</p>
+            <p id="verifyCopy" style="font-size:13.5px;color:var(--text-2);line-height:1.6;margin:0 0 14px;">We sent a link to <b id="verifyEmail"></b>. Confirm within 24 hours to keep everything unlocked.</p>
             <button class="btn btn-ghost" id="resendVerifyBtn" onclick="resendVerification()" style="border-color:color-mix(in oklch, var(--amber9) 32%, transparent);"><i data-lucide="send"></i>Resend verification email</button>
           </div>
         </div>
@@ -138,7 +138,7 @@
                 <div class="plan-name" id="planName">No active plan</div>
                 <div class="plan-price" id="planMeta"></div>
               </div>
-              <button class="btn btn-primary js-portal" id="managePlanBtn" onclick="openBillingPortal('update')" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>Manage plan</button>
+              <button class="btn btn-primary js-portal" id="managePlanBtn" onclick="openManageModal()" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>Manage plan</button>
               <button class="btn btn-primary" id="subscribeBtn" onclick="openPlanModal()" style="display:none;">Choose a plan</button>
             </div>
             <div class="kv" id="trialKvRow" style="display:none;"><span class="k" id="trialK">Trial ends</span><span class="v" id="trialV"></span></div>
@@ -158,7 +158,7 @@
           <div class="card-pr reveal" id="billingCard" style="display:none;">
             <div class="card-head"><div class="ct"><i data-lucide="receipt"></i>Billing</div></div>
             <p style="font-size:13.5px;color:var(--text-2);line-height:1.6;margin-bottom:18px;">View your invoices, update your payment method or change plan in the secure billing portal.</p>
-            <button class="btn btn-ghost js-portal" onclick="openBillingPortal()" style="width:100%;justify-content:center;"><i data-lucide="credit-card"></i>Manage billing &amp; invoices</button>
+            <button class="btn btn-ghost js-portal" onclick="openManageModal()" style="width:100%;justify-content:center;"><i data-lucide="credit-card"></i>Manage billing &amp; invoices</button>
           </div>
         </div>
 
@@ -199,9 +199,9 @@
               <button class="btn btn-ghost js-portal" onclick="openBillingPortal('cancel')" style="color:var(--tc11);border-color:color-mix(in oklch,var(--accent) 30%,transparent);">Cancel subscription</button>
               <div style="height:1px;background:var(--border);margin:22px 0;"></div>
             </div>
-            <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Deleting your account is permanent: it cancels your subscription and removes your devices and saved settings. We'll email you a link to confirm — nothing is deleted until you approve it from your inbox.</p>
+            <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Deleting your account is permanent: it cancels your subscription and removes your devices and saved settings. We'll email you a link to confirm. Nothing is deleted until you approve it from your inbox.</p>
             <button class="btn btn-ghost" id="deleteAccountBtn" onclick="deleteAccount()" style="color:#ef6a5e;border-color:color-mix(in oklch, #ef6a5e 34%, transparent);"><i data-lucide="trash-2"></i>Delete account</button>
-            <p id="deleteRequested" style="display:none;font-size:13px;color:var(--tc11);line-height:1.6;margin-top:14px;"><b>Check your inbox.</b> We've sent a confirmation link — the deletion only happens once you press Delete on the page it opens. The link expires in 1 hour.</p>
+            <p id="deleteRequested" style="display:none;font-size:13px;color:var(--tc11);line-height:1.6;margin-top:14px;"><b>Check your inbox.</b> We've sent a confirmation link. The deletion only happens once you press Delete on the page it opens. The link expires in 1 hour.</p>
           </div>
         </div>
       </div>
@@ -233,6 +233,21 @@
         <div class="plan-trial-note">7 days of full access with 3 ROC accounts. Card required, no charge until the trial ends.</div>
       </div>
       <button class="btn btn-primary" onclick="choosePlan(3, true)">Start free trial</button>
+    </div>
+  </div>
+</div>
+
+<!-- Manage account (each row opens the matching screen of the Stripe billing portal) -->
+<div class="plan-overlay" id="manageOverlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="manageTitle">
+  <div class="plan-modal card-pr">
+    <button class="plan-close" onclick="closeManageModal()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div class="card-head" style="margin-bottom:0;"><div class="ct"><i data-lucide="settings-2"></i>Manage plan &amp; billing</div></div>
+    <p class="plan-sub" id="manageTitle">Pick what you want to do. Each option opens the secure billing portal.</p>
+    <div class="plan-rows">
+      <button class="plan-row js-portal" onclick="openBillingPortal('update')"><span class="pn">Change plan or accounts</span><span class="pq">Switch tier or adjust your ROC account count</span></button>
+      <button class="plan-row js-portal" onclick="openBillingPortal('payment_method_update')"><span class="pn">Update payment method</span><span class="pq">Change the card on file</span></button>
+      <button class="plan-row js-portal" onclick="openBillingPortal()"><span class="pn">Invoices and billing history</span><span class="pq">View and download past invoices</span></button>
+      <button class="plan-row js-portal" onclick="openBillingPortal('cancel')"><span class="pn">Cancel subscription</span><span class="pq">Billing stops at the end of the current period</span></button>
     </div>
   </div>
 </div>
@@ -292,6 +307,7 @@ function renderAccount(data){
   // Greeting
   const first = (data.name || '').trim().split(/\s+/)[0];
   if (first) $('acctHeading').innerHTML = 'Welcome back, <em>' + escapeHtml(first) + '.</em>';
+  else $('acctHeading').textContent = 'Your account';
   $('acctLead').textContent = 'Your subscription, plan and downloads, all in one place.';
 
   // Account details
@@ -299,11 +315,27 @@ function renderAccount(data){
   $('accEmail').textContent = data.email || 'Not set';
 
   // Email verification prompt (only while unverified)
-  if (data.email_verified === false){
-    $('verifyEmail').textContent = data.email || 'your address';
+  _emailVerified = data.email_verified !== false;
+  _accountEmail = data.email || 'your address';
+  if (!_emailVerified){
     show('verifyBanner');
+    // Accounts created before enforcement day are grandfathered server-side
+    // (license server EMAIL_VERIFY_ENFORCE_FROM): nothing ever locks for them,
+    // so no 24-hour claim, no hero takeover and no poll.
+    const enforced = !data.created_at || new Date(data.created_at) >= new Date('2026-07-06T00:00:00Z');
+    if (enforced){
+      // Verify-first: the hero leads with the deadline; the banner carries the
+      // consequence and the resend action (not the same sentence twice).
+      $('acctHeading').innerHTML = 'Confirm your <em>email.</em>';
+      $('acctLead').textContent = 'We sent a link to ' + _accountEmail + '. Confirm within 24 hours to keep everything unlocked.';
+      $('verifyCopy').innerHTML = 'The desktop app locks 24 hours after sign-up until you confirm. Can\'t find the email? Check your spam folder, or resend it below.';
+      startVerifyPoll();
+    } else {
+      $('verifyCopy').innerHTML = 'Please confirm <b>' + escapeHtml(_accountEmail) + '</b> to unlock checkout. Use the link we sent, or resend it below.';
+    }
   } else {
     hide('verifyBanner');
+    stopVerifyPoll();
   }
 
   // Subscription status
@@ -350,22 +382,48 @@ function renderAccount(data){
   revealCards();
 }
 
+// ── Email verification (verify-first) ──
+let _emailVerified = true;
+let _accountEmail = 'your address';
+let _verifyPoll = null;
+
+function promptVerifyFirst(){
+  alert('Please confirm your email address first. We sent a link to ' + _accountEmail + '. Once confirmed, you can choose a plan.');
+}
+
+// Poll /auth/me every 5s while unverified; restore the normal view once confirmed.
+function startVerifyPoll(){
+  if (_verifyPoll) return;
+  _verifyPoll = setInterval(async () => {
+    try {
+      const res = await authFetch('/auth/me');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.email_verified !== false){ stopVerifyPoll(); renderAccount(data); }
+    } catch (e){ /* transient network error: keep polling */ }
+  }, 5000);
+}
+function stopVerifyPoll(){ if (_verifyPoll){ clearInterval(_verifyPoll); _verifyPoll = null; } }
+
 // ── Plan picker ──
 let _planModalAutoShown = false;
 
 function openPlanModal(){
+  if (!_emailVerified){ promptVerifyFirst(); return; }
   show('planOverlay');
   if (window.lucide) lucide.createIcons();
 }
 function closePlanModal(){ hide('planOverlay'); }
 
 function maybeAutoOpenPlanModal(){
-  if (_planModalAutoShown) return;
+  // Verify-first: no picker until the email is confirmed (the poll re-runs this after).
+  if (_planModalAutoShown || !_emailVerified) return;
   _planModalAutoShown = true;
   openPlanModal();
 }
 
 async function choosePlan(quantity, trial){
+  if (!_emailVerified){ promptVerifyFirst(); return; }
   const qty = Math.max(1, Math.min(20, parseInt(quantity, 10) || 1));
   trial = !!trial;
   try {
@@ -380,6 +438,7 @@ async function choosePlan(quantity, trial){
       }),
     });
     if (!res.ok){
+      if (res.status === 403){ promptVerifyFirst(); return; }
       const err = await res.json().catch(() => ({}));
       alert(err.detail || 'Could not start checkout. Please try again.');
       return;
@@ -391,9 +450,19 @@ async function choosePlan(quantity, trial){
   }
 }
 
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePlanModal(); });
+// ── Manage-account popup ──
+function openManageModal(){
+  show('manageOverlay');
+  if (window.lucide) lucide.createIcons();
+}
+function closeManageModal(){ hide('manageOverlay'); }
+
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape'){ closePlanModal(); closeManageModal(); } });
 document.getElementById('planOverlay').addEventListener('click', (e) => {
   if (e.target === e.currentTarget) closePlanModal();
+});
+document.getElementById('manageOverlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeManageModal();
 });
 
 // Reveal-on-scroll, set up after content is shown (cards start in display:none)
@@ -443,7 +512,7 @@ async function resendVerification(){
 }
 
 async function deleteAccount(){
-  if (!confirm('Request account deletion? We will email you a confirmation link — nothing is deleted until you approve it from your inbox.')) return;
+  if (!confirm('Request account deletion? We will email you a confirmation link. Nothing is deleted until you approve it from your inbox.')) return;
   const btn = $('deleteAccountBtn');
   btn.disabled = true;
   try {

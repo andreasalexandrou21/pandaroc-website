@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="dark" />
+<meta name="robots" content="noindex" />
+<title>Page not found · PandaRoc</title>
+<link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/shared/tokens.css" />
+<link rel="stylesheet" href="/pages.css" />
+<style>
+body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:28px; position:relative; }
+.result { width:100%; max-width:430px; text-align:center; }
+.result-brand { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:22px; font-weight:700; font-size:20px; letter-spacing:-0.3px; }
+.result-brand img { height:28px; }
+.result-brand .accent { color:var(--accent); }
+.lost-icon { width:54px; height:54px; border-radius:50%; display:grid; place-items:center; margin:0 auto 18px; background:rgba(255,255,255,0.04); border:1px solid var(--border-strong); color:var(--muted); }
+.lost-icon svg { width:25px; height:25px; }
+.result h1 { font-size:23px; font-weight:800; letter-spacing:-0.02em; margin-bottom:10px; }
+.result .sub { color:var(--muted); font-size:14px; line-height:1.6; margin-bottom:26px; }
+.result-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+<div class="grain-body" aria-hidden="true"></div>
+<div class="grain-coarse" aria-hidden="true"></div>
+<div class="page-glow" aria-hidden="true"></div>
+
+<div class="result">
+  <div class="result-brand"><img src="/assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></div>
+
+  <div class="card-pr">
+    <div class="lost-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v4"/><path d="M11 15h.01"/></svg>
+    </div>
+    <h1>Page not found</h1>
+    <p class="sub">The page you are looking for does not exist or has moved. Head back home, or check the help pages.</p>
+    <div class="result-actions">
+      <a href="/" class="btn btn-primary">Home</a>
+      <a href="/faq.html" class="btn btn-ghost">Help &amp; FAQ</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

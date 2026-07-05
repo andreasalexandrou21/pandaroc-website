@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex" />
 <title>Create your account · PandaRoc</title>
 <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+<script src="https://unpkg.com/lucide@1.23.0/dist/umd/lucide.min.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -195,6 +195,9 @@ async function continueAfterAuth(accessToken){
       }),
     });
     if (co.ok) { const cod = await co.json(); window.location.href = cod.checkout_url; return; }
+    // A fresh account is unverified, so the server declines checkout (403).
+    // Land on the account page, where the verify-first flow takes over.
+    if (co.status === 403) { window.location.href = 'account.html'; return; }
     const cerr = await co.json().catch(() => ({}));
     showError((typeof cerr.detail === 'string') ? cerr.detail : 'Account created, but checkout could not start. Open your account to try again.');
     resetRegBtn();
