@@ -24,6 +24,7 @@ body { display:flex; align-items:center; justify-content:center; min-height:100v
 .done-check svg { width:27px; height:27px; }
 .back-link { text-align:center; margin-top:18px; font-size:13px; }
 </style>
+<script src="/js/actions.js" defer></script>
 </head>
 <body>
 <div class="grain-body" aria-hidden="true"></div>
@@ -63,7 +64,7 @@ body { display:flex; align-items:center; justify-content:center; min-height:100v
           <div class="input-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             <input type="password" id="password" name="password" placeholder="At least 8 characters" autocomplete="new-password" required />
-            <button type="button" class="toggle-pw" aria-label="Show password" onclick="togglePw()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            <button type="button" class="toggle-pw" aria-label="Show password" data-action="togglePw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           </div>
         </div>
         <button type="submit" class="btn btn-primary" id="resBtn" style="width:100%;justify-content:center;">Update password</button>
@@ -80,45 +81,6 @@ body { display:flex; align-items:center; justify-content:center; min-height:100v
   </div>
 </div>
 
-<script>
-const API = 'https://api.pandaroc.com';
-const token = new URLSearchParams(location.search).get('token');
-function $(id){ return document.getElementById(id); }
-function showError(id, msg){ const e = $(id); e.textContent = msg; e.style.display = 'block'; }
-function togglePw(){ const i = $('password'); i.type = i.type === 'password' ? 'text' : 'password'; }
-function showDone(title, msg){ $('requestMode').style.display = 'none'; $('resetMode').style.display = 'none'; $('doneTitle').textContent = title; $('doneMsg').textContent = msg; $('doneMode').style.display = ''; }
-
-if (token){ $('requestMode').style.display = 'none'; $('resetMode').style.display = ''; }
-
-$('requestForm').addEventListener('submit', async (e) => {
-  e.preventDefault(); $('reqError').style.display = 'none';
-  const btn = $('reqBtn'); btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Sending...';
-  try {
-    const res = await fetch(API + '/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: $('email').value.trim() }) });
-    const d = await res.json().catch(() => ({}));
-    // Always the same outcome — we never reveal whether the email is registered.
-    showDone('Check your inbox', (d.detail || 'If that email is registered, a reset link is on its way.') + ' The link expires in 1 hour.');
-  } catch (_){
-    btn.disabled = false; btn.textContent = orig;
-    showError('reqError', 'Could not reach the server. Please try again.');
-  }
-});
-
-$('resetForm').addEventListener('submit', async (e) => {
-  e.preventDefault(); $('resError').style.display = 'none';
-  const pw = $('password').value;
-  if (pw.length < 8){ showError('resError', 'Password must be at least 8 characters.'); return; }
-  const btn = $('resBtn'); btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Updating...';
-  try {
-    const res = await fetch(API + '/auth/reset-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, password: pw }) });
-    const d = await res.json().catch(() => ({}));
-    if (res.ok){ showDone('Password updated', 'You can now log in with your new password.'); }
-    else { btn.disabled = false; btn.textContent = orig; showError('resError', d.detail || 'Could not reset your password.'); }
-  } catch (_){
-    btn.disabled = false; btn.textContent = orig;
-    showError('resError', 'Could not reach the server. Please try again.');
-  }
-});
-</script>
+<script src="/js/reset.js" defer></script>
 </body>
 </html>

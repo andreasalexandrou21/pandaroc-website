@@ -7,7 +7,8 @@
 <meta name="robots" content="noindex" />
 <title>My account · PandaRoc</title>
 <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
-<script src="https://unpkg.com/lucide@1.23.0/dist/umd/lucide.min.js" defer></script>
+<script src="/assets/vendor/lucide.min.js" defer></script>
+<script src="/js/actions.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -55,7 +56,7 @@
 <!-- NAV -->
 <nav class="nav">
   <a href="index.html" class="nav-brand"><img src="assets/logo.png" alt="" /><span><span class="accent">Panda</span>Roc</span></a>
-  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+  <button class="nav-toggle" data-nav-toggle aria-label="Menu">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
   <div class="nav-links">
@@ -77,7 +78,7 @@
   <div class="wrap">
     <div class="crumbs" style="display:flex;align-items:center;justify-content:space-between;">
       <span style="display:inline-flex;align-items:center;gap:9px;"><a href="index.html">Home</a><span class="sep">/</span><span class="here">My account</span></span>
-      <a href="index.html" class="acct-signout" id="signOutBtn" onclick="logout(); return false;" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>Sign out</a>
+      <a href="index.html" class="acct-signout" id="signOutBtn" data-action="logout" data-prevent style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>Sign out</a>
     </div>
     <div>
       <div class="eyebrow">Account</div>
@@ -117,7 +118,7 @@
           <div style="flex:1;min-width:0;">
             <div style="font-weight:600;color:var(--text);margin-bottom:5px;">Confirm your email address</div>
             <p id="verifyCopy" style="font-size:13.5px;color:var(--text-2);line-height:1.6;margin:0 0 14px;">We sent a link to <b id="verifyEmail"></b>. Confirm within 24 hours to keep everything unlocked.</p>
-            <button class="btn btn-ghost" id="resendVerifyBtn" onclick="resendVerification()" style="border-color:color-mix(in oklch, var(--amber9) 32%, transparent);"><i data-lucide="send"></i>Resend verification email</button>
+            <button class="btn btn-ghost" id="resendVerifyBtn" data-action="resendVerification" style="border-color:color-mix(in oklch, var(--amber9) 32%, transparent);"><i data-lucide="send"></i>Resend verification email</button>
           </div>
         </div>
       </div>
@@ -138,8 +139,8 @@
                 <div class="plan-name" id="planName">No active plan</div>
                 <div class="plan-price" id="planMeta"></div>
               </div>
-              <button class="btn btn-primary js-portal" id="managePlanBtn" onclick="openManageModal()" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>Manage plan</button>
-              <button class="btn btn-primary" id="subscribeBtn" onclick="openPlanModal()" style="display:none;">Choose a plan</button>
+              <button class="btn btn-primary js-portal" id="managePlanBtn" data-action="openManageModal" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>Manage plan</button>
+              <button class="btn btn-primary" id="subscribeBtn" data-action="openPlanModal" style="display:none;">Choose a plan</button>
             </div>
             <div class="kv" id="trialKvRow" style="display:none;"><span class="k" id="trialK">Trial ends</span><span class="v" id="trialV"></span></div>
             <div class="kv" id="nameCheckKv" style="display:none;"><span class="k">Name checks</span><span class="v accent">Unlimited, free</span></div>
@@ -158,7 +159,7 @@
           <div class="card-pr reveal" id="billingCard" style="display:none;">
             <div class="card-head"><div class="ct"><i data-lucide="receipt"></i>Billing</div></div>
             <p style="font-size:13.5px;color:var(--text-2);line-height:1.6;margin-bottom:18px;">View your invoices, update your payment method or change plan in the secure billing portal.</p>
-            <button class="btn btn-ghost js-portal" onclick="openManageModal()" style="width:100%;justify-content:center;"><i data-lucide="credit-card"></i>Manage billing &amp; invoices</button>
+            <button class="btn btn-ghost js-portal" data-action="openManageModal" style="width:100%;justify-content:center;"><i data-lucide="credit-card"></i>Manage billing &amp; invoices</button>
           </div>
         </div>
 
@@ -196,11 +197,11 @@
             <div class="card-head"><div class="ct" style="color:var(--amber9);"><i data-lucide="alert-triangle"></i>Danger zone</div></div>
             <div id="cancelBlock" style="display:none;">
               <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Cancelling stops billing at the end of the current period. Your installs keep working until then.</p>
-              <button class="btn btn-ghost js-portal" onclick="openBillingPortal('cancel')" style="color:var(--tc11);border-color:color-mix(in oklch,var(--accent) 30%,transparent);">Cancel subscription</button>
+              <button class="btn btn-ghost js-portal" data-action="openBillingPortal" data-args="cancel" style="color:var(--tc11);border-color:color-mix(in oklch,var(--accent) 30%,transparent);">Cancel subscription</button>
               <div style="height:1px;background:var(--border);margin:22px 0;"></div>
             </div>
             <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">Deleting your account is permanent: it cancels your subscription and removes your devices and saved settings. We'll email you a link to confirm. Nothing is deleted until you approve it from your inbox.</p>
-            <button class="btn btn-ghost" id="deleteAccountBtn" onclick="deleteAccount()" style="color:#ef6a5e;border-color:color-mix(in oklch, #ef6a5e 34%, transparent);"><i data-lucide="trash-2"></i>Delete account</button>
+            <button class="btn btn-ghost" id="deleteAccountBtn" data-action="deleteAccount" style="color:#ef6a5e;border-color:color-mix(in oklch, #ef6a5e 34%, transparent);"><i data-lucide="trash-2"></i>Delete account</button>
             <p id="deleteRequested" style="display:none;font-size:13px;color:var(--tc11);line-height:1.6;margin-top:14px;"><b>Check your inbox.</b> We've sent a confirmation link. The deletion only happens once you press Delete on the page it opens. The link expires in 1 hour.</p>
           </div>
         </div>
@@ -212,27 +213,27 @@
 <!-- Plan picker (no active plan: choose tier or quantity, straight to checkout) -->
 <div class="plan-overlay" id="planOverlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="planTitle">
   <div class="plan-modal card-pr">
-    <button class="plan-close" onclick="closePlanModal()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <button class="plan-close" data-action="closePlanModal" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     <div class="card-head" style="margin-bottom:0;"><div class="ct"><i data-lucide="sparkles"></i>Choose your plan</div></div>
     <p class="plan-sub" id="planTitle">Pay for the ROC account slots you use. Every plan includes both agents, free name checks and auto-updates. Cancel anytime.</p>
     <div class="plan-rows">
-      <button class="plan-row" onclick="choosePlan(1, false)"><span class="pn">Starter</span><span class="pq">1 ROC account</span><span class="pp">&euro;29<small>/mo</small></span></button>
-      <button class="plan-row" onclick="choosePlan(5, false)"><span class="pn">Small Firm<em>Popular</em></span><span class="pq">5 ROC accounts</span><span class="pp">&euro;99<small>/mo</small></span></button>
-      <button class="plan-row" onclick="choosePlan(10, false)"><span class="pn">Professional</span><span class="pq">10 ROC accounts</span><span class="pp">&euro;179<small>/mo</small></span></button>
-      <button class="plan-row" onclick="choosePlan(20, false)"><span class="pn">Firm</span><span class="pq">20 ROC accounts</span><span class="pp">&euro;299<small>/mo</small></span></button>
+      <button class="plan-row" data-action="choosePlan" data-args="1,false"><span class="pn">Starter</span><span class="pq">1 ROC account</span><span class="pp">&euro;29<small>/mo</small></span></button>
+      <button class="plan-row" data-action="choosePlan" data-args="5,false"><span class="pn">Small Firm<em>Popular</em></span><span class="pq">5 ROC accounts</span><span class="pp">&euro;99<small>/mo</small></span></button>
+      <button class="plan-row" data-action="choosePlan" data-args="10,false"><span class="pn">Professional</span><span class="pq">10 ROC accounts</span><span class="pp">&euro;179<small>/mo</small></span></button>
+      <button class="plan-row" data-action="choosePlan" data-args="20,false"><span class="pn">Firm</span><span class="pq">20 ROC accounts</span><span class="pp">&euro;299<small>/mo</small></span></button>
     </div>
     <div class="plan-extra">
       <label for="planQty">Different number?</label>
       <input id="planQty" type="number" min="1" max="20" value="3" />
       <span>accounts</span>
-      <button class="btn btn-ghost" style="margin-left:auto;" onclick="choosePlan(document.getElementById('planQty').value, false)">Buy now</button>
+      <button class="btn btn-ghost" style="margin-left:auto;" data-action="choosePlan" data-arg-from="#planQty" data-args="false">Buy now</button>
     </div>
     <div class="plan-extra">
       <div style="flex:1;min-width:200px;">
         <div style="color:var(--text);font-weight:600;font-size:13.5px;margin-bottom:3px;">Not sure yet?</div>
         <div class="plan-trial-note">7 days of full access with 3 ROC accounts. Card required, no charge until the trial ends.</div>
       </div>
-      <button class="btn btn-primary" onclick="choosePlan(3, true)">Start free trial</button>
+      <button class="btn btn-primary" data-action="choosePlan" data-args="3,true">Start free trial</button>
     </div>
   </div>
 </div>
@@ -240,14 +241,14 @@
 <!-- Manage account (each row opens the matching screen of the Stripe billing portal) -->
 <div class="plan-overlay" id="manageOverlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="manageTitle">
   <div class="plan-modal card-pr">
-    <button class="plan-close" onclick="closeManageModal()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <button class="plan-close" data-action="closeManageModal" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     <div class="card-head" style="margin-bottom:0;"><div class="ct"><i data-lucide="settings-2"></i>Manage plan &amp; billing</div></div>
     <p class="plan-sub" id="manageTitle">Pick what you want to do. Each option opens the secure billing portal.</p>
     <div class="plan-rows">
-      <button class="plan-row js-portal" onclick="openBillingPortal('update')"><span class="pn">Change plan or accounts</span><span class="pq">Switch tier or adjust your ROC account count</span></button>
-      <button class="plan-row js-portal" onclick="openBillingPortal('payment_method_update')"><span class="pn">Update payment method</span><span class="pq">Change the card on file</span></button>
-      <button class="plan-row js-portal" onclick="openBillingPortal()"><span class="pn">Invoices and billing history</span><span class="pq">View and download past invoices</span></button>
-      <button class="plan-row js-portal" onclick="openBillingPortal('cancel')"><span class="pn">Cancel subscription</span><span class="pq">Billing stops at the end of the current period</span></button>
+      <button class="plan-row js-portal" data-action="openBillingPortal" data-args="update"><span class="pn">Change plan or accounts</span><span class="pq">Switch tier or adjust your ROC account count</span></button>
+      <button class="plan-row js-portal" data-action="openBillingPortal" data-args="payment_method_update"><span class="pn">Update payment method</span><span class="pq">Change the card on file</span></button>
+      <button class="plan-row js-portal" data-action="openBillingPortal"><span class="pn">Invoices and billing history</span><span class="pq">View and download past invoices</span></button>
+      <button class="plan-row js-portal" data-action="openBillingPortal" data-args="cancel"><span class="pn">Cancel subscription</span><span class="pq">Billing stops at the end of the current period</span></button>
     </div>
   </div>
 </div>
@@ -269,284 +270,6 @@
 </footer>
 
 <script src="auth.js"></script>
-<script>
-// Slot-count to published tier (mirrors the pricing tiers on index.html).
-const TIERS = { 1:'Starter', 5:'Small Firm', 10:'Professional', 20:'Firm' };
-
-function $(id){ return document.getElementById(id); }
-function show(id){ const el=$(id); if(el) el.style.display=''; }
-function hide(id){ const el=$(id); if(el) el.style.display='none'; }
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function statusLabel(s){
-  return { active:'Active', trial:'Trial', trialing:'Trial', past_due:'Past due', expired:'Expired', canceled:'Cancelled', none:'None' }[s] || 'None';
-}
-function fmtDate(v){ try { return new Date(v).toLocaleDateString(undefined, { day:'numeric', month:'long', year:'numeric' }); } catch(e){ return ''; } }
-
-async function init(){
-  const token = localStorage.getItem('pandaroc_token') || localStorage.getItem('pandaroc_refresh');
-  if (!token){ showLoggedOut(); return; }
-  try {
-    const res = await authFetch('/auth/me');
-    if (!res.ok){ clearTokens(); showLoggedOut(); return; }
-    renderAccount(await res.json());
-  } catch (e){
-    hide('loading'); show('error-state');
-  }
-}
-
-function showLoggedOut(){
-  hide('loading'); hide('account-content'); hide('signOutBtn');
-  show('login-prompt');
-  if (window.lucide) lucide.createIcons();
-}
-
-function renderAccount(data){
-  hide('loading'); hide('login-prompt'); hide('error-state');
-  show('account-content'); show('signOutBtn'); show('dangerCard');
-
-  // Greeting
-  const first = (data.name || '').trim().split(/\s+/)[0];
-  if (first) $('acctHeading').innerHTML = 'Welcome back, <em>' + escapeHtml(first) + '.</em>';
-  else $('acctHeading').textContent = 'Your account';
-  $('acctLead').textContent = 'Your subscription, plan and downloads, all in one place.';
-
-  // Account details
-  if (first){ $('accHolder').textContent = data.name; show('holderRow'); } else { hide('holderRow'); }
-  $('accEmail').textContent = data.email || 'Not set';
-
-  // Email verification prompt (only while unverified)
-  _emailVerified = data.email_verified !== false;
-  _accountEmail = data.email || 'your address';
-  if (!_emailVerified){
-    show('verifyBanner');
-    // Accounts created before enforcement day are grandfathered server-side
-    // (license server EMAIL_VERIFY_ENFORCE_FROM): nothing ever locks for them,
-    // so no 24-hour claim, no hero takeover and no poll.
-    const enforced = !data.created_at || new Date(data.created_at) >= new Date('2026-07-06T00:00:00Z');
-    _verifyEnforced = enforced;
-    if (enforced){
-      // Verify-first: the hero leads with the deadline; the banner carries the
-      // consequence and the resend action (not the same sentence twice).
-      $('acctHeading').innerHTML = 'Confirm your <em>email.</em>';
-      $('acctLead').textContent = 'We sent a link to ' + _accountEmail + '. Confirm within 24 hours to keep everything unlocked.';
-      $('verifyCopy').innerHTML = 'The desktop app locks 24 hours after sign-up until you confirm. Can\'t find the email? Check your spam folder, or resend it below.';
-      startVerifyPoll();
-    } else {
-      // Grandfathered accounts never lock and can still subscribe: plain nudge only.
-      $('verifyCopy').innerHTML = 'Please confirm <b>' + escapeHtml(_accountEmail) + '</b>. Use the link we sent, or resend it below.';
-    }
-  } else {
-    hide('verifyBanner');
-    stopVerifyPoll();
-  }
-
-  // Subscription status
-  const status = data.subscription_status || 'none';
-  const isTrial = status === 'trial' || status === 'trialing';
-  const hasSub  = status === 'active' || status === 'past_due' || isTrial;
-  const slots   = data.slot_count | 0;
-
-  const variant = status === 'active' ? '' : isTrial ? 'trial' : status === 'past_due' ? 'pastdue' : status === 'expired' ? 'expired' : 'none';
-  const badge = $('subBadge');
-  badge.className = 'badge-live ' + variant;
-  badge.innerHTML = '<span class="dot"></span>' + statusLabel(status);
-
-  if (hasSub){
-    $('planName').textContent = TIERS[slots] || (slots > 0 ? slots + '-account plan' : 'Active plan');
-    $('planMeta').innerHTML = slots > 0 ? '<b>' + slots + '</b> ROC account' + (slots !== 1 ? 's' : '') : '';
-    show('managePlanBtn'); hide('subscribeBtn');
-    show('billingCard'); show('cancelBlock'); show('nameCheckKv');
-  } else {
-    $('planName').textContent = status === 'expired' ? 'Subscription expired' : 'No active plan';
-    $('planMeta').textContent = 'Start with a 7-day free trial';
-    hide('managePlanBtn'); show('subscribeBtn');
-    hide('billingCard'); hide('cancelBlock'); hide('nameCheckKv');
-    // No plan yet (e.g. fresh sign-up): drop the user straight into the picker.
-    maybeAutoOpenPlanModal();
-  }
-
-  // Trial: end date + time left. Renewal date for paid plans.
-  if (isTrial && data.trial_ends_at){
-    const daysLeft = Math.max(0, Math.ceil((new Date(data.trial_ends_at) - Date.now()) / 86400000));
-    $('trialK').textContent = 'Trial ends';
-    $('trialV').textContent = fmtDate(data.trial_ends_at)
-      + ' · ' + (daysLeft === 0 ? 'today' : daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' left');
-    show('trialKvRow');
-  } else if (hasSub && data.current_period_end){
-    $('trialK').textContent = 'Renews';
-    $('trialV').textContent = fmtDate(data.current_period_end);
-    show('trialKvRow');
-  } else {
-    hide('trialKvRow');
-  }
-
-  if (window.lucide) lucide.createIcons();
-  revealCards();
-}
-
-// ── Email verification (verify-first) ──
-let _emailVerified = true;
-// Accounts created before the server's enforcement day (2026-07-06) are
-// grandfathered: the server never locks them or blocks their checkout.
-let _verifyEnforced = true;
-let _accountEmail = 'your address';
-let _verifyPoll = null;
-
-function promptVerifyFirst(){
-  alert('Please confirm your email address first. We sent a link to ' + _accountEmail + '. Once confirmed, you can choose a plan.');
-}
-
-// Poll /auth/me every 5s while unverified; restore the normal view once confirmed.
-function startVerifyPoll(){
-  if (_verifyPoll) return;
-  _verifyPoll = setInterval(async () => {
-    try {
-      const res = await authFetch('/auth/me');
-      if (!res.ok) return;
-      const data = await res.json();
-      if (data.email_verified !== false){ stopVerifyPoll(); renderAccount(data); }
-    } catch (e){ /* transient network error: keep polling */ }
-  }, 5000);
-}
-function stopVerifyPoll(){ if (_verifyPoll){ clearInterval(_verifyPoll); _verifyPoll = null; } }
-
-// ── Plan picker ──
-let _planModalAutoShown = false;
-
-function openPlanModal(){
-  if (!_emailVerified && _verifyEnforced){ promptVerifyFirst(); return; }
-  show('planOverlay');
-  if (window.lucide) lucide.createIcons();
-}
-function closePlanModal(){ hide('planOverlay'); }
-
-function maybeAutoOpenPlanModal(){
-  // Verify-first: no picker until the email is confirmed (the poll re-runs this after).
-  if (_planModalAutoShown || (!_emailVerified && _verifyEnforced)) return;
-  _planModalAutoShown = true;
-  openPlanModal();
-}
-
-async function choosePlan(quantity, trial){
-  if (!_emailVerified && _verifyEnforced){ promptVerifyFirst(); return; }
-  const qty = Math.max(1, Math.min(20, parseInt(quantity, 10) || 1));
-  trial = !!trial;
-  try {
-    const res = await authFetch('/stripe/create-checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        quantity: qty,
-        trial: trial,
-        success_url: window.location.origin + '/success.html' + (trial ? '?trial=1' : ''),
-        cancel_url: window.location.origin + '/cancel.html',
-      }),
-    });
-    if (!res.ok){
-      if (res.status === 403){ promptVerifyFirst(); return; }
-      const err = await res.json().catch(() => ({}));
-      alert(err.detail || 'Could not start checkout. Please try again.');
-      return;
-    }
-    const d = await res.json();
-    window.location.href = d.checkout_url;
-  } catch (e){
-    alert('Could not reach the server.');
-  }
-}
-
-// ── Manage-account popup ──
-function openManageModal(){
-  show('manageOverlay');
-  if (window.lucide) lucide.createIcons();
-}
-function closeManageModal(){ hide('manageOverlay'); }
-
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape'){ closePlanModal(); closeManageModal(); } });
-document.getElementById('planOverlay').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) closePlanModal();
-});
-document.getElementById('manageOverlay').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) closeManageModal();
-});
-
-// Reveal-on-scroll, set up after content is shown (cards start in display:none)
-function revealCards(){
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const cards = document.querySelectorAll('#account-content .reveal');
-  if (reduce){ cards.forEach(c => c.classList.add('visible')); return; }
-  const io = new IntersectionObserver((es) => {
-    es.forEach(e => { if (e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
-  }, { threshold: 0.12 });
-  cards.forEach(c => io.observe(c));
-}
-
-async function openBillingPortal(flow){
-  const btns = [...document.querySelectorAll('.js-portal')];
-  btns.forEach(b => b.disabled = true);
-  try {
-    const opts = { method: 'POST' };
-    if (flow){ opts.headers = { 'Content-Type': 'application/json' }; opts.body = JSON.stringify({ flow }); }
-    const res = await authFetch('/stripe/portal', opts);
-    if (res.ok){ const d = await res.json(); window.location.href = d.portal_url; return; }
-    const err = await res.json().catch(() => ({}));
-    alert(err.detail || 'Could not open the billing portal.');
-  } catch (e){
-    alert('Could not reach the server.');
-  }
-  btns.forEach(b => b.disabled = false);
-}
-
-async function resendVerification(){
-  const btn = $('resendVerifyBtn');
-  const orig = btn.innerHTML;
-  btn.disabled = true;
-  try {
-    const res = await authFetch('/auth/resend-verification', { method: 'POST' });
-    const d = await res.json().catch(() => ({}));
-    if (res.ok){
-      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>' + escapeHtml(d.detail || 'Verification email sent');
-    } else {
-      btn.disabled = false; btn.innerHTML = orig;
-      alert(d.detail || 'Could not send the verification email.');
-    }
-  } catch (e){
-    btn.disabled = false; btn.innerHTML = orig;
-    alert('Could not reach the server.');
-  }
-}
-
-async function deleteAccount(){
-  if (!confirm('Request account deletion? We will email you a confirmation link. Nothing is deleted until you approve it from your inbox.')) return;
-  const btn = $('deleteAccountBtn');
-  btn.disabled = true;
-  try {
-    const res = await authFetch('/auth/request-deletion', { method: 'POST' });
-    const d = await res.json().catch(() => ({}));
-    if (res.ok){
-      show('deleteRequested');
-    } else {
-      btn.disabled = false;
-      alert(d.detail || 'Could not start the deletion. Please contact support@pandaroc.com.');
-    }
-  } catch (e){
-    btn.disabled = false;
-    alert('Could not reach the server.');
-  }
-}
-
-function logout(){ clearTokens(); window.location.href = 'index.html'; }
-
-// Scroll progress bar
-const progress = $('scrollProgress');
-window.addEventListener('scroll', () => {
-  const y = window.scrollY, h = document.documentElement.scrollHeight - window.innerHeight;
-  if (progress) progress.style.width = Math.min(100, (y / Math.max(h, 1)) * 100) + '%';
-}, { passive: true });
-
-document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', () => document.querySelector('.nav-links').classList.remove('open')));
-document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
-init();
-</script>
+<script src="/js/account.js" defer></script>
 </body>
 </html>

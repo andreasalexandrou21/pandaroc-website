@@ -16,6 +16,20 @@ function clearTokens() {
   localStorage.removeItem('pandaroc_license_key');
 }
 
+// Sign out for real. clearTokens() alone only deletes THIS browser's copy — a
+// refresh token already lifted off the machine stayed valid for 30 days after
+// the user pressed Sign out. /auth/logout bumps the account's token epoch, which
+// retires every web session server-side. Local tokens are cleared either way, so
+// a failed request never traps the user in a signed-in UI.
+async function logoutEverywhere() {
+  try {
+    await authFetch('/auth/logout', { method: 'POST' });
+  } catch (e) {
+    /* offline or API down — clear locally regardless */
+  }
+  clearTokens();
+}
+
 function getAccessToken() {
   return localStorage.getItem('pandaroc_token');
 }

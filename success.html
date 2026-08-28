@@ -33,6 +33,7 @@ body { display:flex; align-items:center; justify-content:center; min-height:100v
 .step-desc strong { color:var(--text-2); }
 .result-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:26px; }
 </style>
+<script src="/js/actions.js" defer></script>
 </head>
 <body>
 <div class="grain-body" aria-hidden="true"></div>
@@ -56,7 +57,7 @@ body { display:flex; align-items:center; justify-content:center; min-height:100v
     </div>
 
     <div class="result-actions">
-      <a href="index.html#download" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download app</a>
+      <a id="download-btn" href="index.html#download" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download app</a>
       <a href="account.html" class="btn btn-ghost">My account</a>
     </div>
 
@@ -64,18 +65,6 @@ body { display:flex; align-items:center; justify-content:center; min-height:100v
   </div>
 </div>
 
-<script>
-const params = new URLSearchParams(window.location.search);
-const isTrial = params.get('trial') === '1';
-function $(id){ return document.getElementById(id); }
-
-if (isTrial){
-  $('success-title').textContent = 'Your trial is live!';
-  $('success-msg').textContent = "You have 7 days of full access with 3 ROC accounts, and no charge until your trial ends. Cancel anytime from your account. Download the app and log in with your account email.";
-} else {
-  $('success-title').textContent = 'Payment successful!';
-  $('success-msg').textContent = 'Your subscription is active. Download the app and log in with your account email and password to get started.';
-}
-</script>
+<script src="/js/success.js" defer></script>
 </body>
 </html>

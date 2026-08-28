@@ -7,7 +7,8 @@
 <meta name="robots" content="noindex" />
 <title>Log in · PandaRoc</title>
 <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
-<script src="https://unpkg.com/lucide@1.23.0/dist/umd/lucide.min.js" defer></script>
+<script src="/assets/vendor/lucide.min.js" defer></script>
+<script src="/js/actions.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -84,7 +85,7 @@
           <div class="input-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             <input type="password" id="password" name="password" placeholder="Your password" autocomplete="current-password" required />
-            <button type="button" class="toggle-pw" aria-label="Show password" onclick="togglePw('password', this)"><i data-lucide="eye"></i></button>
+            <button type="button" class="toggle-pw" aria-label="Show password" data-action="togglePw" data-args="password" data-arg-self><i data-lucide="eye"></i></button>
           </div>
         </div>
 
@@ -102,54 +103,6 @@
 </div>
 
 <script src="auth.js"></script>
-<script>
-const API = 'https://api.pandaroc.com';
-
-document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
-
-function togglePw(id, btn){
-  const inp = document.getElementById(id);
-  const show = inp.type === 'password';
-  inp.type = show ? 'text' : 'password';
-  btn.innerHTML = show
-    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.2A9.1 9.1 0 0 1 12 4c7 0 10 8 10 8a18 18 0 0 1-2.2 3.2M6.6 6.6A18 18 0 0 0 2 12s3 8 10 8a9 9 0 0 0 4.3-1.1"/><path d="m2 2 20 20"/></svg>'
-    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg>';
-  if (window.lucide) lucide.createIcons();
-}
-
-function showError(msg){
-  const el = document.getElementById('loginError');
-  el.innerHTML = msg;
-  el.style.display = 'block';
-}
-
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const btn = document.getElementById('loginBtn');
-  document.getElementById('loginError').style.display = 'none';
-  btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = 'Logging in...';
-  try {
-    const res = await fetch(API + '/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: document.getElementById('email').value.trim(),
-        password: document.getElementById('password').value,
-      }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      showError(data.detail || 'Invalid email or password.');
-      btn.disabled = false; btn.textContent = btn.dataset.label;
-      return;
-    }
-    saveTokens(data);
-    window.location.href = 'account.html';
-  } catch (err) {
-    showError('Could not reach the server. Please try again.');
-    btn.disabled = false; btn.textContent = btn.dataset.label;
-  }
-});
-</script>
+<script src="/js/login.js" defer></script>
 </body>
 </html>

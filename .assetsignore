@@ -1,0 +1,15 @@
+# `assets.directory` is the repo root, so everything here would otherwise be
+# published verbatim — including .git (confirmed live at /.git/config).
+.git
+.gitignore
+.assetsignore
+.dev.vars*
+.env*
+.wrangler
+.playwright-mcp
+.impeccable
+wrangler.jsonc
+node_modules
+package.json
+package-lock.json
+*.md
