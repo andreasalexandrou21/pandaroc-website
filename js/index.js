@@ -109,6 +109,20 @@ motionLoop();
 
 document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.nav-links').classList.remove('open')));
 
+// Every success path here navigates away, so the button is left disabled on
+// purpose. Back/forward then restores the page from the bfcache with the DOM
+// exactly as it was, leaving that button reading "Redirecting…" and, worse,
+// still pointer-events:none, so it is unclickable until a hard reload.
+// pageshow fires on both a fresh load and a bfcache restore, so reset there.
+function restoreCheckoutButtons(){
+  document.querySelectorAll('[data-checkout-label]').forEach(b => {
+    b.textContent = b.dataset.checkoutLabel;
+    b.style.pointerEvents = '';
+    delete b.dataset.checkoutLabel;
+  });
+}
+window.addEventListener('pageshow', restoreCheckoutButtons);
+
 // ── Stripe checkout (quantity = ROC account slots; trial optional) ──
 // PANDAROC_API + authFetch come from auth.js. The license server holds the per-account price.
 async function startCheckout(quantity, trial){
@@ -119,7 +133,7 @@ async function startCheckout(quantity, trial){
   // and the next line then threw on document.style.
   const btn = (this && this.nodeType === 1) ? this : null;
   const original = btn ? btn.textContent : '';
-  if (btn){ btn.style.pointerEvents = 'none'; btn.textContent = 'Redirecting…'; }
+  if (btn){ btn.dataset.checkoutLabel = original; btn.style.pointerEvents = 'none'; btn.textContent = 'Redirecting…'; }
   try {
     const successUrl = window.location.origin + '/success.html' + (trial ? '?trial=1' : '');
     const res = await authFetch('/stripe/create-checkout', {
@@ -147,6 +161,6 @@ async function startCheckout(quantity, trial){
     window.location.href = data.checkout_url;
   } catch (e){
     alert(e.message || 'Could not start checkout. Please try again.');
-    if (btn){ btn.style.pointerEvents = ''; btn.textContent = original; }
+    restoreCheckoutButtons();
   }
 }
